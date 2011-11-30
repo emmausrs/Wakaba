@@ -1,0 +1,33 @@
+#
+# Global stuff
+#
+
+*~
+*.bak
+*.swp
+.DS_store
+thumbs.db
+.git/
+
+#
+# Wakaba-specific stuff
+#
+
+.htaccess
+
+# SQL files
+*.sql
+
+# Configuration
+config.pl
+
+# Images/threads
+/*.html
+/arch/*
+/res/*
+/thumb/*
+/src/*
+/redir/
+
+# Error logs
+errorlog.txt
