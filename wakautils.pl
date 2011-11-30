@@ -1197,11 +1197,14 @@ sub make_thumbnail($$$$$;$)
 
 	# first try ImageMagick
 
-	my $magickname=$filename;
-	$magickname.="[0]" if($magickname=~/\.gif$/);
+	# We use -sample for GIFs because it's fast.
+	# Using -sample on a 190-frame animated GIF takes 0.07 seconds on my i5
+	# system, unlike using -resize which takes 5.80 seconds.
+
+	my $method=($filename=~/\.gif$/)?"sample":"resize";
 
 	$convert="convert" unless($convert);
-	`$convert -background white -flatten -size ${width}x${height} -geometry ${width}x${height}! -quality $quality $magickname $thumbnail`;
+	`$convert -$method ${width}x${height}! -quality $quality $filename $thumbnail`;
 
 	return 1 unless($?);
 
@@ -1238,12 +1241,20 @@ sub make_thumbnail($$$$$;$)
 
 		$magick=Image::Magick->new;
 
-		$res=$magick->Read($magickname);
+		$res=$magick->Read($filename);
 		return 0 if "$res";
-		$res=$magick->Scale(width=>$width, height=>$height);
-		#return 0 if "$res";
+
+		if ($filename=~/\.gif$/)
+		{
+			# Untested
+			$res=$magick->Sample(width=>$width, height=>$height);
+		}
+		else
+		{
+			$res=$magick->Scale(width=>$width, height=>$height);
+		}
+
 		$res=$magick->Write(filename=>$thumbnail, quality=>$quality);
-		#return 0 if "$res";
 
 		return 1;
 	}

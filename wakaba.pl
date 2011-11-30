@@ -969,7 +969,7 @@ sub process_file($$$)
 	# generate random filename - fudges the microseconds
 	my $filebase=$time.sprintf("%03d",int(rand(1000)));
 	my $filename=IMG_DIR.$filebase.'.'.$ext;
-	my $thumbnail=THUMB_DIR.$filebase."s.jpg";
+	my $thumbnail=THUMB_DIR.$filebase."s.$ext";
 	$filename.=MUNGE_UNKNOWN unless($known);
 
 	# do copying and MD5 checksum
