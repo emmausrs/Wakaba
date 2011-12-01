@@ -279,7 +279,7 @@ sub compile_template($;$)
 		$str=~s/\n\s*/ /sg;
 	}
 
-	while($str=~m!(.*?)(<(/?)(var|const|if|loop)(?:|\s+(.*?[^\\]))>|$)!sg)
+	while($str=~m!(.*?)(<(/?)(var|const|if|elsif|else|loop)(?:|\s+(.*?[^\\]))>|$)!sg)
 	{
 		my ($html,$tag,$closing,$name,$args)=($1,$2,$3,$4,$5);
 
@@ -299,6 +299,8 @@ sub compile_template($;$)
 				if($name eq 'var') { $code.='$res.=eval{'.$args.'};' }
 				elsif($name eq 'const') { my $const=eval $args; $const=~s/(['\\])/\\$1/g; $code.='$res.=\''.$const.'\';' }
 				elsif($name eq 'if') { $code.='if(eval{'.$args.'}){' }
+				elsif($name eq 'elsif') { $code.='}elsif(eval{'.$args.'}){' }
+				elsif($name eq 'else') { $code.='}else{' }
 				elsif($name eq 'loop')
 				{ $code.='my $__a=eval{'.$args.'};if($__a){for(@$__a){my %__v=%{$_};my %__ov;for(keys %__v){$__ov{$_}=$$_;$$_=$__v{$_};}' }
 			}

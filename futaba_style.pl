@@ -36,8 +36,8 @@ form .trap { display:none }
 <script type="text/javascript">var style_cookie="<const STYLE_COOKIE>";</script>
 <script type="text/javascript" src="<var expand_filename(JS_FILE)>"></script>
 </head>
-<if $thread><body class="replypage"></if>
-<if !$thread><body></if>
+<if $thread><body class="replypage">
+<else><body></if>
 
 }.include("include/header.html").q{
 
