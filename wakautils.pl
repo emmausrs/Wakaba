@@ -709,13 +709,10 @@ sub resolve_ip($)
 sub check_dnsbl($@)
 {
 	my ($ip,@dnsbl)=@_;
-	open my $file, ">errorlog.txt";
-	print $file "Test: @dnsbl\n";
 
 	foreach my $bl (@dnsbl)
 	{
 		my $lookup=sprintf("%s.%s", reverse_ip($ip), $bl);
-		print $file "$lookup\n"; # DEBUG
 		return 1 if resolve_ip($lookup);
 	}
 }
