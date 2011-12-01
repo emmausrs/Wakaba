@@ -75,7 +75,7 @@
 
 # Proxy
 #use constant ENABLE_PROXY_CHECK => 0;			# Enable proxy checking (0: no, 1:yes). Please read the documentation first!
-#use constant PROXY_COMMAND => 'proxycheck -s -d CHANGEME -c chat:CHANGEME ESMTP" -aaaa';	# Only uncomment if you know what you're doing... 
+#use constant PROXY_BLACKLISTS => ();			# List of DNSBLs to check IPs against, as a Perl list.
 #use constant PROXY_WHITE_AGE => 604800;		# Seconds until confirmed non-proxy entry expires.
 #use constant PROXY_BLACK_AGE => 604800;		# Seconds until confirmed proxy entry expires.
 

@@ -717,14 +717,14 @@ sub proxy_check($)
 	}
 	else
 	{	# unknown IP, check for proxy
-		my $command = PROXY_COMMAND . " " . $ip;
 		$sth=$dbh->prepare("INSERT INTO ".SQL_PROXY_TABLE." VALUES(null,?,?,?,?);") or make_error(S_SQLFAIL);
 
-		if(`$command`)
+		my @dnsbl=PROXY_BLACKLISTS;
+		if(check_dnsbl($ip,@dnsbl) or check_tor($ip))
 		{
 			$sth->execute('black',$ip,$timestamp,$date) or make_error(S_SQLFAIL);
 			make_error(S_PROXY);
-		} 
+		}
 		else
 		{
 			$sth->execute('white',$ip,$timestamp,$date) or make_error(S_SQLFAIL);
