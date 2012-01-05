@@ -42,6 +42,8 @@ if(CONVERT_CHARSETS)
 
 my $protocol_re=qr/(?:http|https|ftp|mailto|nntp)/;
 
+my $ipv6_re=ipv6_regexp();
+
 my $dbh=DBI->connect(SQL_DBI_SOURCE,SQL_USERNAME,SQL_PASSWORD,{AutoCommit=>1}) or make_error(S_SQLCONF);
 
 return 1 if(caller); # stop here if we're being called externally
@@ -117,8 +119,9 @@ elsif($task eq "deleteall")
 {
 	my $admin=$query->param("admin");
 	my $ip=$query->param("ip");
+	my $ipv6=$ip=~/\:/?1:$query->param("ipv6")?1:0;
 	my $mask=$query->param("mask");
-	delete_all($admin,parse_range($ip,$mask));
+	delete_all($admin,parse_range($ip,$mask,$ipv6),$ipv6);
 }
 elsif($task eq "bans")
 {
@@ -131,8 +134,9 @@ elsif($task eq "addip")
 	my $type=$query->param("type");
 	my $comment=$query->param("comment");
 	my $ip=$query->param("ip");
+	my $ipv6=$ip=~/\:/?1:$query->param("ipv6")?1:0;
 	my $mask=$query->param("mask");
-	add_admin_entry($admin,$type,$comment,parse_range($ip,$mask),'');
+	add_admin_entry($admin,$type,$comment,parse_range($ip,$mask,$ipv6),$ipv6);
 }
 elsif($task eq "addstring")
 {
@@ -464,6 +468,7 @@ sub post_stuff($$$$$$$$$$$$$$)
 
 	# find IP
 	my $ip=$ENV{REMOTE_ADDR};
+	my $ipv6=$ip=~/\:/ ? 1 : 0;
 
 	#$host = gethostbyaddr($ip);
 	my $numip=dot_to_dec($ip);
@@ -474,14 +479,14 @@ sub post_stuff($$$$$$$$$$$$$$)
 	my $c_password=$password;
 
 	# check if IP is whitelisted
-	my $whitelisted=is_whitelisted($numip);
+	my $whitelisted=is_whitelisted($numip,$ipv6);
 
 	# process the tripcode - maybe the string should be decoded later
 	my $trip;
 	($name,$trip)=process_tripcode($name,TRIPKEY,SECRET,CHARSET);
 
 	# check for bans
-	ban_check($numip,$c_name,$subject,$comment) unless $whitelisted;
+	ban_check($numip,$c_name,$subject,$comment,$ipv6) unless $whitelisted;
 
 	# spam check
 	spam_engine(
@@ -552,8 +557,8 @@ sub post_stuff($$$$$$$$$$$$$$)
 	my ($filename,$md5,$width,$height,$thumbnail,$tn_width,$tn_height)=process_file($file,$uploadname,$time) if($file);
 
 	# finally, write to the database
-	my $sth=$dbh->prepare("INSERT INTO ".SQL_TABLE." VALUES(null,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);") or make_error(S_SQLFAIL);
-	$sth->execute($parent,$time,$lasthit,$numip,
+	my $sth=$dbh->prepare("INSERT INTO ".SQL_TABLE." VALUES(null,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);") or make_error(S_SQLFAIL);
+	$sth->execute($parent,$time,$lasthit,$numip,$ipv6,
 	$date,$name,$trip,$email,$subject,$password,$comment,
 	$filename,$size,$md5,$width,$height,$thumbnail,$tn_width,$tn_height) or make_error(S_SQLFAIL);
 
@@ -603,13 +608,13 @@ sub post_stuff($$$$$$$$$$$$$$)
 	make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
 }
 
-sub is_whitelisted($)
+sub is_whitelisted($$)
 {
-	my ($numip)=@_;
+	my ($numip,$ipv6)=@_;
 	my ($sth);
 
-	$sth=$dbh->prepare("SELECT count(*) FROM ".SQL_ADMIN_TABLE." WHERE type='whitelist' AND ? & ival2 = ival1 & ival2;") or make_error(S_SQLFAIL);
-	$sth->execute($numip) or make_error(S_SQLFAIL);
+	$sth=$dbh->prepare("SELECT count(*) FROM ".SQL_ADMIN_TABLE." WHERE type='whitelist' AND sval1=? AND ? & ival2 = ival1 & ival2;") or make_error(S_SQLFAIL);
+	$sth->execute($ipv6,$numip) or make_error(S_SQLFAIL);
 
 	return 1 if(($sth->fetchrow_array())[0]);
 
@@ -630,11 +635,11 @@ sub is_trusted($)
 
 sub ban_check($$$$)
 {
-	my ($numip,$name,$subject,$comment)=@_;
+	my ($numip,$name,$subject,$comment,$ipv6)=@_;
 	my ($sth);
 
-	$sth=$dbh->prepare("SELECT count(*) FROM ".SQL_ADMIN_TABLE." WHERE type='ipban' AND ? & ival2 = ival1 & ival2;") or make_error(S_SQLFAIL);
-	$sth->execute($numip) or make_error(S_SQLFAIL);
+	$sth=$dbh->prepare("SELECT count(*) FROM ".SQL_ADMIN_TABLE." WHERE type='ipban' AND sval1=? AND ? & ival2 = ival1 & ival2;") or make_error(S_SQLFAIL);
+	$sth->execute($ipv6,$numip) or make_error(S_SQLFAIL);
 
 	make_error(S_BADHOST) if(($sth->fetchrow_array())[0]);
 
@@ -740,9 +745,10 @@ sub add_proxy_entry($$$$$)
 	check_password($admin,ADMIN_PASS);
 
 	# Verifies IP range is sane. The price for a human-readable db...
-	unless ($ip =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/ && $1 <= 255 && $2 <= 255 && $3 <= 255 && $4 <= 255) {
+	unless ($ip=~$ipv6_re or $ip =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/ && $1 <= 255 && $2 <= 255 && $3 <= 255 && $4 <= 255) {
 		make_error(S_BADIP);
 	}
+
 	if ($type = 'white') { 
 		$timestamp = $timestamp - PROXY_WHITE_AGE + time(); 
 	}
@@ -1466,15 +1472,15 @@ sub remove_admin_entry($$)
 	make_http_forward(get_script_name()."?admin=$admin&task=bans",ALTERNATE_REDIRECT);
 }
 
-sub delete_all($$$)
+sub delete_all($$$$)
 {
-	my ($admin,$ip,$mask)=@_;
+	my ($admin,$ip,$mask,$ipv6)=@_;
 	my ($sth,$row,@posts);
 
 	check_password($admin,ADMIN_PASS);
 
-	$sth=$dbh->prepare("SELECT num FROM ".SQL_TABLE." WHERE ip & ? = ? & ?;") or make_error(S_SQLFAIL);
-	$sth->execute($mask,$ip,$mask) or make_error(S_SQLFAIL);
+	$sth=$dbh->prepare("SELECT num FROM ".SQL_TABLE." WHERE ipv6=? AND ip & ? = ? & ?;") or make_error(S_SQLFAIL);
+	$sth->execute($ipv6?1:0,$mask,$ip,$mask) or make_error(S_SQLFAIL);
 	while($row=$sth->fetchrow_hashref()) { push(@posts,$$row{num}); }
 
 	delete_stuff('',0,0,$admin,@posts);
@@ -1614,25 +1620,26 @@ sub get_filetypes()
 	return join ", ",map { uc } sort keys %filetypes;
 }
 
-sub dot_to_dec($)
+sub parse_range($$;$)
 {
-	return unpack('N',pack('C4',split(/\./, $_[0]))); # wow, magic.
-}
+	my ($ip,$mask,$ipv6)=@_;
 
-sub dec_to_dot($)
-{
-	return join('.',unpack('C4',pack('N',$_[0])));
-}
+	if($ip=~/\./ or !$ipv6)
+	{
+		$ip=dot_to_dec($ip) if($ip=~/^\d+\.\d+\.\d+\.\d+$/);
 
-sub parse_range($$)
-{
-	my ($ip,$mask)=@_;
+		if($mask=~/^\d+\.\d+\.\d+\.\d+$/) { $mask=dot_to_dec($mask); }
+		# I'm taking the liberty of commenting this since it doesn't work on 64-bit systems.
+		#elsif($mask=~/(\d+)/) { $mask=(~((1<<$1)-1)); }
+		else { $mask=0xffffffff; }
+	}
+	else
+	{
+		$ip=dot_to_dec($ip) if($ip=~$ipv6_re);
 
-	$ip=dot_to_dec($ip) if($ip=~/^\d+\.\d+\.\d+\.\d+$/);
-
-	if($mask=~/^\d+\.\d+\.\d+\.\d+$/) { $mask=dot_to_dec($mask); }
-	elsif($mask=~/(\d+)/) { $mask=(~((1<<$1)-1)); }
-	else { $mask=0xffffffff; }
+		if ($mask=~$ipv6_re) { $mask=dot_to_dec($mask); }
+		else { $mask="340282366920938463463374607431768211455"; }; # lol
+	}
 
 	return ($ip,$mask);
 }
@@ -1656,6 +1663,7 @@ sub init_database()
 	"timestamp INTEGER,".		# Timestamp in seconds for when the post was created
 	"lasthit INTEGER,".			# Last activity in thread. Must be set to the same value for BOTH the original post and all replies!
 	"ip TEXT,".					# IP number of poster, in integer form!
+	"ipv6 INTEGER,".			# Is this an IPv6 address? (bool)
 
 	"date TEXT,".				# The date, as a string
 	"name TEXT,".				# Name of the poster

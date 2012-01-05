@@ -328,9 +328,9 @@ use constant POST_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 	<td><var clean_string(substr $subject,0,20)></td>
 	<td><b><var clean_string(substr $name,0,30)><var $trip></b></td>
 	<td><var clean_string(substr $comment,0,30)></td>
-	<td><var dec_to_dot($ip)>
-		[<a href="<var $self>?admin=<var $admin>&amp;task=deleteall&amp;ip=<var $ip>"><const S_MPDELETEALL></a>]
-		[<a href="<var $self>?admin=<var $admin>&amp;task=addip&amp;type=ipban&amp;ip=<var $ip>" onclick="return do_ban(this)"><const S_MPBAN></a>]
+	<td><var dec_to_dot($ip,$ipv6)>
+		[<a href="<var $self>?admin=<var $admin>&amp;task=deleteall&amp;ip=<var $ip>&amp;ipv6=<var $ipv6>"><const S_MPDELETEALL></a>]
+		[<a href="<var $self>?admin=<var $admin>&amp;task=addip&amp;type=ipban&amp;ip=<var $ip>&amp;ipv6=<var $ipv6>" onclick="return do_ban(this)"><const S_MPBAN></a>]
 	</td>
 
 	</tr>
@@ -442,7 +442,7 @@ use constant BAN_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
 	<if $type eq 'ipban'>
 		<td>IP</td>
-		<td><var dec_to_dot($ival1)>/<var dec_to_dot($ival2)></td>
+		<td><var dec_to_dot($ival1,$sval1)>/<var dec_to_dot($ival2,$sval1)></td>
 	</if>
 	<if $type eq 'wordban'>
 		<td>Word</td>

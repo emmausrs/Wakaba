@@ -130,6 +130,7 @@ use constant S_WRONGPASS => 'Error: Management password incorrect.';		# Returns 
 use constant S_VIRUS => 'Error: Possible virus-infected file.';				# Returns error for malformed files suspected of being virus-infected.
 use constant S_NOTWRITE => 'Error: Could not write to directory.';				# Returns error when the script cannot write to the directory, the chmod (777) is wrong
 use constant S_SPAM => 'Spammers are not welcome here.';					# Returns error when detecting spam
+use constant S_NOIPV6 => 'Error: IPv6 is not supported.';
 
 use constant S_SQLCONF => 'SQL connection failure';							# Database connection failure
 use constant S_SQLFAIL => 'Critical SQL problem!';							# SQL Failure

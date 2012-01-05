@@ -23,9 +23,21 @@ use constant MAX_UNICODE => 1114111;
 my $protocol_re=qr{(?:http://|https://|ftp://|mailto:|news:|irc:)};
 my $url_re=qr{(${protocol_re}[^\s<>()"]*?(?:\([^\s<>()"]*?\)[^\s<>()"]*?)*)((?:\s|<|>|"|\.||\]|!|\?|,|&#44;|&quot;)*(?:[\s<>()"]|$))};
 
+# Regex stolen from http://download.dartware.com/thirdparty/test-ipv6-regex.pl
+
+my $ipv6_re=qr/
+	^(((?=(?>.*?::)(?!.*::)))(::)?([0-9a-f]{1,4}::?){0,5}|([0-9a-f]{1,4}:){6})
+	(\2([0-9a-f]{1,4}(::?|$)){0,2}|((25[0-5]|(2[0-4]|1[0-9]|[1-9])?
+	[0-9])(\.|$)){4}|[0-9a-f]{1,4}:[0-9a-f]{1,4})(?<![^:]:)(?<!\.)\z
+/ix;
+
+
+
 sub protocol_regexp() { return $protocol_re }
 
 sub url_regexp() { return $url_re }
+
+sub ipv6_regexp() { return $ipv6_re }
 
 sub abbreviate_html($$$)
 {
@@ -709,6 +721,7 @@ sub resolve_ip($)
 sub check_dnsbl($@)
 {
 	my ($ip,@dnsbl)=@_;
+	return if($ip=~/\:/); # Don't query DNSBL for IPv6 addresses
 
 	foreach my $bl (@dnsbl)
 	{
@@ -721,6 +734,8 @@ sub check_tor($;$)
 {
 	my ($ip,$dest)=@_; # Dest is the IP:port of the server running/serving this site
 	my ($result);
+
+	return if($ip=~/\:/); # Tor doesn't support IPv6
 
 	if ($dest)
 	{
@@ -897,12 +912,34 @@ sub decode_base64($) # stolen from MIME::Base64::Perl
 
 sub dot_to_dec($)
 {
-	return unpack('N',pack('C4',split(/\./, $_[0]))); # wow, magic.
+	# IPv4
+	return unpack('N',pack('C4',split(/\./, $_[0]))) if $_[0]!~$ipv6_re;
+
+	# IPv6
+	if(eval { require Net::IP })
+	{
+		my $ip=Net::IP->new(shift) or make_error(S_NOIPV6);
+		return $ip->intip();
+	}
+
+	make_error(S_NOIPV6);
 }
 
-sub dec_to_dot($)
+sub dec_to_dot($;$)
 {
-	return join('.',unpack('C4',pack('N',$_[0])));
+	my ($ip,$ipv6)=@_;
+
+	# IPv4
+	return join('.',unpack('C4',pack('N',$ip))) if !$ipv6;
+
+	# IPv6
+	if(eval { require Net::IP })
+	{
+		Net::IP->import(qw(ip_bintoip ip_inttobin ip_compress_address));
+		return ip_compress_address(ip_bintoip(ip_inttobin($ip,6),6),6);
+	}
+
+	make_error(S_NOIPV6);
 }
 
 sub reverse_ip($)
