@@ -1610,6 +1610,7 @@ sub get_reply_link($$)
 sub get_page_count(;$)
 {
 	my $total=(shift or count_threads());
+	return 0 if(!IMAGES_PER_PAGE); # avoid dividing by zero
 	return int(($total+IMAGES_PER_PAGE-1)/IMAGES_PER_PAGE);
 }
 
