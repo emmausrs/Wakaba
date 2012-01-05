@@ -922,7 +922,7 @@ sub dot_to_dec($)
 		return $ip->intip();
 	}
 
-	make_error(S_NOIPV6);
+	die("Net::IP must be installed for IPv6 support.");
 }
 
 sub dec_to_dot($;$)
@@ -939,7 +939,7 @@ sub dec_to_dot($;$)
 		return ip_compress_address(ip_bintoip(ip_inttobin($ip,6),6),6);
 	}
 
-	make_error(S_NOIPV6);
+	die("Net::IP must be installed for IPv6 support.");
 }
 
 sub reverse_ip($)
