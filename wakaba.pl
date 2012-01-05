@@ -1630,8 +1630,7 @@ sub parse_range($$;$)
 		$ip=dot_to_dec($ip) if($ip=~/^\d+\.\d+\.\d+\.\d+$/);
 
 		if($mask=~/^\d+\.\d+\.\d+\.\d+$/) { $mask=dot_to_dec($mask); }
-		# I'm taking the liberty of commenting this since it doesn't work on 64-bit systems.
-		#elsif($mask=~/(\d+)/) { $mask=(~((1<<$1)-1)); }
+		elsif($mask=~/(\d+)/) { $mask=0xffffffff<<32-$1; }
 		else { $mask=0xffffffff; }
 	}
 	else
