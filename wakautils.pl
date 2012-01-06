@@ -918,7 +918,7 @@ sub dot_to_dec($)
 	# IPv6
 	if(eval { require Net::IP })
 	{
-		my $ip=Net::IP->new(shift) or make_error(S_NOIPV6);
+		my $ip=Net::IP->new(shift) or return;
 		return $ip->intip();
 	}
 
