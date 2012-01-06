@@ -808,12 +808,20 @@ sub format_comment($)
 	my ($comment)=@_;
 
 	# hide >>1 references from the quoting code
-	$comment=~s/&gt;&gt;([0-9\-]+)/&gtgt;$1/g;
+	$comment=~s/&gt;&gt;(?:&(gt);(\/[A-Za-z0-9-]+\/))?([0-9\-]+)/&gtgt$1;$2$3/g;
 
 	my $handler=sub # fix up >>1 references
 	{
 		my $line=shift;
 
+		# Cross-board post citation
+		$line=~s!&gtgtgt;/([A-Za-z0-9-]+)/([0-9]+)!
+			my $res=get_cb_post($1,$2);
+			if($res) { '<a href="'.get_cb_reply_link($1,$$res{num},$$res{parent}).'">&gt;&gt;&gt;/'.$1.'/'.$2.'</a>' }
+			else { "&gt;&gt;&gt;/$1/$2"; }
+		!ge;
+
+		# Post citation
 		$line=~s!&gtgt;([0-9]+)!
 			my $res=get_post($1);
 			if($res) { '<a href="'.get_reply_link($$res{num},$$res{parent}).'" onclick="highlight('.$1.')">&gt;&gt;'.$1.'</a>' }
@@ -830,7 +838,7 @@ sub format_comment($)
 	$comment=~s/<blockquote>/<blockquote class="unkfunc">/g;
 
 	# restore >>1 references hidden in code blocks
-	$comment=~s/&gtgt;/&gt;&gt;/g;
+	$comment=~s/&gtgt(gt)?;/'&gt;&gt;'.($1?'&gt;':'')/ge;
 
 	return $comment;
 }
@@ -913,6 +921,19 @@ sub get_post($)
 
 	$sth=$dbh->prepare("SELECT * FROM ".SQL_TABLE." WHERE num=?;") or make_error(S_SQLFAIL);
 	$sth->execute($thread) or make_error(S_SQLFAIL);
+
+	return $sth->fetchrow_hashref();
+}
+
+sub get_cb_post($$)
+{
+	my ($board,$thread)=@_;
+	my ($sth);
+
+	return if $board=~/[^A-Za-z0-9-]/;
+
+	$sth=$dbh->prepare("SELECT num, parent FROM $board WHERE num=?;") or return;
+	$sth->execute($thread) or return;
 
 	return $sth->fetchrow_hashref();
 }
@@ -1605,6 +1626,15 @@ sub get_reply_link($$)
 
 	return expand_filename(RES_DIR.$parent.PAGE_EXT).'#'.$reply if($parent);
 	return expand_filename(RES_DIR.$reply.PAGE_EXT);
+}
+
+sub get_cb_reply_link($$$)
+{
+	my ($board,$reply,$parent)=@_;
+
+	return get_reply_link($reply,$parent) if($board eq SQL_TABLE);
+	return expand_filename("../$board/".RES_DIR.$parent.PAGE_EXT).'#'.$reply if($parent);
+	return expand_filename("../$board/".RES_DIR.$reply.PAGE_EXT);
 }
 
 sub get_page_count(;$)
