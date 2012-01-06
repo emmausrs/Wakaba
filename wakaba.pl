@@ -428,6 +428,7 @@ sub post_stuff($$$$$$$$$$$$$$)
 	}
 	else
 	{
+
 		# forbid admin-only features
 		make_error(S_WRONGPASS) if($no_captcha or $no_format or $postfix);
 
@@ -485,6 +486,15 @@ sub post_stuff($$$$$$$$$$$$$$)
 	my $trip;
 	($name,$trip)=process_tripcode($name,TRIPKEY,SECRET,CHARSET);
 
+	# check if user is trusted
+	my $trusted=is_trusted($trip);
+
+	# check for bad referrer
+	if(CHECK_REFERRER and !$admin and !$whitelisted and !$trusted)
+	{
+		make_error(S_BADREFERRER) if !referrer_check($ENV{'HTTP_REFERER'},$parent,STRICT_REFERRER_CHECK);
+	}
+
 	# check for bans
 	ban_check($numip,$c_name,$subject,$comment,$ipv6) unless $whitelisted;
 
@@ -498,7 +508,7 @@ sub post_stuff($$$$$$$$$$$$$$)
 	) unless $whitelisted;
 
 	# check captcha
-	check_captcha($dbh,$captcha,$ip,$parent) if(ENABLE_CAPTCHA and !$no_captcha and !is_trusted($trip));
+	check_captcha($dbh,$captcha,$ip,$parent) if(ENABLE_CAPTCHA and !$no_captcha and !$trusted);
 
 	# proxy check
 	proxy_check($ip) if (!$whitelisted and ENABLE_PROXY_CHECK);
@@ -664,6 +674,26 @@ sub ban_check($$$$)
 	# etc etc etc
 
 	return(0);
+}
+
+sub referrer_check($$$)
+{
+	my ($referrer,$reply,$strict)=@_;
+
+	my $path=expand_filename(undef);
+	my $html_self=HTML_SELF;
+	my $page_ext=PAGE_EXT;
+	my $res_dir=RES_DIR;
+
+	if($strict)
+	{
+		return 1 if !$reply and $referrer=~m!^https?://(?:[^/]+@)?$ENV{SERVER_NAME}(?:\:[0-9]+)?$path(?:$html_self|[0-9]+\.$page_ext)(?:[\?#].*)?$!;
+		return 1 if $reply and $referrer=~m!^https?://(?:[^/]+@)?$ENV{SERVER_NAME}(?:\:[0-9]+)?${path}${res_dir}${reply}${page_ext}(?:[\?#].*)?$!;
+		return 0;
+	}
+
+	return 1 if $referrer eq ''; # Should be sufficient to prevent CSRF attacks, except in cases where browser referrers are turned off.
+	return 1 if $referrer=~m!^https?://(?:[^/]+@)?$ENV{SERVER_NAME}(?:\:[0-9]+)?/!; # Allow posting from the same domain.
 }
 
 sub flood_check($$$$)

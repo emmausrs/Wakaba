@@ -101,6 +101,8 @@ BEGIN {
 	eval "use constant FORCED_ANON => 0" unless(defined &FORCED_ANON);
 	eval "use constant USE_XHTML => 1" unless(defined &USE_XHTML);
 	eval "use constant SPAM_TRAP => 1" unless(defined &SPAM_TRAP);
+	eval "use constant CHECK_REFERRER => 1" unless(defined &CHECK_REFERRER);
+	eval "use constant STRICT_REFERRER_CHECK => 0" unless(defined &STRICT_REFERRER_CHECK);
 
 	eval "use constant IMG_DIR => 'src/'" unless(defined &IMG_DIR);
 	eval "use constant THUMB_DIR => 'thumb/'" unless(defined &THUMB_DIR);
