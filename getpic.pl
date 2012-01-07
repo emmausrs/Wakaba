@@ -5,7 +5,8 @@ use CGI::Carp qw(fatalsToBrowser);
 use strict;
 
 use lib '.';
-BEGIN { require 'oekaki_config.pl'; }
+BEGIN { require 'config.pl'; }
+BEGIN { require 'config_defaults.pl'; }
 
 my $metadata=<STDIN>;
 my $oek_ip;

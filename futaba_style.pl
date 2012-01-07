@@ -70,6 +70,48 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 	<div class="theader"><const S_POSTING></div>
 </if>
 
+<if $oekaki>
+	<if $thread><hr /></if>
+	<div align="center">
+	<form action="<var $self>" method="get">
+	<input type="hidden" name="task" value="paint" />
+	<if $thread><input type="hidden" name="oek_parent" value="<var $thread>" /></if>
+
+	<const S_OEKPAINT>
+	<select name="oek_painter">
+
+	<loop S_OEKPAINTERS>
+		<if $painter eq OEKAKI_DEFAULT_PAINTER>
+			<option value="<var $painter>" selected="selected"><var $name></option>
+		<else>
+			<option value="<var $painter>"><var $name></option>
+		</if>
+	</loop>
+	</select>
+
+	<const S_OEKX><input type="text" name="oek_x" size="3" value="<const OEKAKI_DEFAULT_X>" />
+	<const S_OEKY><input type="text" name="oek_y" size="3" value="<const OEKAKI_DEFAULT_Y>" />
+
+	<if OEKAKI_ENABLE_MODIFY and $thread>
+		<const S_OEKSOURCE>
+		<select name="oek_src">
+		<option value=""><const S_OEKNEW></option>
+
+		<loop $threads>
+			<loop $posts>
+				<if $image>
+					<option value="<var $image>"><var sprintf S_OEKMODIFY,$num></option>
+				</if>
+			</loop>
+		</loop>
+		</select>
+	</if>
+
+	<input type="submit" value="<const S_OEKSUBMIT>" />
+	</form>
+	</div><hr />
+</if>
+
 <if $postform>
 	<div class="postarea">
 	<form id="postform" action="<var $self>" method="post" enctype="multipart/form-data">
@@ -615,6 +657,116 @@ use constant ADMIN_POST_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 <script type="text/javascript">set_inputs("postform")</script>
 
 }.NORMAL_FOOT_INCLUDE);
+
+
+#
+# Oekaki
+#
+
+# terrible quirks mode code
+use constant OEKAKI_PAINT_TEMPLATE => compile_template(q{
+
+<html>
+<head>
+<style type="text/css">
+body { background: #9999BB; font-family: sans-serif; }
+input,textarea { background-color:#CFCFFF; font-size: small; }
+table.nospace { border-collapse:collapse; }
+table.nospace tr td { margin:0px; } 
+.menu { background-color:#CFCFFF; border: 1px solid #666666; padding: 2px; margin-bottom: 2px; }
+</style>
+</head><body>
+
+<script type="text/javascript" src="palette_selfy.js"></script>
+<table class="nospace" width="100%" height="100%"><tbody><tr>
+<td width="100%">
+<applet code="c.ShiPainter.class" name="paintbbs" archive="spainter_all.jar" width="100%" height="100%">
+<param name="image_width" value="<var $oek_x>" />
+<param name="image_height" value="<var $oek_y>" />
+<param name="image_canvas" value="<var $oek_src>" />
+<param name="dir_resource" value="./" />
+<param name="tt.zip" value="tt_def.zip" />
+<param name="res.zip" value="res.zip" />
+<param name="tools" value="<var $mode>" />
+<param name="layer_count" value="3" />
+<param name="url_save" value="getpic.pl" />
+<param name="url_exit" value="<var $self>?task=finish&amp;oek_parent=<var $oek_parent>&amp;oek_ip=<var $ip>&amp;srcinfo=<var $time>,<var $oek_painter>,<var $oek_src>" />
+<param name="send_header" value="<var $ip>" />
+</applet>
+</td>
+<if $selfy>
+	<td valign="top">
+	<script>palette_selfy();</script>
+	</td>
+</if>
+</tr></tbody></table>
+</body>
+</html>
+});
+
+
+use constant OEKAKI_INFO_TEMPLATE => compile_template(q{
+<p><small><strong>
+Oekaki post</strong> (Time: <var $time>, Painter: <var $painter><if $source>, Source: <a href="<var $path><var $source>"><var $source></a></if>)
+</small></p>
+});
+
+
+use constant OEKAKI_FINISH_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
+
+[<a href="<var expand_filename(HTML_SELF)>"><const S_RETURN></a>]
+<div class="theader"><const S_POSTING></div>
+
+<div class="postarea">
+<form id="postform" action="<var $self>" method="post" enctype="multipart/form-data">
+<input type="hidden" name="task" value="oekakipost" />
+<input type="hidden" name="oek_ip" value="<var $oek_ip>" />
+<input type="hidden" name="srcinfo" value="<var $srcinfo>" />
+<table><tbody>
+<tr><td class="postblock"><const S_NAME></td><td><input type="text" name="field1" size="28" /></td></tr>
+<tr><td class="postblock"><const S_EMAIL></td><td><input type="text" name="field2" size="28" /></td></tr>
+<tr><td class="postblock"><const S_SUBJECT></td><td><input type="text" name="field3" size="35" />
+<input type="submit" value="<const S_SUBMIT>" /></td></tr>
+<tr><td class="postblock"><const S_COMMENT></td><td><textarea name="field4" cols="48" rows="4"></textarea></td></tr>
+
+<if $image_inp>
+	<tr><td class="postblock"><const S_UPLOADFILE></td><td><input type="file" name="file" size="35" />
+	<if $textonly_inp>[<label><input type="checkbox" name="nofile" value="on" /><const S_NOFILE></label></if>
+	</td></tr>
+</if>
+
+<if ENABLE_CAPTCHA and !$admin>
+	<tr><td class="postblock"><const S_CAPTCHA></td><td><input type="text" name="captcha" size="10" />
+	<img alt="" src="<var expand_filename(CAPTCHA_SCRIPT)>?key=<var get_captcha_key($thread)>&amp;dummy=<var $dummy>" />
+	</td></tr>
+</if>
+
+<tr><td class="postblock"><const S_DELPASS></td><td><input type="password" name="password" size="8" /> <const S_DELEXPL></td></tr>
+
+<if $oek_parent>
+	<input type="hidden" name="parent" value="<var $oek_parent>" />
+	<tr><td class="postblock"><const S_OEKIMGREPLY></td>
+	<td><var sprintf(S_OEKREPEXPL,expand_filename(RES_DIR.$oek_parent.PAGE_EXT),$oek_parent)></td></tr>
+</if>
+
+<tr><td colspan="2">
+<div class="rules">}.include("include/rules.html").q{</div></td></tr>
+</tbody></table></form></div>
+<script type="text/javascript">set_inputs("postform")</script>
+
+<hr />
+
+<div align="center">
+<img src="<var expand_filename($tmpname)>" />
+<var $decodedinfo>
+</div>
+
+<hr />
+
+}.NORMAL_FOOT_INCLUDE);
+
+
+
 
 
 

@@ -132,11 +132,36 @@ use constant S_NOTWRITE => 'Error: Could not write to directory.';				# Returns 
 use constant S_SPAM => 'Spammers are not welcome here.';					# Returns error when detecting spam
 use constant S_NOIPV6 => 'Error: IPv6 is not supported.';
 use constant S_BADREFERRER => 'Error: Bad referrer.';						# Returns error for bad referrers.
+use constant S_NOOEKAKI => 'Error: You cannot use oekaki on this board.';	# Returns error when oekaki is disabled and someone is trying to perform an oekaki task.
 
 use constant S_SQLCONF => 'SQL connection failure';							# Database connection failure
 use constant S_SQLFAIL => 'Critical SQL problem!';							# SQL Failure
 
 use constant S_REDIR => 'If the redirect didn\'t work, please choose one of the following mirrors:';    # Redir message for html in REDIR_DIR
+
+use constant S_OEKPAINT => 'Painter: ';										# Describes the oekaki painter to use
+use constant S_OEKSOURCE => 'Source: ';										# Describes the source selector
+use constant S_OEKNEW => 'New image';										# Describes the new image option
+use constant S_OEKMODIFY => 'Modify No.%d';									# Describes an option to modify an image
+use constant S_OEKX => 'Width: ';											# Describes x dimension for oekaki
+use constant S_OEKY => 'Height: ';											# Describes y dimension for oekaki
+use constant S_OEKSUBMIT => 'Paint!';										# Oekaki button used for submit
+use constant S_OEKIMGREPLY => 'Reply';
+
+use constant S_OEKIMGREPLY => 'Reply';
+use constant S_OEKREPEXPL => 'Picture will be posted as a reply to thread <a href="%s">%s</a>.';
+
+use constant S_OEKTOOBIG => 'The requested dimensions are too large.';
+use constant S_OEKTOOSMALL => 'The requested dimensions are too small.';
+use constant S_OEKUNKNOWN => 'Unknown oekaki painter requested.';
+use constant S_HAXORING => 'Stop hax0ring the Gibson!';
+
+use constant S_OEKPAINTERS => [
+	{ painter=>"shi_norm", name=>"Shi Normal" },
+	{ painter=>"shi_pro", name=>"Shi Pro" },
+	{ painter=>"shi_norm_selfy", name=>"Shi Normal+Selfy" },
+	{ painter=>"shi_pro_selfy", name=>"Shi Pro+Selfy" },
+];
 
 1;
 

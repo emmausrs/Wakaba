@@ -137,6 +137,20 @@
 												#        * Set up two files, one being the official list from
 												#          http://wakaba.c3.cx/antispam/spam.txt, and one your own additions.
 
+
+# Oekaki
+#use constant ENABLE_OEKAKI => 0;				# Enable oekaki?
+#use constant TMP_DIR => 'tmp/';				# Temp file directory (needs to be writeable by the script)
+#use constant OEKAKI_ENABLE_MODIFY => 1;		# Enable image modification
+#use constant OEKAKI_DEFAULT_X => 300;			# Default X dimension for oekaki drawings
+#use constant OEKAKI_DEFAULT_Y => 300;			# Default Y dimension for oekaki drawings
+#use constant OEKAKI_MAX_X => 800;				# Max X dimension allowed for oekaki drawings
+#use constant OEKAKI_MAX_Y => 800;				# Max Y dimension allowed for oekaki drawings
+#use constant OEKAKI_MIN_X => 100;				# Min X dimension allowed for oekaki drawings
+#use constant OEKAKI_MIN_Y => 100;				# Min Y dimension allowed for oekaki drawings
+#use constant OEKAKI_DEFAULT_PAINTER => "shi_norm"; # Default painter selection
+
+
 # Icons for filetypes - file extensions specified here will not be renamed, and will get icons
 # (except for the built-in image formats). These example icons can be found in the extras/ directory.
 #use constant FILETYPES => (

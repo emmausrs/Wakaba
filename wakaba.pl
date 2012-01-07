@@ -69,23 +69,42 @@ elsif(!$task)
 	build_cache() unless -e HTML_SELF;
 	make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
 }
-elsif($task eq "post")
+elsif($task eq "post" or $task eq "oekakipost")
 {
+	my ($file,$tmpname,$postfix);
 	my $parent=$query->param("parent");
 	my $name=$query->param("field1");
 	my $email=$query->param("field2");
 	my $subject=$query->param("field3");
 	my $comment=$query->param("field4");
-	my $file=$query->param("file");
 	my $password=$query->param("password");
 	my $nofile=$query->param("nofile");
 	my $captcha=$query->param("captcha");
 	my $admin=$query->param("admin");
 	my $no_captcha=$query->param("no_captcha");
 	my $no_format=$query->param("no_format");
-	my $postfix=$query->param("postfix");
 
-	post_stuff($parent,$name,$email,$subject,$comment,$file,$file,$password,$nofile,$captcha,$admin,$no_captcha,$no_format,$postfix);
+	# Oekaki
+	if($task eq "oekakipost")
+	{
+		make_error(S_NOOEKAKI) unless(ENABLE_OEKAKI);
+
+		my $oek_ip=$query->param("oek_ip") || $ENV{REMOTE_ADDR};
+		die "Bad IP" unless($oek_ip=~/^[a-f0-9\.\:]+$/i);
+
+		$tmpname=TMP_DIR.$oek_ip.'.png';
+		open TMPFILE, $tmpname or die "Can't read uploaded file.";
+		$file=\*TMPFILE;
+		$postfix=OEKAKI_INFO_TEMPLATE->(decode_srcinfo($query->param("srcinfo")));
+	}
+	else
+	{
+		$file=$tmpname=$query->param("file");
+	}
+
+	post_stuff($parent,$name,$email,$subject,$comment,$file,$tmpname,$password,$nofile,$captcha,$admin,$no_captcha,$no_format,$postfix);
+
+	unlink $tmpname if($task eq "oekakipost");
 }
 elsif($task eq "delete")
 {
@@ -211,6 +230,35 @@ elsif($task eq "nuke")
 	my $admin=$query->param("admin");
 	do_nuke_database($admin);
 }
+elsif($task eq "paint")
+{
+	make_error(S_NOOEKAKI) unless(ENABLE_OEKAKI);
+	my $oek_painter=$query->param("oek_painter");
+	my $oek_x=$query->param("oek_x");
+	my $oek_y=$query->param("oek_y");
+	my $oek_parent=$query->param("oek_parent");
+	my $oek_src=$query->param("oek_src");
+	make_painter($oek_painter,$oek_x,$oek_y,$oek_parent,$oek_src);
+}
+elsif($task eq "finish")
+{
+	make_error(S_NOOEKAKI) unless(ENABLE_OEKAKI);
+	my $oek_ip=$query->param("oek_ip") || $ENV{REMOTE_ADDR};
+	my $oek_parent=$query->param("oek_parent");
+	my $srcinfo=$query->param("srcinfo");
+	my $tmpname=TMP_DIR.$oek_ip.'.png';
+
+	die "Bad IP" unless($oek_ip=~/^[a-f0-9\.\:]+$/i);
+
+	make_http_header();
+	print OEKAKI_FINISH_TEMPLATE->(
+		tmpname=>$tmpname,
+		oek_parent=>clean_string($oek_parent),
+		oek_ip=>$oek_ip,
+		srcinfo=>clean_string($srcinfo),
+		decodedinfo=>OEKAKI_INFO_TEMPLATE->(decode_srcinfo($srcinfo)),
+	);
+}
 
 $dbh->disconnect();
 
@@ -332,6 +380,7 @@ sub build_cache_page($$@)
 	$nextpage=$pages[$page+1]{filename} if($page!=$total-1);
 
 	print_page($filename,PAGE_TEMPLATE->(
+		oekaki=>ENABLE_OEKAKI,
 		postform=>(ALLOW_TEXTONLY or ALLOW_IMAGES),
 		image_inp=>ALLOW_IMAGES,
 		textonly_inp=>(ALLOW_IMAGES and ALLOW_TEXTONLY),
@@ -358,6 +407,7 @@ sub build_thread_cache($)
 	$filename=RES_DIR.$thread.PAGE_EXT;
 
 	print_page($filename,PAGE_TEMPLATE->(
+		oekaki=>ENABLE_OEKAKI,
 		thread=>$thread,
 		postform=>(ALLOW_TEXT_REPLIES or ALLOW_IMAGE_REPLIES),
 		image_inp=>ALLOW_IMAGE_REPLIES,
@@ -430,7 +480,7 @@ sub post_stuff($$$$$$$$$$$$$$)
 	{
 
 		# forbid admin-only features
-		make_error(S_WRONGPASS) if($no_captcha or $no_format or $postfix);
+		make_error(S_WRONGPASS) if($no_captcha or $no_format);
 
 		# check what kind of posting is allowed
 		if($parent)
@@ -1931,4 +1981,80 @@ sub get_decoded_arrayref($)
 	}
 
 	return $row;
+}
+
+
+
+#
+# Oekaki stuff
+#
+
+sub make_painter()
+{
+	my ($oek_painter,$oek_x,$oek_y,$oek_parent,$oek_src)=@_;
+	my $ip=$ENV{'REMOTE_ADDR'};
+
+	make_error(S_HAXORING) if($oek_x=~/[^0-9]/ or $oek_y=~/[^0-9]/ or $oek_parent=~/[^0-9]/);
+	make_error(S_HAXORING) if($oek_src and !OEKAKI_ENABLE_MODIFY);
+	make_error(S_HAXORING) if($oek_src=~m![^0-9a-zA-Z/\.]!);
+	make_error(S_OEKTOOBIG) if($oek_x>OEKAKI_MAX_X or $oek_y>OEKAKI_MAX_Y);
+	make_error(S_OEKTOOSMALL) if($oek_x<OEKAKI_MIN_X or $oek_y<OEKAKI_MIN_Y);
+
+	my $time=time;
+
+	if($oek_painter=~/shi/)
+	{
+		my $mode;
+		$mode="pro" if($oek_painter=~/pro/);
+
+		my $selfy;
+		$selfy=1 if($oek_painter=~/selfy/);
+
+		print "Content-Type: text/html; charset=Shift_JIS\n";
+		print "\n";
+
+		print OEKAKI_PAINT_TEMPLATE->(
+			oek_painter=>clean_string($oek_painter),
+			oek_x=>clean_string($oek_x),
+			oek_y=>clean_string($oek_y),
+			oek_parent=>clean_string($oek_parent),
+			oek_src=>clean_string($oek_src),
+			ip=>$ip,
+			time=>$time,
+			mode=>$mode,
+			selfy=>$selfy
+		);
+	}
+	else
+	{
+		make_error(S_OEKUNKNOWN);
+	}
+}
+
+sub decode_srcinfo($)
+{
+	my ($srcinfo)=@_;
+	my $oek_ip=$query->param("oek_ip") || $ENV{REMOTE_ADDR};
+	my $tmpname=TMP_DIR.$oek_ip.'.png';
+	my @info=split /,/,$srcinfo;
+	my @stat=stat $tmpname;
+	my $fileage=$stat[9];
+	my ($painter)=grep { $$_{painter} eq $info[1] } @{S_OEKPAINTERS()};
+
+	return (
+		time=>clean_string(pretty_age($fileage-$info[0])),
+		painter=>clean_string($$painter{name}),
+		source=>clean_string($info[2]),
+	);
+}
+
+sub pretty_age($)
+{
+	my ($age)=@_;
+
+	return "HAXORED" if($age<0);
+	return $age." s" if($age<60);
+	return int($age/60)." min" if($age<3600);
+	return int($age/3600)." h ".int(($age%3600)/60)." min" if($age<3600*24*7);
+	return "HAXORED";
 }

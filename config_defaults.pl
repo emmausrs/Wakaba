@@ -122,6 +122,17 @@ BEGIN {
 	}
 #	eval "use constant SPAM_FILE => 'spam.txt'" unless(defined &SPAM_FILE);
 
+	eval "use constant ENABLE_OEKAKI => 0" unless(defined &ENABLE_OEKAKI);
+	eval "use constant TMP_DIR => 'tmp/'" unless(defined &TMP_DIR);
+	eval "use constant OEKAKI_ENABLE_MODIFY => 1" unless(defined &OEKAKI_ENABLE_MODIFY);
+	eval "use constant OEKAKI_DEFAULT_X => 300" unless(defined &OEKAKI_DEFAULT_X);
+	eval "use constant OEKAKI_DEFAULT_Y => 300" unless(defined &OEKAKI_DEFAULT_Y);
+	eval "use constant OEKAKI_MAX_X => 800" unless(defined &OEKAKI_MAX_X);
+	eval "use constant OEKAKI_MAX_Y => 800" unless(defined &OEKAKI_MAX_Y);
+	eval "use constant OEKAKI_MIN_X => 100" unless(defined &OEKAKI_MIN_X);
+	eval "use constant OEKAKI_MIN_Y => 100" unless(defined &OEKAKI_MIN_Y);
+	eval "use constant OEKAKI_DEFAULT_PAINTER => 'shi_norm'" unless(defined &OEKAKI_DEFAULT_PAINTER);
+
 	eval "use constant FILETYPES => ()" unless(defined &FILETYPES);
 
 	eval "use constant WAKABA_VERSION => '3.0.8'" unless(defined &WAKABA_VERSION);
