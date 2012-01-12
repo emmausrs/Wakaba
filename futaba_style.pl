@@ -24,7 +24,7 @@ form .trap { display:none }
 .nothumb { float: left; background: #eee; border: 2px dashed #aaa; text-align: center; margin: 2px 20px; padding: 1em 0.5em 1em 0.5em; }
 .reply blockquote, blockquote :last-child { margin-bottom: 0em }
 .reflink a { color: inherit; text-decoration: none }
-.reply .filesize { margin-left: 20px }
+.reply .filesize, .highlight .filesize { margin-left: 20px }
 .userdelete { float: right; text-align: center; white-space: nowrap }
 .replypage .replylink { display: none }
 </style>
@@ -159,8 +159,7 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 		<if !$parent>
 			<if $image>
 				<span class="filesize"><const S_PICNAME><a target="_blank" href="<var expand_image_filename($image)>"><var get_filename($image)></a>
-				-(<em><var $size> B, <var $width>x<var $height></em>)</span>
-				<span class="thumbnailmsg"><const S_THUMB></span><br />
+				-(<em><var $size> B, <var $width>x<var $height></em>)</span><br />
 
 				<if $thumbnail>
 					<a target="_blank" href="<var expand_image_filename($image)>">
@@ -219,8 +218,7 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 			<if $image>
 				<br />
 				<span class="filesize"><const S_PICNAME><a target="_blank" href="<var expand_image_filename($image)>"><var get_filename($image)></a>
-				-(<em><var $size> B, <var $width>x<var $height></em>)</span>
-				<span class="thumbnailmsg"><const S_THUMB></span><br />
+				-(<em><var $size> B, <var $width>x<var $height></em>)</span><br />
 
 				<if $thumbnail>
 					<a target="_blank" href="<var expand_image_filename($image)>">

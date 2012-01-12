@@ -1,46 +1,46 @@
 html, body {
-         background:#FFFFEE;
-         color:#800000;
+	background:#FFFFEE;
+	color:#800000;
 }
 a {
-        color:#0000EE;
+	color:#0000EE;
 }
 a:hover {
-        color:#DD0000;
+	color:#DD0000;
 }
 .adminbar {
-        text-align:right;
-        clear:both;
-        float:right;
+	text-align:right;
+	clear:both;
+	float:right;
 }
 .logo {
-        clear:both;
-        text-align:center;
-        font-size:2em;
-        color:#800000;
-        width:100%;
+	clear:both;
+	text-align:center;
+	font-size:2em;
+	color:#800000;
+	width:100%;
 }
 .theader {
-        background:#E04000;
-        text-align:center;
-        padding:2px;
-        color:#FFFFFF;
-        width:100%;
+	background:#E04000;
+	text-align:center;
+	padding:2px;
+	color:#FFFFFF;
+	width:100%;
 }
 .postarea {
 }
 .rules {
-        font-size:0.7em;
+	font-size:0.7em;
 }
 .postblock {
-        background:#EEAA88;
-        color:#800000;
-        font-weight:800;
+	background:#EEAA88;
+	color:#800000;
+	font-weight:800;
 }
 .footer {
-        text-align:center;
-        font-size:12px;
-        font-family:serif;
+	text-align:center;
+	font-size:12px;
+	font-family:serif;
 }
 .passvalid {
 	background:#EEAA88;
@@ -73,11 +73,11 @@ a:hover {
 	color:#800000;
 }
 .row2 {
-        background:#DDDDAA;
-        color:#800000;
+	background:#DDDDAA;
+	color:#800000;
 }
 .unkfunc {
-	background:inert;
+	background:inherit;
 	color:#789922;
 }
 .filesize {
@@ -97,11 +97,11 @@ a:hover {
 	color:#228854;
 }
 .oldpost {
-        color:#CC1105;
-        font-weight:800;
+	color:#CC1105;
+	font-weight:800;
 }
 .omittedposts {
-        color:#707070;
+	color:#707070;
 }
 .reply {
 	background:#F0E0D6;
@@ -114,11 +114,11 @@ a:hover {
 }
 .replytitle {
 	font-size: 1.2em;
-        color:#CC1105;
-        font-weight:800;
+	color:#CC1105;
+	font-weight:800;
 }
 .commentpostername {
-        color:#117743;
+	color:#117743;
 	font-weight:800;
 }
 .thumbnailmsg {
@@ -129,7 +129,7 @@ a:hover {
 
 
 .abbrev {
-        color:#707070;
+	color:#707070;
 }
 .highlight {
 	background:#F0E0D6;
