@@ -638,34 +638,31 @@ sub post_stuff($$$$$$$$$$$$$$)
 	# update the cached HTML pages
 	build_cache();
 
+	# find out what our new thread number is
+	if($filename)
+	{
+		$sth=$dbh->prepare("SELECT num FROM ".SQL_TABLE." WHERE image=?;") or make_error(S_SQLFAIL);
+		$sth->execute($filename) or make_error(S_SQLFAIL);
+	}
+	else
+	{
+		$sth=$dbh->prepare("SELECT num FROM ".SQL_TABLE." WHERE timestamp=? AND comment=?;") or make_error(S_SQLFAIL);
+		$sth->execute($time,$comment) or make_error(S_SQLFAIL);
+	}
+	my $num=($sth->fetchrow_array())[0];
+
 	# update the individual thread cache
 	if($parent) { build_thread_cache($parent); }
-	else # must find out what our new thread number is
-	{
-		if($filename)
-		{
-			$sth=$dbh->prepare("SELECT num FROM ".SQL_TABLE." WHERE image=?;") or make_error(S_SQLFAIL);
-			$sth->execute($filename) or make_error(S_SQLFAIL);
-		}
-		else
-		{
-			$sth=$dbh->prepare("SELECT num FROM ".SQL_TABLE." WHERE timestamp=? AND comment=?;") or make_error(S_SQLFAIL);
-			$sth->execute($time,$comment) or make_error(S_SQLFAIL);
-		}
-		my $num=($sth->fetchrow_array())[0];
-
-		if($num)
-		{
-			build_thread_cache($num);
-		}
-	}
+	elsif($num) { build_thread_cache($num); }
 
 	# set the name, email and password cookies
 	make_cookies(name=>$c_name,email=>$c_email,password=>$c_password,
 	-charset=>CHARSET,-autopath=>COOKIE_PATH); # yum!
 
-	# forward back to the main page
-	make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
+	# redirect to the appropriate page
+	if($parent) { make_http_forward(RES_DIR.$parent.PAGE_EXT.($num?"#$num":""), ALTERNATE_REDIRECT); }
+	elsif($num)	{ make_http_forward(RES_DIR.$num.PAGE_EXT, ALTERNATE_REDIRECT); }
+	else { make_http_forward(HTML_SELF, ALTERNATE_REDIRECT); } # shouldn't happen
 }
 
 sub is_whitelisted($$)
