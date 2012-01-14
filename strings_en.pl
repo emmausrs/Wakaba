@@ -91,9 +91,10 @@ use constant S_PROXYWHITELIST => 'Whitelist';
 use constant S_PROXYDISABLED => 'Proxy detection is currently disabled in configuration.';
 use constant S_BADIP => 'Bad IP value';
 
-use constant S_SPAMEXPL => 'This is the list of domain names Wakaba considers to be spam.<br />'.
-                           'You can find an up-to-date version <a href="http://wakaba.c3.cx/antispam/antispam.pl?action=view&amp;format=wakaba">here</a>, '.
-                           'or you can get the <code>spam.txt</code> file directly <a href="http://wakaba.c3.cx/antispam/spam.txt">here</a>.';
+use constant S_SPAMEXPL => 'This is the list of domain names Wakaba considers to be spam. One entry per line.<br />'.
+                           'Blacklisting a site: <code>example.com</code><br />'.
+						   'Using comments: <code>example.com # spammer</code><br />'.
+						   'Using <a href="http://perldoc.perl.org/perlre.html">regular expressions</a>: <code>/example\.com/i</code>';
 use constant S_SPAMSUBMIT => 'Save';
 use constant S_SPAMCLEAR => 'Clear';
 use constant S_SPAMRESET => 'Restore';
