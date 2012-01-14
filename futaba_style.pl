@@ -366,7 +366,7 @@ use constant POST_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
 	<td><var make_date($timestamp,"tiny")></td>
 	<td><var clean_string(substr $subject,0,20)></td>
-	<td><b><var clean_string(substr $name,0,30)><var $trip></b></td>
+	<td><b><var clean_string(substr $name,0,30)></b><var $trip></td>
 	<td><var clean_string(substr strip_html($comment),0,50)></td>
 	<td><var dec_to_dot($ip,$ipv6)>
 		[<a href="<var $self>?admin=<var $admin>&amp;task=deleteall&amp;ip=<var $ip>&amp;ipv6=<var $ipv6>"><const S_MPDELETEALL></a>]
