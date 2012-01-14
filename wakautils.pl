@@ -177,6 +177,30 @@ sub sanitize_html($%)
 	return $clean;
 }
 
+sub strip_html($)
+{
+	my ($string)=@_;
+	my %ent=(lt=>'<',gt=>'>',amp=>'&',quot=>'"',nbsp=>' ');
+
+	# Add extra space for some elements
+	$string=~s!(<(?:table|t[rdh]|h[1-6]|p|blockquote|div|[bh]r|[uo]l|li|pre|form|fieldset|d[ltd]|address).*?>)!\1 !gi;
+
+	# Strip HTML tags
+	$string=~s@<(?:(script|style|textarea).*?>.*?</\1|!--.*?--|/[a-z0-9:]+|[[a-z0-9:]+.*?|!.*?)>@@gsi;
+
+	# Restore HTML entities
+	$string=~s/&#(?:(x)([a-f0-9]+)|([0-9]+));/$1?chr hex $2:chr $3/ge;
+	$string=~s/&([a-z]+);/$ent{$1}/gei;
+
+	# Strip whitespace
+	$string=~s/\n/ /g;
+	$string=~s/^\s*//gm;
+	$string=~s/\s\s+/ /g;
+	chomp $string;
+
+	return $string;
+}
+
 sub describe_allowed(%)
 {
 	my (%tags)=@_;
