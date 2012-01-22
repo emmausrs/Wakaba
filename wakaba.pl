@@ -26,12 +26,18 @@ BEGIN { require "wakautils.pl"; }
 # Optional modules
 #
 
-my ($has_encode);
+my ($has_encode, $use_fastcgi);
 
 if(CONVERT_CHARSETS)
 {
 	eval 'use Encode qw(decode encode)';
 	$has_encode=1 unless($@);
+}
+
+if(USE_FASTCGI)
+{
+	eval 'use CGI::Fast';
+	$use_fastcgi=1 unless($@);
 }
 
 
@@ -44,224 +50,239 @@ my $protocol_re=qr/(?:http|https|ftp|mailto|nntp)/;
 
 my $ipv6_re=ipv6_regexp();
 
-my $dbh=DBI->connect(SQL_DBI_SOURCE,SQL_USERNAME,SQL_PASSWORD,{AutoCommit=>1}) or make_error(S_SQLCONF);
+my ($query, $dbh);
 
-return 1 if(caller); # stop here if we're being called externally
-
-my $query=new CGI;
-my $task=($query->param("task") or $query->param("action"));
-
-
-# check for admin table
-init_admin_database() if(!table_exists(SQL_ADMIN_TABLE));
-
-# check for proxy table
-init_proxy_database() if(!table_exists(SQL_PROXY_TABLE));
-
-if(!table_exists(SQL_TABLE)) # check for comments table
+if($use_fastcgi)
 {
-	init_database();
-	build_cache();
-	make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
+	FASTCGI:
+	while($query=new CGI::Fast)
+	{
+		init();
+	}
 }
-elsif(!$task)
-{
-	build_cache() unless -e HTML_SELF;
-	make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
-}
-elsif($task eq "post" or $task eq "oekakipost")
-{
-	my ($file,$tmpname,$postfix);
-	my $parent=$query->param("parent");
-	my $name=$query->param("field1");
-	my $email=$query->param("field2");
-	my $subject=$query->param("field3");
-	my $comment=$query->param("field4");
-	my $password=$query->param("password");
-	my $nofile=$query->param("nofile");
-	my $captcha=$query->param("captcha");
-	my $admin=$query->param("admin");
-	my $no_captcha=$query->param("no_captcha");
-	my $no_format=$query->param("no_format");
+else { $query=new CGI; init(); }
 
-	# Oekaki
-	if($task eq "oekakipost")
+sub init($)
+{
+	# This must be placed in here so we can spawn a new DB connection if the old one dies.
+	if($use_fastcgi) { $dbh=DBI->connect_cached(SQL_DBI_SOURCE,SQL_USERNAME,SQL_PASSWORD,{AutoCommit=>1}) or make_error(S_SQLCONF); }
+	else { $dbh=DBI->connect(SQL_DBI_SOURCE,SQL_USERNAME,SQL_PASSWORD,{AutoCommit=>1}) or make_error(S_SQLCONF); }
+
+	my $task=($query->param("task") or $query->param("action"));
+
+	# check for admin table
+	init_admin_database() if(!table_exists(SQL_ADMIN_TABLE));
+
+	# check for proxy table
+	init_proxy_database() if(!table_exists(SQL_PROXY_TABLE));
+
+	if(!table_exists(SQL_TABLE)) # check for comments table
+	{
+		init_database();
+		build_cache();
+		make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
+	}
+	elsif(!$task)
+	{
+		build_cache() unless -e HTML_SELF;
+		make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
+	}
+	elsif($task eq "post" or $task eq "oekakipost")
+	{
+		my ($file,$tmpname,$postfix);
+		my $parent=$query->param("parent");
+		my $name=$query->param("field1");
+		my $email=$query->param("field2");
+		my $subject=$query->param("field3");
+		my $comment=$query->param("field4");
+		my $password=$query->param("password");
+		my $nofile=$query->param("nofile");
+		my $captcha=$query->param("captcha");
+		my $admin=$query->param("admin");
+		my $no_captcha=$query->param("no_captcha");
+		my $no_format=$query->param("no_format");
+
+		# Oekaki
+		if($task eq "oekakipost")
+		{
+			make_error(S_NOOEKAKI) unless(ENABLE_OEKAKI);
+
+			my $oek_ip=$query->param("oek_ip") || $ENV{REMOTE_ADDR};
+			die "Bad IP" unless($oek_ip=~/^[a-f0-9\.\:]+$/i);
+
+			$tmpname=TMP_DIR.$oek_ip.'.png';
+			open TMPFILE, $tmpname or die "Can't read uploaded file.";
+			$file=\*TMPFILE;
+			$postfix=OEKAKI_INFO_TEMPLATE->(decode_srcinfo($query->param("srcinfo")));
+		}
+		else
+		{
+			$file=$tmpname=$query->param("file");
+		}
+
+		post_stuff($parent,$name,$email,$subject,$comment,$file,$tmpname,$password,$nofile,$captcha,$admin,$no_captcha,$no_format,$postfix);
+
+		unlink $tmpname if($task eq "oekakipost");
+	}
+	elsif($task eq "delete")
+	{
+		my $password=$query->param("password");
+		my $fileonly=$query->param("fileonly");
+		my $archive=$query->param("archive");
+		my $admin=$query->param("admin");
+		my @posts=$query->param("delete");
+
+		delete_stuff($password,$fileonly,$archive,$admin,@posts);
+	}
+	elsif($task eq "admin")
+	{
+		my $password=$query->param("berra"); # lol obfuscation
+		my $nexttask=$query->param("nexttask");
+		my $savelogin=$query->param("savelogin");
+		my $admincookie=$query->cookie("wakaadmin");
+
+		do_login($password,$nexttask,$savelogin,$admincookie);
+	}
+	elsif($task eq "logout")
+	{
+		do_logout();
+	}
+	elsif($task eq "mpanel")
+	{
+		my $admin=$query->param("admin");
+		make_admin_post_panel($admin);
+	}
+	elsif($task eq "deleteall")
+	{
+		my $admin=$query->param("admin");
+		my $ip=$query->param("ip");
+		my $ipv6=$ip=~/\:/?1:$query->param("ipv6")?1:0;
+		my $mask=$query->param("mask");
+		delete_all($admin,parse_range($ip,$mask,$ipv6),$ipv6);
+	}
+	elsif($task eq "bans")
+	{
+		my $admin=$query->param("admin");
+		make_admin_ban_panel($admin);
+	}
+	elsif($task eq "addip")
+	{
+		my $admin=$query->param("admin");
+		my $type=$query->param("type");
+		my $comment=$query->param("comment");
+		my $ip=$query->param("ip");
+		my $ipv6=$ip=~/\:/?1:$query->param("ipv6")?1:0;
+		my $mask=$query->param("mask");
+		add_admin_entry($admin,$type,$comment,parse_range($ip,$mask,$ipv6),$ipv6);
+	}
+	elsif($task eq "addstring")
+	{
+		my $admin=$query->param("admin");
+		my $type=$query->param("type");
+		my $string=$query->param("string");
+		my $comment=$query->param("comment");
+		add_admin_entry($admin,$type,$comment,0,0,$string);
+	}
+	elsif($task eq "removeban")
+	{
+		my $admin=$query->param("admin");
+		my $num=$query->param("num");
+		remove_admin_entry($admin,$num);
+	}
+	elsif($task eq "proxy")
+	{
+		my $admin=$query->param("admin");
+		make_admin_proxy_panel($admin);
+	}
+	elsif($task eq "addproxy")
+	{
+		my $admin=$query->param("admin");
+		my $type=$query->param("type");
+		my $ip=$query->param("ip");
+		my $timestamp=$query->param("timestamp");
+		my $date=make_date(time(),DATE_STYLE);
+		add_proxy_entry($admin,$type,$ip,$timestamp,$date);
+	}
+	elsif($task eq "removeproxy")
+	{
+		my $admin=$query->param("admin");
+		my $num=$query->param("num");
+		remove_proxy_entry($admin,$num);
+	}
+	elsif($task eq "spam")
+	{
+		my ($admin);
+		$admin=$query->param("admin");
+		make_admin_spam_panel($admin);
+	}
+	elsif($task eq "updatespam")
+	{
+		my $admin=$query->param("admin");
+		my $spam=$query->param("spam");
+		update_spam_file($admin,$spam);
+	}
+	elsif($task eq "sqldump")
+	{
+		my $admin=$query->param("admin");
+		make_sql_dump($admin);
+	}
+	elsif($task eq "sql")
+	{
+		my $admin=$query->param("admin");
+		my $nuke=$query->param("nuke");
+		my $sql=$query->param("sql");
+		make_sql_interface($admin,$nuke,$sql);
+	}
+	elsif($task eq "mpost")
+	{
+		my $admin=$query->param("admin");
+		make_admin_post($admin);
+	}
+	elsif($task eq "rebuild")
+	{
+		my $admin=$query->param("admin");
+		do_rebuild_cache($admin);
+	}
+	elsif($task eq "nuke")
+	{
+		my $admin=$query->param("admin");
+		do_nuke_database($admin);
+	}
+	elsif($task eq "paint")
 	{
 		make_error(S_NOOEKAKI) unless(ENABLE_OEKAKI);
-
+		my $oek_painter=$query->param("oek_painter");
+		my $oek_x=$query->param("oek_x");
+		my $oek_y=$query->param("oek_y");
+		my $oek_parent=$query->param("oek_parent");
+		my $oek_src=$query->param("oek_src");
+		make_painter($oek_painter,$oek_x,$oek_y,$oek_parent,$oek_src);
+	}
+	elsif($task eq "finish")
+	{
+		make_error(S_NOOEKAKI) unless(ENABLE_OEKAKI);
 		my $oek_ip=$query->param("oek_ip") || $ENV{REMOTE_ADDR};
+		my $oek_parent=$query->param("oek_parent");
+		my $srcinfo=$query->param("srcinfo");
+		my $tmpname=TMP_DIR.$oek_ip.'.png';
+
 		die "Bad IP" unless($oek_ip=~/^[a-f0-9\.\:]+$/i);
 
-		$tmpname=TMP_DIR.$oek_ip.'.png';
-		open TMPFILE, $tmpname or die "Can't read uploaded file.";
-		$file=\*TMPFILE;
-		$postfix=OEKAKI_INFO_TEMPLATE->(decode_srcinfo($query->param("srcinfo")));
+		make_http_header();
+		print OEKAKI_FINISH_TEMPLATE->(
+			tmpname=>$tmpname,
+			oek_parent=>clean_string($oek_parent),
+			oek_ip=>$oek_ip,
+			srcinfo=>clean_string($srcinfo),
+			decodedinfo=>OEKAKI_INFO_TEMPLATE->(decode_srcinfo($srcinfo)),
+		);
 	}
-	else
+
+	unless($use_fastcgi)
 	{
-		$file=$tmpname=$query->param("file");
+		$dbh->disconnect();
 	}
-
-	post_stuff($parent,$name,$email,$subject,$comment,$file,$tmpname,$password,$nofile,$captcha,$admin,$no_captcha,$no_format,$postfix);
-
-	unlink $tmpname if($task eq "oekakipost");
 }
-elsif($task eq "delete")
-{
-	my $password=$query->param("password");
-	my $fileonly=$query->param("fileonly");
-	my $archive=$query->param("archive");
-	my $admin=$query->param("admin");
-	my @posts=$query->param("delete");
-
-	delete_stuff($password,$fileonly,$archive,$admin,@posts);
-}
-elsif($task eq "admin")
-{
-	my $password=$query->param("berra"); # lol obfuscation
-	my $nexttask=$query->param("nexttask");
-	my $savelogin=$query->param("savelogin");
-	my $admincookie=$query->cookie("wakaadmin");
-
-	do_login($password,$nexttask,$savelogin,$admincookie);
-}
-elsif($task eq "logout")
-{
-	do_logout();
-}
-elsif($task eq "mpanel")
-{
-	my $admin=$query->param("admin");
-	make_admin_post_panel($admin);
-}
-elsif($task eq "deleteall")
-{
-	my $admin=$query->param("admin");
-	my $ip=$query->param("ip");
-	my $ipv6=$ip=~/\:/?1:$query->param("ipv6")?1:0;
-	my $mask=$query->param("mask");
-	delete_all($admin,parse_range($ip,$mask,$ipv6),$ipv6);
-}
-elsif($task eq "bans")
-{
-	my $admin=$query->param("admin");
-	make_admin_ban_panel($admin);
-}
-elsif($task eq "addip")
-{
-	my $admin=$query->param("admin");
-	my $type=$query->param("type");
-	my $comment=$query->param("comment");
-	my $ip=$query->param("ip");
-	my $ipv6=$ip=~/\:/?1:$query->param("ipv6")?1:0;
-	my $mask=$query->param("mask");
-	add_admin_entry($admin,$type,$comment,parse_range($ip,$mask,$ipv6),$ipv6);
-}
-elsif($task eq "addstring")
-{
-	my $admin=$query->param("admin");
-	my $type=$query->param("type");
-	my $string=$query->param("string");
-	my $comment=$query->param("comment");
-	add_admin_entry($admin,$type,$comment,0,0,$string);
-}
-elsif($task eq "removeban")
-{
-	my $admin=$query->param("admin");
-	my $num=$query->param("num");
-	remove_admin_entry($admin,$num);
-}
-elsif($task eq "proxy")
-{
-	my $admin=$query->param("admin");
-	make_admin_proxy_panel($admin);
-}
-elsif($task eq "addproxy")
-{
-	my $admin=$query->param("admin");
-	my $type=$query->param("type");
-	my $ip=$query->param("ip");
-	my $timestamp=$query->param("timestamp");
-	my $date=make_date(time(),DATE_STYLE);
-	add_proxy_entry($admin,$type,$ip,$timestamp,$date);
-}
-elsif($task eq "removeproxy")
-{
-	my $admin=$query->param("admin");
-	my $num=$query->param("num");
-	remove_proxy_entry($admin,$num);
-}
-elsif($task eq "spam")
-{
-	my ($admin);
-	$admin=$query->param("admin");
-	make_admin_spam_panel($admin);
-}
-elsif($task eq "updatespam")
-{
-	my $admin=$query->param("admin");
-	my $spam=$query->param("spam");
-	update_spam_file($admin,$spam);
-}
-elsif($task eq "sqldump")
-{
-	my $admin=$query->param("admin");
-	make_sql_dump($admin);
-}
-elsif($task eq "sql")
-{
-	my $admin=$query->param("admin");
-	my $nuke=$query->param("nuke");
-	my $sql=$query->param("sql");
-	make_sql_interface($admin,$nuke,$sql);
-}
-elsif($task eq "mpost")
-{
-	my $admin=$query->param("admin");
-	make_admin_post($admin);
-}
-elsif($task eq "rebuild")
-{
-	my $admin=$query->param("admin");
-	do_rebuild_cache($admin);
-}
-elsif($task eq "nuke")
-{
-	my $admin=$query->param("admin");
-	do_nuke_database($admin);
-}
-elsif($task eq "paint")
-{
-	make_error(S_NOOEKAKI) unless(ENABLE_OEKAKI);
-	my $oek_painter=$query->param("oek_painter");
-	my $oek_x=$query->param("oek_x");
-	my $oek_y=$query->param("oek_y");
-	my $oek_parent=$query->param("oek_parent");
-	my $oek_src=$query->param("oek_src");
-	make_painter($oek_painter,$oek_x,$oek_y,$oek_parent,$oek_src);
-}
-elsif($task eq "finish")
-{
-	make_error(S_NOOEKAKI) unless(ENABLE_OEKAKI);
-	my $oek_ip=$query->param("oek_ip") || $ENV{REMOTE_ADDR};
-	my $oek_parent=$query->param("oek_parent");
-	my $srcinfo=$query->param("srcinfo");
-	my $tmpname=TMP_DIR.$oek_ip.'.png';
-
-	die "Bad IP" unless($oek_ip=~/^[a-f0-9\.\:]+$/i);
-
-	make_http_header();
-	print OEKAKI_FINISH_TEMPLATE->(
-		tmpname=>$tmpname,
-		oek_parent=>clean_string($oek_parent),
-		oek_ip=>$oek_ip,
-		srcinfo=>clean_string($srcinfo),
-		decodedinfo=>OEKAKI_INFO_TEMPLATE->(decode_srcinfo($srcinfo)),
-	);
-}
-
-$dbh->disconnect();
-
 
 
 
@@ -1654,7 +1675,7 @@ sub make_error($)
 
 	print encode_string(ERROR_TEMPLATE->(error=>$error));
 
-	if($dbh)
+	if(!$use_fastcgi and $dbh)
 	{
 		$dbh->{Warn}=0;
 		$dbh->disconnect();
@@ -1671,7 +1692,13 @@ sub make_error($)
 
 	# delete temp files
 
-	exit;
+	stop_script();
+}
+
+sub stop_script()
+{
+	if($use_fastcgi) { next FASTCGI; }
+	else { exit; }
 }
 
 sub get_script_name()

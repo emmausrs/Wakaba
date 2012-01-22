@@ -22,6 +22,7 @@
 #use constant SQL_ADMIN_TABLE => 'admin';		# Table used for admin information
 #use constant SQL_PROXY_TABLE => 'proxy';		# Table used for proxy information
 #use constant USE_TEMPFILES => 1;				# Set this to 1 under Unix and 0 under Windows! (Use tempfiles when creating pages)
+#use constant USE_FASTCGI => 1; 				# Run the script as FastCGI. To benefit from FastCGI, the web server must be configured to run FastCGI scripts. Leaving this enabled will not break regular CGI.
 
 # Page look
 #use constant TITLE => 'Wakaba image board';	# Name of this image board

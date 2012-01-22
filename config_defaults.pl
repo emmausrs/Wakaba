@@ -17,6 +17,7 @@ BEGIN {
 	eval "use constant SQL_PROXY_TABLE => 'proxy'" unless(defined &SQL_PROXY_TABLE);
 
 	eval "use constant USE_TEMPFILES => 1" unless(defined &USE_TEMPFILES);
+	eval "use constant USE_FASTCGI => 1" unless(defined &USE_FASTCGI);
 
 	eval "use constant TITLE => 'Wakaba image board'" unless(defined &TITLE);
 	eval "use constant SHOWTITLETXT => 1" unless(defined &SHOWTITLETXT);
