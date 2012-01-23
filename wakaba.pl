@@ -277,6 +277,7 @@ sub init($)
 			decodedinfo=>OEKAKI_INFO_TEMPLATE->(decode_srcinfo($srcinfo)),
 		);
 	}
+	else { make_error(S_BADTASK); }
 
 	unless($use_fastcgi)
 	{

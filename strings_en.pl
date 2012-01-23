@@ -137,6 +137,7 @@ use constant S_NOOEKAKI => 'Error: You cannot use oekaki on this board.';	# Retu
 
 use constant S_SQLCONF => 'SQL connection failure';							# Database connection failure
 use constant S_SQLFAIL => 'Critical SQL problem!';							# SQL Failure
+use constant S_BADTASK => 'Error: Invalid task.';
 
 use constant S_REDIR => 'If the redirect didn\'t work, please choose one of the following mirrors:';    # Redir message for html in REDIR_DIR
 
