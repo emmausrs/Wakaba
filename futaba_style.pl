@@ -27,6 +27,7 @@ form .trap { display:none }
 .reply .filesize, .highlight .filesize { margin-left: 20px }
 .userdelete { float: right; text-align: center; white-space: nowrap }
 .replypage .replylink { display: none }
+.footer { clear: both }
 </style>
 
 <loop $stylesheets>
@@ -273,6 +274,8 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 	<if !$nextpage><const S_LASTPG></if>
 
 	</td></tr></tbody></table><br clear="all" />
+<else>
+	[<a href="<var expand_filename(HTML_SELF)>"><const S_RETURN></a>]
 </if>
 
 }.NORMAL_FOOT_INCLUDE);
