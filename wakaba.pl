@@ -641,13 +641,13 @@ sub post_stuff($$$$$$$$$$$$$$)
 	$date.=' ID:'.make_id_code($ip,$time,$email) if(DISPLAY_ID);
 
 	# copy file, do checksums, make thumbnail, etc
-	my ($filename,$md5,$width,$height,$thumbnail,$tn_width,$tn_height)=process_file($file,$uploadname,$time) if($file);
+	my ($filename,$md5,$width,$height,$thumbnail,$tn_width,$tn_height,$origname)=process_file($file,$uploadname,$time) if($file);
 
 	# finally, write to the database
-	my $sth=$dbh->prepare("INSERT INTO ".SQL_TABLE." VALUES(null,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);") or make_error(S_SQLFAIL);
+	my $sth=$dbh->prepare("INSERT INTO ".SQL_TABLE." VALUES(null,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);") or make_error(S_SQLFAIL);
 	$sth->execute($parent,$time,$lasthit,$numip,$ipv6,
 	$date,$name,$trip,$email,$subject,$password,$comment,
-	$filename,$size,$md5,$width,$height,$thumbnail,$tn_width,$tn_height) or make_error(S_SQLFAIL);
+	$filename,$origname,$size,$md5,$width,$height,$thumbnail,$tn_width,$tn_height) or make_error(S_SQLFAIL);
 
 	if($parent) # bumping
 	{
@@ -1196,11 +1196,12 @@ sub process_file($$$)
 		$thumbnail=$filename;
 	}
 
+	my $origname=$uploadname;
+	$origname=~s!^.*[\\/]!!; # cut off any directory in filename
+
 	if($filetypes{$ext}) # externally defined filetype - restore the name
 	{
-		my $newfilename=$uploadname;
-		$newfilename=~s!^.*[\\/]!!; # cut off any directory in filename
-		$newfilename=IMG_DIR.$newfilename;
+		my $newfilename=IMG_DIR.$origname;
 
 		unless(-e $newfilename) # verify no name clash
 		{
@@ -1223,7 +1224,7 @@ sub process_file($$$)
         }
 
 
-	return ($filename,$md5,$width,$height,$thumbnail,$tn_width,$tn_height);
+	return ($filename,$md5,$width,$height,$thumbnail,$tn_width,$tn_height,$origname);
 }
 
 
@@ -1822,6 +1823,7 @@ sub init_database()
 	"comment TEXT,".			# Comment text, HTML encoded.
 
 	"image TEXT,".				# Image filename with path and extension (IE, src/1081231233721.jpg)
+	"origname TEXT,".			# Original filename
 	"size INTEGER,".			# File size in bytes
 	"md5 TEXT,".				# md5 sum in hex
 	"width INTEGER,".			# Width of image in pixels

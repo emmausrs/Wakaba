@@ -160,7 +160,7 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 		<if !$parent>
 			<if $image>
 				<span class="filesize"><const S_PICNAME><a target="_blank" href="<var expand_image_filename($image)>"><var get_filename($image)></a>
-				-(<em><var $size> B, <var $width>x<var $height></em>)</span><br />
+				-(<em><var $size> B, <var $width>x<var $height><if $thread and $origname>, <span title="<var clean_string($origname)>"><var show_filename($origname)></if></span></em>)</span><br />
 
 				<if $thumbnail>
 					<a target="_blank" href="<var expand_image_filename($image)>">
@@ -219,7 +219,7 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 			<if $image>
 				<br />
 				<span class="filesize"><const S_PICNAME><a target="_blank" href="<var expand_image_filename($image)>"><var get_filename($image)></a>
-				-(<em><var $size> B, <var $width>x<var $height></em>)</span><br />
+				-(<em><var $size> B, <var $width>x<var $height><if $thread and $origname>, <span title="<var clean_string($origname)>"><var show_filename($origname)></if></span></em>)</span><br />
 
 				<if $thumbnail>
 					<a target="_blank" href="<var expand_image_filename($image)>">
@@ -777,6 +777,14 @@ $stylesheets=get_stylesheets(); # make stylesheets visible to the templates
 use strict;
 
 sub get_filename($) { my $path=shift; $path=~m!([^/]+)$!; clean_string($1) }
+
+sub show_filename($) {
+	my ($filename)=@_;
+	my ($name,$ext)=$filename=~/^(.*)(\.[^\.]+$)/;
+	length($name)>25
+		? clean_string(substr($name, 0, 25)."(...)$ext")
+		: clean_string($filename);
+}
 
 sub get_stylesheets()
 {
