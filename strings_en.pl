@@ -3,6 +3,9 @@ use constant S_ADMIN => 'Manage';									# Forwards to Management Panel
 use constant S_RETURN => 'Return';									# Returns to image board
 use constant S_POSTING => 'Posting mode: Reply';					# Prints message in red bar atop the reply screen
 
+use constant S_PAGETITLE => 'Page No.%d';								# Title to use on board pages.
+use constant S_THREADTITLE => 'Thread No.%d';							# Page title to use if no subject is defined.
+
 use constant S_NAME => 'Name';										# Describes name field
 use constant S_EMAIL => 'Link';									# Describes e-mail field
 use constant S_SUBJECT => 'Subject';								# Describes subject field

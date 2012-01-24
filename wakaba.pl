@@ -414,7 +414,8 @@ sub build_cache_page($$@)
 		prevpage=>$prevpage,
 		nextpage=>$nextpage,
 		pages=>\@pages,
-		threads=>\@threads
+		threads=>\@threads,
+		title=>$page?sprintf S_PAGETITLE,$page:''
 	));
 }
 
@@ -440,8 +441,9 @@ sub build_thread_cache($)
 		image_inp=>ALLOW_IMAGE_REPLIES,
 		textonly_inp=>0,
 		dummy=>$thread[$#thread]{num},
-		threads=>[{posts=>\@thread}])
-	);
+		threads=>[{posts=>\@thread}],
+		title=>$thread[0]{subject} ne ''?$thread[0]{subject}:sprintf S_THREADTITLE,$thread[0]{num}
+	));
 }
 
 sub print_page($$)
