@@ -243,6 +243,11 @@ sub init($)
 		my $admin=$query->param("admin");
 		do_rebuild_cache($admin);
 	}
+	elsif($task eq "restart")
+	{
+		my $admin=$query->param("admin");
+		restart_script($admin);
+	}
 	elsif($task eq "nuke")
 	{
 		my $admin=$query->param("admin");
@@ -1562,6 +1567,15 @@ sub do_rebuild_cache($)
 	build_cache();
 
 	make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
+}
+
+sub restart_script($)
+{
+	my ($admin)=@_;
+	check_password($admin,ADMIN_PASS);
+
+	make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
+	last FASTCGI;
 }
 
 sub add_admin_entry($$$$$$)

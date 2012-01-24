@@ -52,6 +52,7 @@ use constant S_MANASQLDUMP => 'SQL Dump';								# Defines SQL dump button
 use constant S_MANASQLINT => 'SQL Interface';							# Defines SQL interface button
 use constant S_MANAPOST => 'Manager Post';								# Defines Manager Post radio button--allows the user to post using HTML code in the comment box
 use constant S_MANAREBUILD => 'Rebuild caches';							# 
+use constant S_MANARESTART => 'Restart script';										# Defines label for FastCGI restart option
 use constant S_MANANUKE => 'Nuke board';								# 
 use constant S_MANALOGOUT => 'Log out';									# 
 use constant S_MANASAVE => 'Remember me on this computer';				# Defines Label for the login cookie checbox

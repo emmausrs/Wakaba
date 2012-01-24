@@ -329,6 +329,7 @@ use constant ADMIN_LOGIN_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 <option value="mpost"><const S_MANAPOST></option>
 <option value="rebuild"><const S_MANAREBUILD></option>
 <option value=""></option>
+<option value="restart"><const S_MANARESTART></option>
 <option value="nuke"><const S_MANANUKE></option>
 </select>
 <input type="submit" value="<const S_MANASUB>" />
