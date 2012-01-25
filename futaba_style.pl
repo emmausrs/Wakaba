@@ -184,8 +184,11 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 			<if !$email><span class="postername"><var $name></span><if $trip><span class="postertrip"><var $trip></span></if></if>
 			<var $date></label>
 			<span class="reflink">
-			<if !$thread><a href="<var get_reply_link($num,0)>#i<var $num>">No.<var $num></a></if>
-			<if $thread><a href="javascript:insert('&gt;&gt;<var $num>')">No.<var $num></a></if>
+			<if !$thread>
+				<a href="<var get_reply_link($num,0)>#<var $num>">No.</a><a href="<var get_reply_link($num,0)>#i<var $num>"><var $num></a>
+			<else>
+				<a href="<var get_reply_link($num,0)>#<var $num>">No.</a><a href="javascript:insert('&gt;&gt;<var $num>')"><var $num></a>
+			</if>
 			</span>&nbsp;
 			<if !$thread>[<a href="<var get_reply_link($num,0)>"><const S_REPLY></a>]</if>
 
@@ -212,8 +215,11 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 			<if !$email><span class="commentpostername"><var $name></span><if $trip><span class="postertrip"><var $trip></span></if></if>
 			<var $date></label>
 			<span class="reflink">
-			<if !$thread><a href="<var get_reply_link($parent,0)>#i<var $num>">No.<var $num></a></if>
-			<if $thread><a href="javascript:insert('&gt;&gt;<var $num>')">No.<var $num></a></if>
+			<if !$thread>
+				<a href="<var get_reply_link($parent,0)>#<var $num>">No.</a><a href="<var get_reply_link($parent,0)>#i<var $num>"><var $num></a>
+			<else>
+				<a href="<var get_reply_link($parent,0)>#<var $num>">No.</a><a href="javascript:insert('&gt;&gt;<var $num>')"><var $num></a>
+			</if>
 			</span>&nbsp;
 
 			<if $image>
@@ -434,6 +440,18 @@ use constant BAN_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 <tr><td class="postblock"><const S_BANMASKLABEL></td><td><input type="text" name="mask" size="24" /></td></tr>
 <tr><td class="postblock"><const S_BANCOMMENTLABEL></td><td><input type="text" name="comment" size="16" />
 <input type="submit" value="<const S_BANIP>" /></td></tr>
+<tr><td class="postblock"><const S_BANEXPIRESLABEL></td><td>
+<if !$parsedate and scalar BAN_DATES>
+	<select name="expires">
+		<loop BAN_DATES>
+			<option value="<var $label>"><var clean_string($label)></option>
+		</loop>
+	</select>
+<else>
+	<input type="text" name="expires" size="16" />
+	<if !$parsedate><small><const S_BANSECONDS></small></if>
+</if>
+</td></tr>
 </tbody></table></form>
 
 </td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td valign="bottom">
@@ -447,6 +465,18 @@ use constant BAN_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 <tr><td class="postblock"><const S_BANMASKLABEL></td><td><input type="text" name="mask" size="24" /></td></tr>
 <tr><td class="postblock"><const S_BANCOMMENTLABEL></td><td><input type="text" name="comment" size="16" />
 <input type="submit" value="<const S_BANWHITELIST>" /></td></tr>
+<tr><td class="postblock"><const S_BANEXPIRESLABEL></td><td>
+<if !$parsedate and scalar BAN_DATES>
+	<select name="expires">
+		<loop BAN_DATES>
+			<option value="<var $label>"><var clean_string($label)></option>
+		</loop>
+	</select>
+<else>
+	<input type="text" name="expires" size="16" />
+	<if !$parsedate><small><const S_BANSECONDS></small></if>
+</if>
+</td></tr>
 </tbody></table></form>
 
 </td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td></tr><tr><td valign="bottom">
@@ -459,6 +489,18 @@ use constant BAN_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 <tr><td class="postblock"><const S_BANWORDLABEL></td><td><input type="text" name="string" size="24" /></td></tr>
 <tr><td class="postblock"><const S_BANCOMMENTLABEL></td><td><input type="text" name="comment" size="16" />
 <input type="submit" value="<const S_BANWORD>" /></td></tr>
+<tr><td class="postblock"><const S_BANEXPIRESLABEL></td><td>
+<if !$parsedate and scalar BAN_DATES>
+	<select name="expires">
+		<loop BAN_DATES>
+			<option value="<var $label>"><var clean_string($label)></option>
+		</loop>
+	</select>
+<else>
+	<input type="text" name="expires" size="16" />
+	<if !$parsedate><small><const S_BANSECONDS></small></if>
+</if>
+</td></tr>
 </tbody></table></form>
 
 </td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td valign="bottom">
@@ -471,6 +513,18 @@ use constant BAN_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 <tr><td class="postblock"><const S_BANTRUSTTRIP></td><td><input type="text" name="string" size="24" /></td></tr>
 <tr><td class="postblock"><const S_BANCOMMENTLABEL></td><td><input type="text" name="comment" size="16" />
 <input type="submit" value="<const S_BANTRUST>" /></td></tr>
+<tr><td class="postblock"><const S_BANEXPIRESLABEL></td><td>
+<if !$parsedate and scalar BAN_DATES>
+	<select name="expires">
+		<loop BAN_DATES>
+			<option value="<var $label>"><var clean_string($label)></option>
+		</loop>
+	</select>
+<else>
+	<input type="text" name="expires" size="16" />
+	<if !$parsedate><small><const S_BANSECONDS></small></if>
+</if>
+</td></tr>
 </tbody></table></form>
 
 </td></tr></tbody></table>
@@ -480,25 +534,33 @@ use constant BAN_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 <tr class="managehead"><const S_BANTABLE></tr>
 
 <loop $bans>
-	<if $divider><tr class="managehead"><th colspan="6"></th></tr></if>
+	<if $divider><tr class="managehead"><th colspan="7"></th></tr></if>
 
 	<tr class="row<var $rowtype>">
 
 	<if $type eq 'ipban'>
 		<td>IP</td>
-		<td><var dec_to_dot($ival1,$sval1)>/<var dec_to_dot($ival2,$sval1)></td>
+		<td><if $date><var make_date($date, '2ch')></if></td>
+		<td><if $expires><var make_date($expires, '2ch')><else><const S_BANEXPIRESNEVER></if></td>
+		<td><var dec_to_dot($ival1,$sval1)></td><td><var dec_to_dot($ival2,$sval1)></td>
 	</if>
 	<if $type eq 'wordban'>
 		<td>Word</td>
-		<td><var $sval1></td>
+		<td><if $date><var make_date($date, '2ch')></if></td>
+		<td><if $expires><var make_date($expires, '2ch')><else><const S_BANEXPIRESNEVER></if></td>
+		<td colspan="2"><var $sval1></td>
 	</if>
 	<if $type eq 'trust'>
 		<td>NoCap</td>
-		<td><var $sval1></td>
+		<td><if $date><var make_date($date, '2ch')></if></td>
+		<td><if $expires><var make_date($expires, '2ch')><else><const S_BANEXPIRESNEVER></if></td>
+		<td colspan="2"><var $sval1></td>
 	</if>
 	<if $type eq 'whitelist'>
 		<td>Whitelist</td>
-		<td><var dec_to_dot($ival1)>/<var dec_to_dot($ival2)></td>
+		<td><if $date><var make_date($date, '2ch')></if></td>
+		<td><if $expires><var make_date($expires, '2ch')><else><const S_BANEXPIRESNEVER></if></td>
+		<td><var dec_to_dot($ival1)></td><td><var dec_to_dot($ival2)></td>
 	</if>
 
 	<td><var $comment></td>

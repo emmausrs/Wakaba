@@ -26,7 +26,7 @@ BEGIN { require "wakautils.pl"; }
 # Optional modules
 #
 
-my ($has_encode, $use_fastcgi);
+my ($has_encode, $use_fastcgi, $use_parsedate);
 
 if(CONVERT_CHARSETS)
 {
@@ -38,6 +38,12 @@ if(USE_FASTCGI)
 {
 	eval 'use CGI::Fast';
 	$use_fastcgi=1 unless($@);
+}
+
+if(USE_PARSEDATE)
+{
+	eval 'use Time::ParseDate';
+	$use_parsedate=1 unless($@);
 }
 
 
@@ -173,7 +179,8 @@ sub init($)
 		my $ip=$query->param("ip");
 		my $ipv6=$ip=~/\:/?1:$query->param("ipv6")?1:0;
 		my $mask=$query->param("mask");
-		add_admin_entry($admin,$type,$comment,parse_range($ip,$mask,$ipv6),$ipv6);
+		my $expires=$query->param("expires");
+		add_admin_entry($admin,$type,$comment,parse_range($ip,$mask,$ipv6),$ipv6,$expires);
 	}
 	elsif($task eq "addstring")
 	{
@@ -719,10 +726,19 @@ sub is_trusted($)
 	return 0;
 }
 
+sub clean_expired_bans()
+{
+	my ($sth);
+	$sth=$dbh->prepare("DELETE FROM ".SQL_ADMIN_TABLE." WHERE expires AND expires<=?;") or make_error(S_SQLFAIL);
+	$sth->execute(time) or make_error(S_SQLFAIL);
+}
+
 sub ban_check($$$$)
 {
 	my ($numip,$name,$subject,$comment,$ipv6)=@_;
 	my ($sth);
+
+	clean_expired_bans();
 
 	$sth=$dbh->prepare("SELECT count(*) FROM ".SQL_ADMIN_TABLE." WHERE type='ipban' AND sval1=? AND ? & ival2 = ival1 & ival2;") or make_error(S_SQLFAIL);
 	$sth->execute($ipv6,$numip) or make_error(S_SQLFAIL);
@@ -1408,6 +1424,8 @@ sub make_admin_ban_panel($)
 
 	check_password($admin,ADMIN_PASS);
 
+	clean_expired_bans();
+
 	$sth=$dbh->prepare("SELECT * FROM ".SQL_ADMIN_TABLE." WHERE type='ipban' OR type='wordban' OR type='whitelist' OR type='trust' ORDER BY type ASC,num ASC;") or make_error(S_SQLFAIL);
 	$sth->execute() or make_error(S_SQLFAIL);
 	while($row=get_decoded_hashref($sth))
@@ -1419,7 +1437,7 @@ sub make_admin_ban_panel($)
 	}
 
 	make_http_header();
-	print encode_string(BAN_PANEL_TEMPLATE->(admin=>$admin,bans=>\@bans));
+	print encode_string(BAN_PANEL_TEMPLATE->(admin=>$admin,bans=>\@bans,parsedate=>$use_parsedate));
 }
 
 sub make_admin_proxy_panel($)
@@ -1581,17 +1599,32 @@ sub restart_script($)
 	last FASTCGI;
 }
 
-sub add_admin_entry($$$$$$)
+sub add_admin_entry($$$$$$$)
 {
-	my ($admin,$type,$comment,$ival1,$ival2,$sval1)=@_;
+	my ($admin,$type,$comment,$ival1,$ival2,$sval1,$expires)=@_;
 	my ($sth);
+	my $time=time();
 
 	check_password($admin,ADMIN_PASS);
 
 	$comment=clean_string(decode_string($comment,CHARSET));
 
-	$sth=$dbh->prepare("INSERT INTO ".SQL_ADMIN_TABLE." VALUES(null,?,?,?,?,?);") or make_error(S_SQLFAIL);
-	$sth->execute($type,$comment,$ival1,$ival2,$sval1) or make_error(S_SQLFAIL);
+	if($use_parsedate) { $expires=parsedate($expires); } # Sexy date parsing
+	else
+	{
+		my ($date)=grep { $$_{label} eq $expires } @{BAN_DATES()};
+
+		if(defined $date->{time})
+		{
+			if($date->{time}!=0) { $expires=$time+$date->{time}; } # Use a predefined expiration time
+			else { $expires=0 } # Never expire
+		}
+		elsif($expires!=0) { $expires=$time+$expires } # Expire in X seconds
+		else { $expires=0 } # Never expire
+	}
+
+	$sth=$dbh->prepare("INSERT INTO ".SQL_ADMIN_TABLE." VALUES(null,?,?,?,?,?,?,?);") or make_error();
+	$sth->execute($time,$type,$comment,$ival1,$ival2,$sval1,$expires) or make_error(S_SQLFAIL);
 
 	make_http_forward(get_script_name()."?admin=$admin&task=bans",ALTERNATE_REDIRECT);
 }
@@ -1846,11 +1879,13 @@ sub init_admin_database()
 	$sth=$dbh->prepare("CREATE TABLE ".SQL_ADMIN_TABLE." (".
 
 	"num ".get_sql_autoincrement().",".	# Entry number, auto-increments
+	"date INTEGER,".				# Time when entry was added.
 	"type TEXT,".				# Type of entry (ipban, wordban, etc)
 	"comment TEXT,".			# Comment for the entry
 	"ival1 TEXT,".			# Integer value 1 (usually IP)
 	"ival2 TEXT,".			# Integer value 2 (usually netmask)
-	"sval1 TEXT".				# String value 1
+	"sval1 TEXT,".				# String value 1
+	"expires INTEGER".				# Time when entry expires
 
 	");") or make_error(S_SQLFAIL);
 	$sth->execute() or make_error(S_SQLFAIL);

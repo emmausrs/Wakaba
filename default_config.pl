@@ -137,7 +137,14 @@
 												# Hints: * Set all boards to use the same file for easy updating.
 												#        * Set up two files, one being the official list from
 												#          http://wakaba.c3.cx/antispam/spam.txt, and one your own additions.
-
+#use constant USE_PARSEDATE => 1;				# Attempt to parse expiration dates. Allows for writing stuff like "+1 week" or "midnight" instead of choosing predefined values or entering seconds. See: http://search.cpan.org/perldoc?Time::ParseDate
+#use constant BAN_DATES => [					# Ban expiration options to show in the admin panel.
+#	{ label=>'Never', time=>0 },
+#	{ label=>'3 days', time=>3600*24*3 },
+#	{ label=>'1 week', time=>3600*24*7 },
+#	{ label=>'1 month', time=>3600*24*30 },
+#	{ label=>'1 year', time=>3600*24*365 }
+#]; 
 
 # Oekaki
 #use constant ENABLE_OEKAKI => 0;				# Enable oekaki?

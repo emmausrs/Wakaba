@@ -104,6 +104,9 @@ BEGIN {
 	eval "use constant SPAM_TRAP => 1" unless(defined &SPAM_TRAP);
 	eval "use constant CHECK_REFERRER => 1" unless(defined &CHECK_REFERRER);
 	eval "use constant STRICT_REFERRER_CHECK => 0" unless(defined &STRICT_REFERRER_CHECK);
+	eval "use constant BAN_DATES => [{label=>'Never',time=>0},{label=>'3 days',time=>3600*24*3},{label=>'1 week',time=>3600*24*7},".
+	"{label=>'1 month',time=>3600*24*30},{label=>'1 year',time=>3600*24*365}]" unless(defined &BAN_DATES);
+	eval "use constant USE_PARSEDATE => 1" unless(defined &USE_PARSEDATE);
 
 	eval "use constant IMG_DIR => 'src/'" unless(defined &IMG_DIR);
 	eval "use constant THUMB_DIR => 'thumb/'" unless(defined &THUMB_DIR);

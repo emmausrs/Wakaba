@@ -74,10 +74,11 @@ use constant S_MPTABLE => '<th>Post No.</th><th>Time</th><th>Subject</th>'.
                           '<th>Name</th><th>Comment</th><th>IP</th>';	# Explains names for Management Panel
 use constant S_IMGSPACEUSAGE => '[ Space used: %d KB ]';				# Prints space used KB by the board under Management Panel
 
-use constant S_BANTABLE => '<th>Type</th><th>Value</th><th>Comment</th><th>Action</th>'; # Explains names for Ban Panel
+use constant S_BANTABLE => '<th>Type</th><th>Date</th><th>Expires</th><th colspan="2">Value</th><th>Comment</th><th>Action</th>'; # Explains names for Ban Panel
 use constant S_BANIPLABEL => 'IP';
 use constant S_BANMASKLABEL => 'Mask';
 use constant S_BANCOMMENTLABEL => 'Comment';
+use constant S_BANEXPIRESLABEL => 'Expires';
 use constant S_BANWORDLABEL => 'Word';
 use constant S_BANIP => 'Ban IP';
 use constant S_BANWORD => 'Ban word';
@@ -86,6 +87,8 @@ use constant S_BANREMOVE => 'Remove';
 use constant S_BANCOMMENT => 'Comment';
 use constant S_BANTRUST => 'No captcha';
 use constant S_BANTRUSTTRIP => 'Tripcode';
+use constant S_BANSECONDS => '(seconds)';
+use constant S_BANEXPIRESNEVER => 'Never';
 
 use constant S_PROXYTABLE => '<th>Type</th><th>IP</th><th>Expires</th><th>Date</th>'; # Explains names for Proxy Panel
 use constant S_PROXYIPLABEL => 'IP';
