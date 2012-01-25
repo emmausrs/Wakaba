@@ -160,7 +160,7 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 		<if !$parent>
 			<if $image>
 				<span class="filesize"><const S_PICNAME><a target="_blank" href="<var expand_image_filename($image)>"><var get_filename($image)></a>
-				-(<em><var $size> B, <var $width>x<var $height><if $thread and $origname>, <span title="<var clean_string($origname)>"><var show_filename($origname)></if></span></em>)</span><br />
+				-(<em><var make_size($size)>, <var $width>x<var $height><if $thread and $origname>, <span title="<var clean_string($origname)>"><var show_filename($origname)></if></span></em>)</span><br />
 
 				<if $thumbnail>
 					<a target="_blank" href="<var expand_image_filename($image)>">
@@ -225,7 +225,7 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 			<if $image>
 				<br />
 				<span class="filesize"><const S_PICNAME><a target="_blank" href="<var expand_image_filename($image)>"><var get_filename($image)></a>
-				-(<em><var $size> B, <var $width>x<var $height><if $thread and $origname>, <span title="<var clean_string($origname)>"><var show_filename($origname)></if></span></em>)</span><br />
+				-(<em><var make_size($size)>, <var $width>x<var $height><if $thread and $origname>, <span title="<var clean_string($origname)>"><var show_filename($origname)></if></span></em>)</span><br />
 
 				<if $thumbnail>
 					<a target="_blank" href="<var expand_image_filename($image)>">
@@ -388,7 +388,7 @@ use constant POST_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 		<tr class="row<var $rowtype>">
 		<td colspan="6"><small>
 		<const S_PICNAME><a href="<var expand_filename(clean_path($image))>"><var clean_string($image)></a>
-		(<var $size> B, <var $width>x<var $height>)&nbsp; MD5: <var $md5>
+		(<var make_size($size)>, <var $width>x<var $height>)&nbsp; MD5: <var $md5>
 		</small></td></tr>
 	</if>
 </loop>
@@ -417,7 +417,7 @@ use constant POST_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
 </div><br />
 
-<var sprintf S_IMGSPACEUSAGE,int($size/1024)>
+<var sprintf S_IMGSPACEUSAGE,make_size($size)>
 
 }.NORMAL_FOOT_INCLUDE);
 
@@ -866,6 +866,13 @@ sub show_filename($) {
 	length($name)>25
 		? clean_string(substr($name, 0, 25)."(...)$ext")
 		: clean_string($filename);
+}
+
+sub make_size($) {
+	my $size=shift or return "0 B";
+	my @s=qw(B kB MB GB);
+	for(0..3) { return sprintf "%0.2f $s[$_]",$size/1024**$_ if $size>=1024**$_ and $size<1024**($_+1); }
+	return sprintf("%0.2f TB",$size/1024**4); # should we even bother?
 }
 
 sub get_stylesheets()
