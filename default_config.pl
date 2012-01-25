@@ -4,13 +4,11 @@
 # Example config file.
 # 
 # Uncomment and edit the options you want to specifically change from the
-# default values. You must specify ADMIN_PASS, NUKE_PASS, SECRET and the
-# SQL_ options.
+# default values. You must specify ADMIN_PASS, SECRET and the SQL_ options.
 #
 
 # System config
 #use constant ADMIN_PASS => 'CHANGEME';			# Admin password. For fucks's sake, change this.
-#use constant NUKE_PASS => 'CHANGEME';			# Password to nuke a board. Change this too, NOW!
 #use constant SECRET => 'CHANGEME';				# Cryptographic secret. CHANGE THIS to something totally random, and long.
 #use constant SQL_DBI_SOURCE => 'DBI:mysql:database=CHANGEME;host=localhost'; # DBI data source string (mysql version, put server and database name in here)
 #use constant SQL_USERNAME => 'CHANGEME';		# MySQL login name
@@ -21,6 +19,7 @@
 #use constant SQL_TABLE => 'comments';			# Table (NOT DATABASE) used by image board
 #use constant SQL_ADMIN_TABLE => 'admin';		# Table used for admin information
 #use constant SQL_PROXY_TABLE => 'proxy';		# Table used for proxy information
+#use constant SQL_USER_TABLE => 'users';		# Table used for user credentials.
 #use constant USE_TEMPFILES => 1;				# Set this to 1 under Unix and 0 under Windows! (Use tempfiles when creating pages)
 #use constant USE_FASTCGI => 1; 				# Run the script as FastCGI. To benefit from FastCGI, the web server must be configured to run FastCGI scripts. Leaving this enabled will not break regular CGI.
 

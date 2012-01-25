@@ -56,7 +56,7 @@ my $protocol_re=qr/(?:http|https|ftp|mailto|nntp)/;
 
 my $ipv6_re=ipv6_regexp();
 
-my ($query, $dbh);
+my ($query,$dbh,$task);
 
 if($use_fastcgi)
 {
@@ -74,13 +74,16 @@ sub init($)
 	if($use_fastcgi) { $dbh=DBI->connect_cached(SQL_DBI_SOURCE,SQL_USERNAME,SQL_PASSWORD,{AutoCommit=>1}) or make_error(S_SQLCONF); }
 	else { $dbh=DBI->connect(SQL_DBI_SOURCE,SQL_USERNAME,SQL_PASSWORD,{AutoCommit=>1}) or make_error(S_SQLCONF); }
 
-	my $task=($query->param("task") or $query->param("action"));
+	$task=($query->param("task") or $query->param("action"));
 
 	# check for admin table
 	init_admin_database() if(!table_exists(SQL_ADMIN_TABLE));
 
 	# check for proxy table
 	init_proxy_database() if(!table_exists(SQL_PROXY_TABLE));
+
+	# check for user table
+	init_user_database() if(!table_exists(SQL_USER_TABLE));
 
 	if(!table_exists(SQL_TABLE)) # check for comments table
 	{
@@ -142,12 +145,14 @@ sub init($)
 	}
 	elsif($task eq "admin")
 	{
+		my $username=$query->param("kawaii");
 		my $password=$query->param("berra"); # lol obfuscation
 		my $nexttask=$query->param("nexttask");
 		my $savelogin=$query->param("savelogin");
+		my $usercookie=$query->cookie("wakauser");
 		my $admincookie=$query->cookie("wakaadmin");
 
-		do_login($password,$nexttask,$savelogin,$admincookie);
+		do_login($username,$password,$nexttask,$savelogin,$usercookie,$admincookie);
 	}
 	elsif($task eq "logout")
 	{
@@ -237,9 +242,8 @@ sub init($)
 	elsif($task eq "sql")
 	{
 		my $admin=$query->param("admin");
-		my $nuke=$query->param("nuke");
 		my $sql=$query->param("sql");
-		make_sql_interface($admin,$nuke,$sql);
+		make_sql_interface($admin,$sql);
 	}
 	elsif($task eq "mpost")
 	{
@@ -1539,17 +1543,15 @@ sub make_sql_dump($)
 	}
 }
 
-sub make_sql_interface($$$)
+sub make_sql_interface($$)
 {
-	my ($admin,$nuke,$sql)=@_;
+	my ($admin,$sql)=@_;
 	my ($sth,$row,@results);
 
-	check_password($admin,ADMIN_PASS);
+	check_password($admin,9999);
 
 	if($sql)
 	{
-		make_error(S_WRONGPASS) if($nuke ne NUKE_PASS); # check nuke password
-
 		my @statements=grep { /^\S/ } split /\r?\n/,decode_string($sql,CHARSET,1);
 
 		foreach my $statement (@statements)
@@ -1568,7 +1570,7 @@ sub make_sql_interface($$$)
 	}
 
 	make_http_header();
-	print encode_string(SQL_INTERFACE_TEMPLATE->(admin=>$admin,nuke=>$nuke,
+	print encode_string(SQL_INTERFACE_TEMPLATE->(admin=>$admin,
 	results=>join "<br />",map { clean_string($_,1) } @results));
 }
 
@@ -1582,16 +1584,16 @@ sub make_admin_post($)
 	print encode_string(ADMIN_POST_TEMPLATE->(admin=>$admin));
 }
 
-sub do_login($$$$)
+sub do_login($$$$$)
 {
-	my ($password,$nexttask,$savelogin,$admincookie)=@_;
+	my ($username,$password,$nexttask,$savelogin,$usercookie,$admincookie)=@_;
 	my $crypt;
 
-	if($password)
+	if($username and $password)
 	{
 		$crypt=crypt_password($password);
 	}
-	elsif($admincookie eq crypt_password(ADMIN_PASS))
+	elsif($usercookie and $admincookie eq crypt_password((get_user_stuff($usercookie))[0]))
 	{
 		$crypt=$admincookie;
 		$nexttask="mpanel";
@@ -1599,6 +1601,12 @@ sub do_login($$$$)
 
 	if($crypt)
 	{
+		if(!$usercookie)
+		{
+			make_cookies(wakauser=>$username,
+			-charset=>CHARSET,-autopath=>COOKIE_PATH,-expires=>time+365*24*3600);
+		}
+
 		if($savelogin and $nexttask ne "nuke")
 		{
 			make_cookies(wakaadmin=>$crypt,
@@ -1612,7 +1620,7 @@ sub do_login($$$$)
 
 sub do_logout()
 {
-	make_cookies(wakaadmin=>"",-expires=>1);
+	make_cookies(wakaadmin=>"",wakauser=>"",-expires=>1);
 	make_http_forward(get_script_name()."?task=admin",ALTERNATE_REDIRECT);
 }
 
@@ -1714,7 +1722,7 @@ sub do_nuke_database($)
 {
 	my ($admin)=@_;
 
-	check_password($admin,NUKE_PASS);
+	check_password($admin,9999);
 
 	init_database();
 	#init_admin_database();
@@ -1730,12 +1738,27 @@ sub do_nuke_database($)
 	make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
 }
 
+sub get_user_stuff($)
+{
+	my $sth=$dbh->prepare("SELECT password, level FROM ".SQL_USER_TABLE." WHERE username=?;") or make_error(S_SQLFAIL);
+	$sth->execute(shift) or make_error(S_SQLFAIL);
+
+	return $sth->fetchrow_array();
+}
+
 sub check_password($$)
 {
-	my ($admin,$password)=@_;
+	my ($password,$minlevel)=@_;
+	my ($realpass,$level,$row);
+	my $username=$query->cookie("wakauser");
 
-	return if($admin eq ADMIN_PASS);
-	return if($admin eq crypt_password($password));
+	make_error(S_WRONGPASS) unless $username and $password; # refuse empty credentials immediately
+
+	# get the password and access level
+	($realpass,$level)=get_user_stuff($username) or make_error(S_WRONGPASS);
+
+	make_error(S_NOACCESS) if $level<$minlevel; # insufficient privileges
+	return $level if $password eq crypt_password($realpass); # password matches
 
 	make_error(S_WRONGPASS);
 }
@@ -1944,6 +1967,24 @@ sub init_proxy_database()
 	"ip TEXT,".				# IP address
 	"timestamp INTEGER,".			# Age since epoch
 	"date TEXT".				# Human-readable form of date 
+
+	");") or make_error(S_SQLFAIL);
+	$sth->execute() or make_error(S_SQLFAIL);
+}
+
+sub init_user_database()
+{
+	my ($sth);
+
+	$sth=$dbh->do("DROP TABLE ".SQL_USER_TABLE.";") if(table_exists(SQL_USER_TABLE));
+	$sth=$dbh->prepare("CREATE TABLE ".SQL_USER_TABLE." (".
+
+	"num ".get_sql_autoincrement().",".	# Entry number, auto-increments
+	"username TEXT,".					# Username
+	"password TEXT,".					# Password, salted and hashed.
+	"lastlogin INTEGER,".				# Timestamp of last login
+	"level INTEGER,".					# Privileges
+	"email TEXT".
 
 	");") or make_error(S_SQLFAIL);
 	$sth->execute() or make_error(S_SQLFAIL);

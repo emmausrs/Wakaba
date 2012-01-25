@@ -323,9 +323,13 @@ use constant ADMIN_LOGIN_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
 <div align="center"><form action="<var $self>" method="post">
 <input type="hidden" name="task" value="admin" />
-<const S_ADMINPASS>
-<input type="password" name="berra" size="8" value="" />
-<br />
+
+<table><tbody><tr><td><const S_ADMINUSER></td>
+<td><input type="text" name="kawaii" size="12" value="" /></td></tr>
+<tr><td><const S_ADMINPASS></td>
+<td><input type="password" name="berra" size="12" value="" /></td>
+</tr></tbody></table>
+
 <label><input type="checkbox" name="savelogin" /> <const S_MANASAVE></label>
 <br />
 <select name="nexttask">
@@ -700,8 +704,7 @@ use constant SQL_INTERFACE_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
 <textarea name="sql" rows="10" cols="60"></textarea>
 
-<div class="delbuttons"><const S_SQLNUKE>
-<input type="password" name="nuke" value="<var $nuke>" />
+<div class="delbuttons">
 <input type="submit" value="<const S_SQLEXECUTE>" />
 </div>
 

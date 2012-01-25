@@ -44,8 +44,9 @@ use constant S_WEEKDAYS => ('Sun','Mon','Tue','Wed','Thu','Fri','Sat');	# Define
 use constant S_MANARET => 'Return';										# Returns to HTML file instead of PHP--thus no log/SQLDB update occurs
 use constant S_MANAMODE => 'Manager Mode';								# Prints heading on top of Manager page
 
-use constant S_MANALOGIN => 'Manager Login';							# Defines Management Panel radio button--allows the user to view the management panel (overview of all posts)
-use constant S_ADMINPASS => 'Admin password:';							# Prints login prompt
+use constant S_MANALOGIN => 'User Login';							# Defines Management Panel radio button--allows the user to view the management panel (overview of all posts)
+use constant S_ADMINUSER => 'Username:';
+use constant S_ADMINPASS => 'Password:';							# Prints login prompt
 
 use constant S_MANAPANEL => 'Management Panel';							# Defines Management Panel radio button--allows the user to view the management panel (overview of all posts)
 use constant S_MANABANS => 'Bans/Whitelist';							# Defines Bans Panel button
@@ -137,6 +138,7 @@ use constant S_DUPENAME => 'Error: A file with the same name already exists.';	#
 use constant S_NOTHREADERR => 'Error: Thread does not exist.';				# Returns error when a non-existant thread is accessed
 use constant S_BADDELPASS => 'Error: Incorrect password for deletion.';		# Returns error for wrong password (when user tries to delete file)
 use constant S_WRONGPASS => 'Error: Management password incorrect.';		# Returns error for wrong password (when trying to access Manager modes)
+use constant S_NOACCESS => 'Error: You don\'t have sufficient privileges!';	# Returns error for insufficient privileges
 use constant S_VIRUS => 'Error: Possible virus-infected file.';				# Returns error for malformed files suspected of being virus-infected.
 use constant S_NOTWRITE => 'Error: Could not write to directory.';				# Returns error when the script cannot write to the directory, the chmod (777) is wrong
 use constant S_SPAM => 'Spammers are not welcome here.';					# Returns error when detecting spam
