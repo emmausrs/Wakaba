@@ -161,6 +161,7 @@ use constant S_OEKSUBMIT => 'Paint!';										# Oekaki button used for submit
 use constant S_OEKIMGREPLY => 'Reply';
 
 use constant S_AUTOBANCOMMENT => 'Auto-banned: %s';
+use constant S_AUTOBANTRAP => 'Triggered a spam trap.';
 
 use constant S_OEKIMGREPLY => 'Reply';
 use constant S_OEKREPEXPL => 'Picture will be posted as a reply to thread <a href="%s">%s</a>.';

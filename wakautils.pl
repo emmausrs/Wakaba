@@ -1122,12 +1122,6 @@ sub write_array($@)
 # Spam utilities
 #
 
-sub spam_check($$) # Deprecated function
-{
-	my ($text,$spamfile)=@_;
-	return compile_spam_checker($spamfile)->($text);
-}
-
 sub compile_spam_checker(@)
 {
 	my @re=map {
@@ -1160,7 +1154,7 @@ sub spam_engine(%)
 	my $query=$args{query}||new CGI;
 	my $charset=$args{charset};
 
-	for(@trap_fields) { spam_screen($query) if $query->param($_) }
+	for(@trap_fields) { return {} if $query->param($_) }
 
 	my $spam_checker=compile_spam_checker(@spam_files);
 	my @fields=@included_fields?@included_fields:$query->param;
@@ -1172,22 +1166,6 @@ sub spam_engine(%)
 	return $spam_checker->($fulltext);
 }
 
-sub spam_screen($)
-{
-	my $query=shift;
-
-	print "Content-Type: text/html\n\n";
-	print "<html><body>";
-	print "<h1>Anti-spam filters triggered.</h1>";
-	print "<p>If you are not a spammer, you are probably accidentially ";
-	print "trying to use an URL that is listed in the spam file. Try ";
-	print "editing your post to remove it. Sorry for any inconvenience.</p>";
-	print "<small style='color:white'><small>";
-	print "$_<br>" for(map $query->param($_),$query->param);
-	print "</small></small>";
-
-	exit 0;
-}
 
 
 #

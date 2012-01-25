@@ -602,7 +602,10 @@ sub post_stuff($$$$$$$$$$$$$$)
 
 		if(AUTOBAN_SPAMMERS)
 		{
-			my $com=sprintf(S_AUTOBANCOMMENT,$isspam);
+			my $com;
+			if (ref($isspam) eq "HASH") { $com=S_AUTOBANTRAP; } # Spam trap
+			else { $com=sprintf(S_AUTOBANCOMMENT,$isspam); } # Banned phrase, append the triggering phrase to the comment.
+
 			my @ivals=parse_range($numip,undef,$ipv6);
 			my $length=AUTOBAN_LENGTH ? $time+AUTOBAN_LENGTH : 0;
 
