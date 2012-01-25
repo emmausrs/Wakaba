@@ -585,13 +585,35 @@ sub post_stuff($$$$$$$$$$$$$$)
 	ban_check($numip,$c_name,$subject,$comment,$ipv6) unless $whitelisted;
 
 	# spam check
-	spam_engine(
+	my $isspam;
+	$isspam = spam_engine(
 		query=>$query,
 		trap_fields=>SPAM_TRAP?["name","link"]:[],
 		spam_files=>[SPAM_FILES],
 		charset=>CHARSET,
 		included_fields=>["field1","field2","field3","field4"],
-	) unless $whitelisted;
+	) unless $whitelisted or $trusted or $admin;
+
+	if($isspam)
+	{
+		# note to self: there should be some way of deciding the strictness of a spam phrase
+		# for example, blocking /^https?:\/\/.+?$/s may be desirable, but it shouldn't trigger an autoban
+
+		if(AUTOBAN_SPAMMERS)
+		{
+			my $com=sprintf(S_AUTOBANCOMMENT,$isspam);
+			my @ivals=parse_range($numip,undef,$ipv6);
+			my $length=AUTOBAN_LENGTH ? $time+AUTOBAN_LENGTH : 0;
+
+			# ban the spammer
+			my $sth=$dbh->prepare("INSERT INTO ".SQL_ADMIN_TABLE." VALUES(0,?,?,?,?,?,?,?);") or make_error(S_SQLFAIL);
+			$sth->execute($time,'ipban',$com,@ivals,$ipv6,$length) or make_error(S_SQLFAIL);
+
+			# maybe add some sort of logging?
+		}
+
+		make_error(S_SPAM);
+	}
 
 	# check captcha
 	check_captcha($dbh,$captcha,$ip,$parent) if(ENABLE_CAPTCHA and !$no_captcha and !$trusted);

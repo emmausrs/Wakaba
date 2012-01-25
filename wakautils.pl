@@ -1140,13 +1140,13 @@ sub compile_spam_checker(@)
 		if(!length) { () } # nothing left, skip
 		elsif(m!^/(.*)/$!) { $1 } # a regular expression
 		elsif(m!^/(.*)/([xism]+)$!) { "(?$2)$1" } # a regular expression with xism modifiers
-		else { quotemeta } # a normal string
+		else { '(?i)'.quotemeta } # a normal string
 	} map read_array($_),@_;
 
 	return eval 'sub {
 		$_=shift;
 		# study; # causes a strange bug - moved to spam_engine()
-		return '.(join "||",map "/$_/mo",(@re)).';
+		if('.(join "||",map "/($_)/mo",(@re)).') { return $1 }
 	}';
 }
 
@@ -1169,7 +1169,7 @@ sub spam_engine(%)
 	my $fulltext=join "\n",map $query->param($_),@fields;
 	study $fulltext;
 
-	spam_screen($query) if $spam_checker->($fulltext);
+	return $spam_checker->($fulltext);
 }
 
 sub spam_screen($)

@@ -118,6 +118,8 @@
 #use constant FORCED_ANON => 0;					# Force anonymous posting (0: no, 1: yes)
 #use constant USE_XHTML => 1;					# Send pages as application/xhtml+xml to browsers that support this (0:no, 1:yes)
 #use constant SPAM_TRAP => 1;					# Enable the spam trap (empty, hidden form fields that spam bots usually fill out) (0:no, 1:yes)
+#use constant AUTOBAN_SPAMMERS => 1;			# Autoban spammers (0: no, 1: yes)
+#use constant AUTOBAN_LENGTH => 21600;			# Ban length for spammers in seconds, or 0 for an infinite ban. In my experience, short ban times (~6 hours) work just fine.
 #use constant CHECK_REFERRER => 1;				# Enable referrer checking? This protects the board against CSRF attacks and is unlikely to have any downsides.
 #use constant STRICT_REFERRER_CHECK => 0;		# Should referrer checking be strict? This will block legit use of blank referrers, image dumpers and scripts such as Wakaba Extension (quick reply), but will protect against certain malicious bots.
 

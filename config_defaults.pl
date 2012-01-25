@@ -102,6 +102,8 @@ BEGIN {
 	eval "use constant FORCED_ANON => 0" unless(defined &FORCED_ANON);
 	eval "use constant USE_XHTML => 1" unless(defined &USE_XHTML);
 	eval "use constant SPAM_TRAP => 1" unless(defined &SPAM_TRAP);
+	eval "use constant AUTOBAN_SPAMMERS => 1" unless(defined &AUTOBAN_SPAMMERS);
+	eval "use constant AUTOBAN_LENGTH => 21600" unless(defined &AUTOBAN_LENGTH);
 	eval "use constant CHECK_REFERRER => 1" unless(defined &CHECK_REFERRER);
 	eval "use constant STRICT_REFERRER_CHECK => 0" unless(defined &STRICT_REFERRER_CHECK);
 	eval "use constant BAN_DATES => [{label=>'Never',time=>0},{label=>'3 days',time=>3600*24*3},{label=>'1 week',time=>3600*24*7},".
