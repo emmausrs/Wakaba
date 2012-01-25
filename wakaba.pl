@@ -231,7 +231,8 @@ sub init($)
 	elsif($task eq "sqldump")
 	{
 		my $admin=$query->param("admin");
-		make_sql_dump($admin);
+		my $table=$query->param("table");
+		make_sql_dump($admin,$table);
 	}
 	elsif($task eq "sql")
 	{
@@ -1501,23 +1502,38 @@ sub make_admin_spam_panel($)
 
 sub make_sql_dump($)
 {
-	my ($admin)=@_;
+	my ($admin,$table)=@_;
 	my ($sth,$row,@database);
 
 	check_password($admin,ADMIN_PASS);
 
-	$sth=$dbh->prepare("SELECT * FROM ".SQL_TABLE.";") or make_error(S_SQLFAIL);
-	$sth->execute() or make_error(S_SQLFAIL);
-	while($row=get_decoded_arrayref($sth))
-	{
-		push @database,"INSERT INTO ".SQL_TABLE." VALUES('".
-		(join "','",map { s/\\/&#92;/g; $_ } @{$row}). # escape ' and \, and join up all values with commas and apostrophes
-		"');";
-	}
+	my $tables={admin=>SQL_ADMIN_TABLE,comments=>SQL_TABLE,captcha=>SQL_CAPTCHA_TABLE,proxy=>SQL_PROXY_TABLE};
 
-	make_http_header();
-	print encode_string(SQL_DUMP_TEMPLATE->(admin=>$admin,
-	database=>join "<br />",map { clean_string($_,1) } @database));
+	if ($table)
+	{
+		my $tablename=$tables->{$table} or make_error(S_BADTABLE);
+
+		$sth=$dbh->prepare("SELECT * FROM $tablename;") or make_error(S_SQLFAIL);
+		$sth->execute() or make_error(S_SQLFAIL);
+		while($row=get_decoded_arrayref($sth))
+		{
+			push @database, "INSERT INTO $tablename VALUES('".
+			(join "','",map { s/\\/&#92;/g; $_ } @{$row}). # escape ' and \, and join up all values with commas and apostrophes
+			"');";
+		}
+
+		print "Content-Type: application/octet-stream\n";
+		print "Content-Disposition: attachment; filename=\"$table.sql\"\n\n";
+
+		map { print "$_\n" } @database;
+	}
+	else
+	{
+		my @tables=map { +{ table=>$_ } } sort keys %$tables;
+
+		make_http_header();
+		print encode_string(SQL_DUMP_TEMPLATE->(admin=>$admin,tables=>\@tables));
+	}
 }
 
 sub make_sql_interface($$$)

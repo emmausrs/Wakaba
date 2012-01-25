@@ -106,6 +106,8 @@ use constant S_SPAMSUBMIT => 'Save';
 use constant S_SPAMCLEAR => 'Clear';
 use constant S_SPAMRESET => 'Restore';
 
+use constant S_SQLDUMP => 'Dump';
+
 use constant S_SQLNUKE => 'Nuke password:';
 use constant S_SQLEXECUTE => 'Execute';
 
@@ -144,6 +146,7 @@ use constant S_NOOEKAKI => 'Error: You cannot use oekaki on this board.';	# Retu
 
 use constant S_SQLCONF => 'SQL connection failure';							# Database connection failure
 use constant S_SQLFAIL => 'Critical SQL problem!';							# SQL Failure
+use constant S_BADTABLE => 'Bad database table.';
 use constant S_BADTASK => 'Error: Invalid task.';
 
 use constant S_REDIR => 'If the redirect didn\'t work, please choose one of the following mirrors:';    # Redir message for html in REDIR_DIR

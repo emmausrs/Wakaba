@@ -663,7 +663,27 @@ use constant SQL_DUMP_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
 <div class="dellist"><const S_MANASQLDUMP></div>
 
-<pre><code><var $database></code></pre>
+<div align="center">
+
+<br />
+
+<form action="<var $self>" method="get">
+<input type="hidden" name="admin" value="<var $admin>" />
+<input type="hidden" name="task" value="sqldump" />
+
+<select name="table">
+	<loop $tables>
+		<option value="<var $table>"><var $table></option>
+	</loop>
+</select>
+
+<input type="submit" value="<const S_SQLDUMP>" />
+
+</form>
+
+<br />
+
+</div>
 
 }.NORMAL_FOOT_INCLUDE);
 
