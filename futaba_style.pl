@@ -254,10 +254,11 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 </loop>
 
 <table class="userdelete"><tbody><tr><td>
-<input type="hidden" name="task" value="delete" />
 <const S_REPDEL>[<label><input type="checkbox" name="fileonly" value="on" /><const S_DELPICONLY></label>]<br />
 <const S_DELKEY><input type="password" name="password" size="8" />
-<input value="<const S_DELETE>" type="submit" /></td></tr></tbody></table>
+<input name="task" value="<const S_DELETE>" type="submit" />
+<if ENABLE_REPORTS><input name="task" value="<const S_REPORT>" type="submit" /></if>
+</td></tr></tbody></table>
 </form>
 <script type="text/javascript">set_delpass("delform")</script>
 
@@ -283,6 +284,47 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 <else>
 	[<a href="<var expand_filename(HTML_SELF)>"><const S_RETURN></a>]
 </if>
+
+}.NORMAL_FOOT_INCLUDE);
+
+
+use constant POST_REPORT_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
+
+[<a href="<var expand_filename(HTML_SELF)>"><const S_RETURN></a>]
+<div class="theader"><const S_REPORTHEAD></div>
+
+<div align="center">
+	<h3><const S_REPORTEXPL></h3>
+
+	<h3><loop $posts>
+	&nbsp;<a href="<var get_reply_link($num,$parent)>"><var $num></a>&nbsp;
+	</loop></h3>
+
+	<h3><label for="reason"><const S_REPORTREASON></label></h3>
+
+	<form action="<var $self>" method="post">
+	<input type="hidden" name="sent" value="1" />
+	<loop $posts><input type="hidden" name="delete" value="<var $num>" /></loop>
+	<input type="text" name="reason" id="reason" value="" size="32" />
+	<input type="submit" name="task" value="<const S_REPORT>" />
+	</form>
+</div>
+
+<br /><hr />
+
+}.NORMAL_FOOT_INCLUDE);
+
+
+use constant POST_REPORT_SUCCESSFUL => compile_template(NORMAL_HEAD_INCLUDE.q{
+
+<div align="center">
+<h1><const S_REPORTSUCCESS></h1>
+<br />
+<h1><a href="<var expand_filename(HTML_SELF)>"><const S_RETURN></a></h1>
+<br />
+</div>
+
+<hr />
 
 }.NORMAL_FOOT_INCLUDE);
 

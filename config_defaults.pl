@@ -14,6 +14,7 @@ BEGIN {
 	eval "use constant SQL_TABLE => 'comments'" unless(defined &SQL_TABLE);
 	eval "use constant SQL_ADMIN_TABLE => 'admin'" unless(defined &SQL_ADMIN_TABLE);
 	eval "use constant SQL_PROXY_TABLE => 'proxy'" unless(defined &SQL_PROXY_TABLE);
+	eval "use constant SQL_REPORT_TABLE => 'report'" unless(defined &SQL_REPORT_TABLE);
 	eval "use constant SQL_USER_TABLE => 'users'" unless(defined &SQL_USER_TABLE);
 
 	eval "use constant USE_TEMPFILES => 1" unless(defined &USE_TEMPFILES);
@@ -109,6 +110,9 @@ BEGIN {
 	eval "use constant BAN_DATES => [{label=>'Never',time=>0},{label=>'3 days',time=>3600*24*3},{label=>'1 week',time=>3600*24*7},".
 	"{label=>'1 month',time=>3600*24*30},{label=>'1 year',time=>3600*24*365}]" unless(defined &BAN_DATES);
 	eval "use constant USE_PARSEDATE => 1" unless(defined &USE_PARSEDATE);
+	eval "use constant ENABLE_REPORTS => 1";
+	eval "use constant REPORTS_MAX => 5";
+	eval "use constant REPORTS_REASONLENGTH => 120";
 
 	eval "use constant IMG_DIR => 'src/'" unless(defined &IMG_DIR);
 	eval "use constant THUMB_DIR => 'thumb/'" unless(defined &THUMB_DIR);

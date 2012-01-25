@@ -82,6 +82,9 @@ sub init($)
 	# check for proxy table
 	init_proxy_database() if(!table_exists(SQL_PROXY_TABLE));
 
+	# check for report table
+	init_report_database() if(!table_exists(SQL_REPORT_TABLE));
+
 	# check for user table
 	init_user_database() if(!table_exists(SQL_USER_TABLE));
 
@@ -133,7 +136,7 @@ sub init($)
 
 		unlink $tmpname if($task eq "oekakipost");
 	}
-	elsif($task eq "delete")
+	elsif($task eq "delete" or $task eq S_DELETE)
 	{
 		my $password=$query->param("password");
 		my $fileonly=$query->param("fileonly");
@@ -142,6 +145,13 @@ sub init($)
 		my @posts=$query->param("delete");
 
 		delete_stuff($password,$fileonly,$archive,$admin,@posts);
+	}
+	elsif($task eq "report" or $task eq S_REPORT)
+	{
+		my $sent=$query->param("sent");
+		my $reason=$query->param("reason");
+		my @posts=$query->param("delete");
+		report_stuff($sent,$reason,@posts);
 	}
 	elsif($task eq "admin")
 	{
@@ -763,7 +773,7 @@ sub clean_expired_bans()
 	$sth->execute(time) or make_error(S_SQLFAIL);
 }
 
-sub ban_check($$$$)
+sub ban_check($$$$$)
 {
 	my ($numip,$name,$subject,$comment,$ipv6)=@_;
 	my ($sth);
@@ -1410,6 +1420,62 @@ sub delete_post($$$$)
 
 
 
+#'
+# Reporting
+#
+
+sub report_stuff(@)
+{
+	my ($sent,$reason,@posts)=@_;
+
+	make_error(S_CANNOTREPORT) if(!ENABLE_REPORTS);
+
+	# set up variables
+	my $ip=$ENV{REMOTE_ADDR};
+	my $numip=dot_to_dec($ip);
+	my $ipv6=$ip=~/:/;
+	my $time=time();
+	my ($sth);
+
+	# error checks
+	make_error(S_NOPOSTS) if(!@posts); # no posts
+	make_error(S_REPORTSFLOOD) if(@posts>REPORTS_MAX); # too many reports
+
+	# ban check
+	my $whitelisted=is_whitelisted($numip,$ipv6);
+	ban_check($numip,'','','',$ipv6) unless $whitelisted;
+
+	# we won't bother doing proxy checks - users with open proxies should be able to report too unless they're banned
+
+	# verify each post's existence and append a hash ref with its info to the array
+	my @reports=map {
+		my $post=$_;
+		if(my $row=get_post($post)) { $row }
+		else { make_error(sprintf S_NOTEXISTPOST,$post); }
+	} @posts;
+
+	if(!$sent)
+	{
+		make_http_header();
+		print encode_string(POST_REPORT_TEMPLATE->(posts=>\@reports));
+	}
+	else
+	{
+		make_error(S_TOOLONG) if(length($reason)>REPORTS_REASONLENGTH);
+
+		# add reports in database
+		foreach my $report (@reports)
+		{
+			$sth=$dbh->prepare("INSERT INTO ".SQL_REPORT_TABLE." VALUES(0,?,?,?,?,?,?);") or make_error(S_SQLFAIL);
+			$sth->execute($time,$$report{num},$$report{parent},$reason,$ip,SQL_TABLE) or make_error(S_SQLFAIL);
+		}
+
+		make_http_header();
+		print encode_string(POST_REPORT_SUCCESSFUL->());
+	}
+}
+
+
 #
 # Admin interface
 #
@@ -1967,6 +2033,25 @@ sub init_proxy_database()
 	"ip TEXT,".				# IP address
 	"timestamp INTEGER,".			# Age since epoch
 	"date TEXT".				# Human-readable form of date 
+
+	");") or make_error(S_SQLFAIL);
+	$sth->execute() or make_error(S_SQLFAIL);
+}
+
+sub init_report_database()
+{
+	my ($sth);
+
+	$sth=$dbh->do("DROP TABLE ".SQL_REPORT_TABLE.";") if(table_exists(SQL_REPORT_TABLE));
+	$sth=$dbh->prepare("CREATE TABLE ".SQL_REPORT_TABLE." (".
+
+	"num ".get_sql_autoincrement().",".	# Entry number, auto-increments
+	"date INTEGER,".					# Timestamp of report
+	"post INTEGER,".					# Reported post
+	"parent INTEGER,".					# Parent of reported post
+	"reason TEXT,".						# Report reason
+	"ip TEXT,".							# IP address in human-readable form
+	"board TEXT".						# SQL table of board the report was made on
 
 	");") or make_error(S_SQLFAIL);
 	$sth->execute() or make_error(S_SQLFAIL);

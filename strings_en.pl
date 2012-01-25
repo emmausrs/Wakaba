@@ -33,6 +33,8 @@ use constant S_REPDEL => 'Delete Post ';							# Prints text next to S_DELPICONL
 use constant S_DELPICONLY => 'File Only';							# Prints text next to checkbox for file deletion (right)
 use constant S_DELKEY => 'Password ';								# Prints text next to password field for deletion (left)
 use constant S_DELETE => 'Delete';									# Defines deletion button's name
+use constant S_REPORT => 'Report';									# Defines report button's name
+use constant S_REPORTSUCCESS => 'Thank you for reporting! The staff has been notified and will fix this mess shortly.';
 
 use constant S_PREV => 'Previous';									# Defines previous button
 use constant S_FIRSTPG => 'Previous';								# Defines previous button
@@ -40,6 +42,10 @@ use constant S_NEXT => 'Next';										# Defines next button
 use constant S_LASTPG => 'Next';									# Defines next button
 
 use constant S_WEEKDAYS => ('Sun','Mon','Tue','Wed','Thu','Fri','Sat');	# Defines abbreviated weekday names.
+
+use constant S_REPORTHEAD => 'Post reporting';
+use constant S_REPORTEXPL => 'You are reporting the following posts:';
+use constant S_REPORTREASON => 'Please enter a report reason:';
 
 use constant S_MANARET => 'Return';										# Returns to HTML file instead of PHP--thus no log/SQLDB update occurs
 use constant S_MANAMODE => 'Manager Mode';								# Prints heading on top of Manager page
@@ -135,7 +141,10 @@ use constant S_RENZOKU3 => 'Error: Flood detected.';						# Returns error for $s
 use constant S_PROXY => 'Error: Open proxy detected.';						# Returns error for proxy detection.
 use constant S_DUPE => 'Error: This file has already been posted <a href="%s">here</a>.';	# Returns error when an md5 checksum already exists.
 use constant S_DUPENAME => 'Error: A file with the same name already exists.';	# Returns error when an filename already exists.
+use constant S_NOPOSTS => 'Error: You didn\'t select any posts!';
+use constant S_REPORTSFLOOD => 'Error: You can only report up to %d posts.';
 use constant S_NOTHREADERR => 'Error: Thread does not exist.';				# Returns error when a non-existant thread is accessed
+use constant S_NOTEXISTPOST => 'Error: The post %d does not exist.';
 use constant S_BADDELPASS => 'Error: Incorrect password for deletion.';		# Returns error for wrong password (when user tries to delete file)
 use constant S_WRONGPASS => 'Error: Management password incorrect.';		# Returns error for wrong password (when trying to access Manager modes)
 use constant S_NOACCESS => 'Error: You don\'t have sufficient privileges!';	# Returns error for insufficient privileges
@@ -145,6 +154,7 @@ use constant S_SPAM => 'Spammers are not welcome here.';					# Returns error whe
 use constant S_NOIPV6 => 'Error: IPv6 is not supported.';
 use constant S_BADREFERRER => 'Error: Bad referrer.';						# Returns error for bad referrers.
 use constant S_NOOEKAKI => 'Error: You cannot use oekaki on this board.';	# Returns error when oekaki is disabled and someone is trying to perform an oekaki task.
+use constant S_CANNOTREPORT => 'Error: You cannot report posts on this board.';
 
 use constant S_SQLCONF => 'SQL connection failure';							# Database connection failure
 use constant S_SQLFAIL => 'Critical SQL problem!';							# SQL Failure

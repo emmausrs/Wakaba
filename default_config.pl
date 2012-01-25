@@ -19,6 +19,7 @@
 #use constant SQL_TABLE => 'comments';			# Table (NOT DATABASE) used by image board
 #use constant SQL_ADMIN_TABLE => 'admin';		# Table used for admin information
 #use constant SQL_PROXY_TABLE => 'proxy';		# Table used for proxy information
+#use constant SQL_REPORT_TABLE => 'report';		# Table used for post reports.
 #use constant SQL_USER_TABLE => 'users';		# Table used for user credentials.
 #use constant USE_TEMPFILES => 1;				# Set this to 1 under Unix and 0 under Windows! (Use tempfiles when creating pages)
 #use constant USE_FASTCGI => 1; 				# Run the script as FastCGI. To benefit from FastCGI, the web server must be configured to run FastCGI scripts. Leaving this enabled will not break regular CGI.
@@ -121,6 +122,9 @@
 #use constant AUTOBAN_LENGTH => 21600;			# Ban length for spammers in seconds, or 0 for an infinite ban. In my experience, short ban times (~6 hours) work just fine.
 #use constant CHECK_REFERRER => 1;				# Enable referrer checking? This protects the board against CSRF attacks and is unlikely to have any downsides.
 #use constant STRICT_REFERRER_CHECK => 0;		# Should referrer checking be strict? This will block legit use of blank referrers, image dumpers and scripts such as Wakaba Extension (quick reply), but will protect against certain malicious bots.
+#use constant ENABLE_REPORTS => 1;				# Enable user reporting of posts? (0: no, 1: yes)
+#use constant REPORTS_MAX => 5;					# Maximum amount of posts one can report at the same time.
+#use constant REPORTS_REASONLENGTH => 120;		# Maximum length of report reasons.
 
 # Internal paths and files - might as well leave this alone.
 #use constant IMG_DIR => 'src/';				# Image directory (needs to be writeable by the script)
