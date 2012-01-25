@@ -160,7 +160,7 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 		<if !$parent>
 			<if $image>
 				<span class="filesize"><const S_PICNAME><a target="_blank" href="<var expand_image_filename($image)>"><var get_filename($image)></a>
-				-(<em><var make_size($size)>, <var $width>x<var $height><if $thread and $origname>, <span title="<var clean_string($origname)>"><var show_filename($origname)></if></span></em>)</span><br />
+				-(<em><var make_size($size)>, <var $width>x<var $height><if $thread and $origname>, <span title="<var clean_string($origname)>"><var show_filename($origname)></span></if></em>)</span><br />
 
 				<if $thumbnail>
 					<a target="_blank" href="<var expand_image_filename($image)>">
@@ -225,7 +225,7 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 			<if $image>
 				<br />
 				<span class="filesize"><const S_PICNAME><a target="_blank" href="<var expand_image_filename($image)>"><var get_filename($image)></a>
-				-(<em><var make_size($size)>, <var $width>x<var $height><if $thread and $origname>, <span title="<var clean_string($origname)>"><var show_filename($origname)></if></span></em>)</span><br />
+				-(<em><var make_size($size)>, <var $width>x<var $height><if $thread and $origname>, <span title="<var clean_string($origname)>"><var show_filename($origname)></span></if></em>)</span><br />
 
 				<if $thumbnail>
 					<a target="_blank" href="<var expand_image_filename($image)>">
