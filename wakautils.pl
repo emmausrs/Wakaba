@@ -742,35 +742,25 @@ sub resolve_ip($)
 	return inet_ntoa($result) if $result;
 }
 
-sub check_dnsbl($@)
+sub check_dnsbl($$)
 {
-	my ($ip,@dnsbl)=@_;
+	my ($ip,$dnsbl)=@_;
 	return if($ip=~/\:/); # Don't query DNSBL for IPv6 addresses
 
-	foreach my $bl (@dnsbl)
+	foreach my $bl (keys %$dnsbl)
 	{
-		my $lookup=sprintf("%s.%s", reverse_ip($ip), $bl);
-		return 1 if resolve_ip($lookup);
+		my $lookup=sprintf($bl,reverse_ip($ip));
+		my $response=resolve_ip($lookup);
+		my $matchtype=ref $$dnsbl{$bl};
+
+		if($response)
+		{
+			if($matchtype eq "Regexp") { return 1 if($response=~$$dnsbl{$bl}); } # match against regexp
+			elsif($matchtype eq "ARRAY") { return 1 if grep { $_ eq $response } @{$$dnsbl{$bl}}; } # match against array
+			elsif($matchtype eq "CODE") { return 1 if $$dnsbl{$bl}->($response); } # match in closure
+			elsif(!$matchtype) { return 1 if $$dnsbl{$bl} eq $response } # match against string
+		}
 	}
-}
-
-sub check_tor($;$)
-{
-	my ($ip,$dest)=@_; # Dest is the IP:port of the server running/serving this site
-	my ($result);
-
-	return if($ip=~/\:/); # Tor doesn't support IPv6
-
-	if ($dest)
-	{
-		my ($destip,$destport)=split /:/, $dest;
-		my $res = sprintf "%s.%s.%s.ip-port.exitlist.torproject.org", reverse_ip($ip), $destport, reverse_ip($destip);
-		return resolve_ip($res);
-	}
-
-	my $res = sprintf "%s.tor.dnsbl.sectoor.de", reverse_ip($ip);
-	# If the reply is anything but 127.0.0.1, it's a false positive.
-	return (resolve_ip($res) eq "127.0.0.1") ? 1 : 0;
 }
 
 

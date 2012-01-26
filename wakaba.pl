@@ -886,8 +886,7 @@ sub proxy_check($)
 	{	# unknown IP, check for proxy
 		$sth=$dbh->prepare("INSERT INTO ".SQL_PROXY_TABLE." VALUES(null,?,?,?,?);") or make_error(S_SQLFAIL);
 
-		my @dnsbl=PROXY_BLACKLISTS;
-		if(check_dnsbl($ip,@dnsbl) or check_tor($ip))
+		if(check_dnsbl($ip,PROXY_BLACKLISTS))
 		{
 			$sth->execute('black',$ip,$timestamp,$date) or make_error(S_SQLFAIL);
 			make_error(S_PROXY);

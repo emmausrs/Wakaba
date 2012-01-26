@@ -76,7 +76,15 @@
 
 # Proxy
 #use constant ENABLE_PROXY_CHECK => 0;			# Enable proxy checking (0: no, 1:yes). Please read the documentation first!
-#use constant PROXY_BLACKLISTS => ();			# List of DNSBLs to check IPs against, as a Perl list.
+#use constant PROXY_BLACKLISTS => {				# List of DNSBLs to check IPs against, as a Perl hash. Read the documentation, or at least see the examples before trying to use this.
+#	'%s.tor.dnsbl.sectoor.de' => '127.0.0.1',
+#	'abcdefghijkl.%s.dnsbl.httpbl.org' => sub {	# Replace abcdefghijkl with your own API key. See http://httpbl.org/.
+#		my($magic,$days,$threat)=split/\./,shift;
+#		return 1 if $magic==127
+#			&& $days<=14
+#			&& $threat>15;
+#	}
+#};
 #use constant PROXY_WHITE_AGE => 604800;		# Seconds until confirmed non-proxy entry expires.
 #use constant PROXY_BLACK_AGE => 604800;		# Seconds until confirmed proxy entry expires.
 

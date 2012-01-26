@@ -64,7 +64,7 @@ BEGIN {
 	eval "use constant LOAD_HOSTS => ()" unless(defined &LOAD_HOSTS);
 
 	eval "use constant ENABLE_PROXY_CHECK => 0" unless(defined &ENABLE_PROXY_CHECK);
-	eval "use constant PROXY_BLACKLISTS => ()" unless(defined &PROXY_BLACKLISTS);
+	eval "use constant PROXY_BLACKLISTS => {}" unless(defined &PROXY_BLACKLISTS);
 	eval "use constant PROXY_WHITE_AGE => 604800" unless(defined &PROXY_WHITE_AGE);
 	eval "use constant PROXY_BLACK_AGE => 604800" unless(defined &PROXY_BLACK_AGE);
 
