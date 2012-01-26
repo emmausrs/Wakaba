@@ -525,7 +525,7 @@ sub post_stuff($$$$$$$$$$$$$$)
 
 	if($admin) # check admin password - allow both encrypted and non-encrypted
 	{
-		check_password($admin,ADMIN_PASS);
+		check_password($admin,7000);
 	}
 	else
 	{
@@ -904,7 +904,7 @@ sub add_proxy_entry($$$$$)
 	my ($admin,$type,$ip,$timestamp,$date)=@_;
 	my ($sth);
 
-	check_password($admin,ADMIN_PASS);
+	check_password($admin,3500);
 
 	# Verifies IP range is sane. The price for a human-readable db...
 	unless ($ip=~$ipv6_re or $ip =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/ && $1 <= 255 && $2 <= 255 && $3 <= 255 && $4 <= 255) {
@@ -957,7 +957,7 @@ sub remove_proxy_entry($$)
 	my ($admin,$num)=@_;
 	my ($sth);
 
-	check_password($admin,ADMIN_PASS);
+	check_password($admin,3500);
 
 	$sth=$dbh->prepare("DELETE FROM ".SQL_PROXY_TABLE." WHERE num=?;") or make_error(S_SQLFAIL);
 	$sth->execute($num) or make_error(S_SQLFAIL);
@@ -1296,7 +1296,7 @@ sub delete_stuff($$$$@)
 	my ($password,$fileonly,$archive,$admin,@posts)=@_;
 	my ($post);
 
-	check_password($admin,ADMIN_PASS) if($admin);
+	check_password($admin,2000) if($admin);
 	make_error(S_BADDELPASS) unless($password or $admin); # refuse empty password immediately
 
 	# no password means delete always
@@ -1491,7 +1491,7 @@ sub make_admin_post_panel($)
 	my ($admin)=@_;
 	my ($sth,$row,@posts,$size,$rowtype);
 
-	check_password($admin,ADMIN_PASS);
+	my $level=check_password($admin,1000);
 
 	$sth=$dbh->prepare("SELECT * FROM ".SQL_TABLE." ORDER BY lasthit DESC,CASE parent WHEN 0 THEN num ELSE parent END ASC,num ASC;") or make_error(S_SQLFAIL);
 	$sth->execute() or make_error(S_SQLFAIL);
@@ -1510,7 +1510,7 @@ sub make_admin_post_panel($)
 	}
 
 	make_http_header();
-	print encode_string(POST_PANEL_TEMPLATE->(admin=>$admin,posts=>\@posts,size=>$size));
+	print encode_string(POST_PANEL_TEMPLATE->(admin=>$admin,level=>$level,posts=>\@posts,size=>$size));
 }
 
 sub make_admin_ban_panel($)
@@ -1518,7 +1518,7 @@ sub make_admin_ban_panel($)
 	my ($admin)=@_;
 	my ($sth,$row,@bans,$prevtype);
 
-	check_password($admin,ADMIN_PASS);
+	my $level=check_password($admin,3000);
 
 	clean_expired_bans();
 
@@ -1533,7 +1533,7 @@ sub make_admin_ban_panel($)
 	}
 
 	make_http_header();
-	print encode_string(BAN_PANEL_TEMPLATE->(admin=>$admin,bans=>\@bans,parsedate=>$use_parsedate));
+	print encode_string(BAN_PANEL_TEMPLATE->(admin=>$admin,level=>$level,bans=>\@bans,parsedate=>$use_parsedate));
 }
 
 sub make_admin_proxy_panel($)
@@ -1541,7 +1541,7 @@ sub make_admin_proxy_panel($)
 	my ($admin)=@_;
 	my ($sth,$row,@scanned,$prevtype);
 
-	check_password($admin,ADMIN_PASS);
+	my $level=check_password($admin,3400);
 
 	proxy_clean();
 
@@ -1556,7 +1556,7 @@ sub make_admin_proxy_panel($)
 	}
 
 	make_http_header();
-	print encode_string(PROXY_PANEL_TEMPLATE->(admin=>$admin,scanned=>\@scanned));
+	print encode_string(PROXY_PANEL_TEMPLATE->(admin=>$admin,level=>$level,scanned=>\@scanned));
 }
 
 sub make_admin_spam_panel($)
@@ -1565,10 +1565,10 @@ sub make_admin_spam_panel($)
 	my @spam_files=SPAM_FILES;
 	my @spam=read_array($spam_files[0]);
 
-	check_password($admin,ADMIN_PASS);
+	my $level=check_password($admin,5000);
 
 	make_http_header();
-	print encode_string(SPAM_PANEL_TEMPLATE->(admin=>$admin,
+	print encode_string(SPAM_PANEL_TEMPLATE->(admin=>$admin,level=>$level,
 	spamlines=>scalar @spam,
 	spam=>join "\n",map { clean_string($_,1) } @spam));
 }
@@ -1578,9 +1578,12 @@ sub make_sql_dump($)
 	my ($admin,$table)=@_;
 	my ($sth,$row,@database);
 
-	check_password($admin,ADMIN_PASS);
+	my $level=check_password($admin,9500);
 
-	my $tables={admin=>SQL_ADMIN_TABLE,comments=>SQL_TABLE,captcha=>SQL_CAPTCHA_TABLE,proxy=>SQL_PROXY_TABLE};
+	my $tables={admin=>SQL_ADMIN_TABLE,comments=>SQL_TABLE,captcha=>SQL_CAPTCHA_TABLE,proxy=>SQL_PROXY_TABLE,report=>SQL_REPORT_TABLE};
+
+	# make user table available for the webmaster
+	if($level>=9999) { $$tables{users}=SQL_USER_TABLE; }
 
 	if ($table)
 	{
@@ -1605,7 +1608,7 @@ sub make_sql_dump($)
 		my @tables=map { +{ table=>$_ } } sort keys %$tables;
 
 		make_http_header();
-		print encode_string(SQL_DUMP_TEMPLATE->(admin=>$admin,tables=>\@tables));
+		print encode_string(SQL_DUMP_TEMPLATE->(admin=>$admin,level=>$level,tables=>\@tables));
 	}
 }
 
@@ -1614,7 +1617,7 @@ sub make_sql_interface($$)
 	my ($admin,$sql)=@_;
 	my ($sth,$row,@results);
 
-	check_password($admin,9999);
+	my $level=check_password($admin,9999);
 
 	if($sql)
 	{
@@ -1636,7 +1639,7 @@ sub make_sql_interface($$)
 	}
 
 	make_http_header();
-	print encode_string(SQL_INTERFACE_TEMPLATE->(admin=>$admin,
+	print encode_string(SQL_INTERFACE_TEMPLATE->(admin=>$admin,level=>$level,
 	results=>join "<br />",map { clean_string($_,1) } @results));
 }
 
@@ -1644,10 +1647,10 @@ sub make_admin_post($)
 {
 	my ($admin)=@_;
 
-	check_password($admin,ADMIN_PASS);
+	my $level=check_password($admin,7000);
 
 	make_http_header();
-	print encode_string(ADMIN_POST_TEMPLATE->(admin=>$admin));
+	print encode_string(ADMIN_POST_TEMPLATE->(admin=>$admin,level=>$level));
 }
 
 sub do_login($$$$$)
@@ -1698,7 +1701,7 @@ sub do_rebuild_cache($)
 {
 	my ($admin)=@_;
 
-	check_password($admin,ADMIN_PASS);
+	check_password($admin,6000);
 
 	unlink glob RES_DIR.'*';
 
@@ -1712,7 +1715,7 @@ sub do_rebuild_cache($)
 sub restart_script($)
 {
 	my ($admin)=@_;
-	check_password($admin,ADMIN_PASS);
+	check_password($admin,8400);
 
 	make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
 	last FASTCGI;
@@ -1724,7 +1727,7 @@ sub add_admin_entry($$$$$$$)
 	my ($sth);
 	my $time=time();
 
-	check_password($admin,ADMIN_PASS);
+	check_password($admin,4000);
 
 	$comment=clean_string(decode_string($comment,CHARSET));
 
@@ -1753,7 +1756,7 @@ sub remove_admin_entry($$)
 	my ($admin,$num)=@_;
 	my ($sth);
 
-	check_password($admin,ADMIN_PASS);
+	check_password($admin,3000);
 
 	$sth=$dbh->prepare("DELETE FROM ".SQL_ADMIN_TABLE." WHERE num=?;") or make_error(S_SQLFAIL);
 	$sth->execute($num) or make_error(S_SQLFAIL);
@@ -1766,7 +1769,7 @@ sub delete_all($$$$)
 	my ($admin,$ip,$mask,$ipv6)=@_;
 	my ($sth,$row,@posts);
 
-	check_password($admin,ADMIN_PASS);
+	check_password($admin,2900);
 
 	$sth=$dbh->prepare("SELECT num FROM ".SQL_TABLE." WHERE ipv6=? AND ip & ? = ? & ?;") or make_error(S_SQLFAIL);
 	$sth->execute($ipv6?1:0,$mask,$ip,$mask) or make_error(S_SQLFAIL);
@@ -1779,7 +1782,7 @@ sub update_spam_file($$)
 {
 	my ($admin,$spam)=@_;
 
-	check_password($admin,ADMIN_PASS);
+	check_password($admin,5000);
 
 	my @spam=split /\r?\n/,$spam;
 	my @spam_files=SPAM_FILES;

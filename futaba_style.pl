@@ -348,14 +348,14 @@ use constant MANAGER_HEAD_INCLUDE => NORMAL_HEAD_INCLUDE.q{
 
 [<a href="<var expand_filename(HTML_SELF)>"><const S_MANARET></a>]
 <if $admin>
-	[<a href="<var $self>?task=mpanel&amp;admin=<var $admin>"><const S_MANAPANEL></a>]
-	[<a href="<var $self>?task=bans&amp;admin=<var $admin>"><const S_MANABANS></a>]
-	[<a href="<var $self>?task=proxy&amp;admin=<var $admin>"><const S_MANAPROXY></a>]
-	[<a href="<var $self>?task=spam&amp;admin=<var $admin>"><const S_MANASPAM></a>]
-	[<a href="<var $self>?task=sqldump&amp;admin=<var $admin>"><const S_MANASQLDUMP></a>]
-	[<a href="<var $self>?task=sql&amp;admin=<var $admin>"><const S_MANASQLINT></a>]
-	[<a href="<var $self>?task=mpost&amp;admin=<var $admin>"><const S_MANAPOST></a>]
-	[<a href="<var $self>?task=rebuild&amp;admin=<var $admin>"><const S_MANAREBUILD></a>]
+	<if $level ge 1000>[<a href="<var $self>?task=mpanel&amp;admin=<var $admin>"><const S_MANAPANEL></a>]</if>
+	<if $level ge 3000>[<a href="<var $self>?task=bans&amp;admin=<var $admin>"><const S_MANABANS></a>]</if>
+	<if $level ge 3400>[<a href="<var $self>?task=proxy&amp;admin=<var $admin>"><const S_MANAPROXY></a>]</if>
+	<if $level ge 5000>[<a href="<var $self>?task=spam&amp;admin=<var $admin>"><const S_MANASPAM></a>]</if>
+	<if $level ge 9500>[<a href="<var $self>?task=sqldump&amp;admin=<var $admin>"><const S_MANASQLDUMP></a>]</if>
+	<if $level ge 9999>[<a href="<var $self>?task=sql&amp;admin=<var $admin>"><const S_MANASQLINT></a>]</if>
+	<if $level ge 7000>[<a href="<var $self>?task=mpost&amp;admin=<var $admin>"><const S_MANAPOST></a>]</if>
+	<if $level ge 6000>[<a href="<var $self>?task=rebuild&amp;admin=<var $admin>"><const S_MANAREBUILD></a>]</if>
 	[<a href="<var $self>?task=logout"><const S_MANALOGOUT></a>]
 </if>
 <div class="passvalid"><const S_MANAMODE></div><br />

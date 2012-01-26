@@ -1,11 +1,9 @@
 use strict;
 
 BEGIN {
-	use constant S_NOADMIN => 'No ADMIN_PASS defined in the configuration';		# Returns error when the config is incomplete
 	use constant S_NOSECRET => 'No SECRET defined in the configuration';		# Returns error when the config is incomplete
 	use constant S_NOSQL => 'No SQL settings defined in the configuration';		# Returns error when the config is incomplete
 
-	die S_NOADMIN unless(defined &ADMIN_PASS);
 	die S_NOSECRET unless(defined &SECRET);
 	die S_NOSQL unless(defined &SQL_DBI_SOURCE);
 	die S_NOSQL unless(defined &SQL_USERNAME);
