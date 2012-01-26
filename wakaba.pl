@@ -1681,7 +1681,11 @@ sub do_login($$$$$)
 
 		make_http_forward(get_script_name()."?task=$nexttask&admin=$crypt",ALTERNATE_REDIRECT);
 	}
-	else { make_admin_login() }
+	else
+	{
+		make_cookies(wakauser=>'',-expires=>1) if $usercookie;
+		make_admin_login();
+	}
 }
 
 sub do_logout()
