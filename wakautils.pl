@@ -1130,7 +1130,7 @@ sub compile_spam_checker(@)
 	return eval 'sub {
 		$_=shift;
 		# study; # causes a strange bug - moved to spam_engine()
-		if('.(join "||",map "/($_)/mo",(@re)).') { return $1 }
+		if('.(@re?join "||",map "/($_)/mo",(@re):0).') { return $1 }
 	}';
 }
 
