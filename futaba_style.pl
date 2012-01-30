@@ -433,7 +433,7 @@ use constant POST_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 	<if $image>
 		<tr class="row<var $rowtype>">
 		<td colspan="6"><small>
-		<const S_PICNAME><a href="<var expand_filename(clean_path($image))>"><var clean_string($image)></a>
+		<const S_PICNAME><a href="<var expand_filename(clean_path($image))>"><var get_filename($image)></a>
 		(<var make_size($size)>, <var $width>x<var $height><if $origname>, <span title="<var clean_string($origname)>"><var show_filename($origname)></span></if>)
 		</small></td></tr>
 	</if>
