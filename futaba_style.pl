@@ -355,6 +355,7 @@ use constant MANAGER_HEAD_INCLUDE => NORMAL_HEAD_INCLUDE.q{
 	<if $level ge 9500>[<a href="<var $self>?task=sqldump&amp;admin=<var $admin>"><const S_MANASQLDUMP></a>]</if>
 	<if $level ge 9999>[<a href="<var $self>?task=sql&amp;admin=<var $admin>"><const S_MANASQLINT></a>]</if>
 	<if $level ge 7000>[<a href="<var $self>?task=mpost&amp;admin=<var $admin>"><const S_MANAPOST></a>]</if>
+	<if $level ge 2000>[<a href="<var $self>?task=reports&amp;admin=<var $admin>"><const S_MANAREPORTS></a>]</if>
 	<if $level ge 6000>[<a href="<var $self>?task=rebuild&amp;admin=<var $admin>"><const S_MANAREBUILD></a>]</if>
 	[<a href="<var $self>?task=logout"><const S_MANALOGOUT></a>]
 </if>
@@ -382,6 +383,7 @@ use constant ADMIN_LOGIN_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 <option value="sqldump"><const S_MANASQLDUMP></option>
 <option value="sql"><const S_MANASQLINT></option>
 <option value="mpost"><const S_MANAPOST></option>
+<option value="reports"><const S_MANAREPORTS></option>
 <option value="rebuild"><const S_MANAREBUILD></option>
 <option value=""></option>
 <option value="restart"><const S_MANARESTART></option>
@@ -786,6 +788,64 @@ use constant ADMIN_POST_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 <script type="text/javascript">set_inputs("postform")</script>
 
 }.NORMAL_FOOT_INCLUDE);
+
+
+
+
+
+use constant REPORTS_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
+
+<div class="dellist"><const S_MANAREPORTS></div>
+
+<div align="center">
+
+<form action="<var $self>" method="POST">
+<input type="hidden" name="task" value="dismiss" />
+<input type="hidden" name="admin" value="<var $admin>" />
+
+<div class="delbuttons">
+<input type="submit" value="<const S_REPORTSDISMISS>" />
+</div>
+
+<table><tbody>
+
+<tr class="managehead">
+
+<th><const S_REPORTSNUM></th>
+<th><const S_REPORTSBOARD></th>
+<th><const S_REPORTSDATE></th>
+<th><const S_REPORTSCOMMENT></th>
+<th><const S_REPORTSIP></th>
+<th><const S_REPORTSDISMISS></th>
+
+</tr>
+
+<loop $reports>
+	<if $divider><tr class="managehead"><th colspan="6"></th></tr></if>
+
+	<tr class="row<var $rowtype>">
+		<td><input type="checkbox" name="num" value="<var $num>" /><a href="<var get_cb_reply_link($board,$post,$parent)>"><big><b><var $post></b></big></a>&nbsp;&nbsp;</td>
+		<td>/<var $board>/</td>
+		<td><var make_date($date,'tiny')></td>
+		<td><var clean_string($reason)></td>
+		<td><var $ip></td>
+		<td>[<a href="<var $self>?task=dismiss&amp;admin=<var $admin>&amp;num=<var $num>"><const S_REPORTSDISMISS></a>]</td>
+	</tr>
+</loop>
+
+</tbody></table>
+
+<div class="delbuttons">
+<input type="submit" value="<const S_REPORTSDISMISS>" />
+</div>
+
+</form>
+
+</div>
+
+}.NORMAL_FOOT_INCLUDE);
+
+
 
 
 #

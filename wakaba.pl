@@ -260,6 +260,17 @@ sub init($)
 		my $admin=$query->param("admin");
 		make_admin_post($admin);
 	}
+	elsif($task eq "reports")
+	{
+		my $admin=$query->param("admin");
+		make_report_panel($admin);
+	}
+	elsif($task eq "dismiss")
+	{
+		my $admin=$query->param("admin");
+		my @num=$query->param("num");
+		dismiss_reports($admin,@num);
+	}
 	elsif($task eq "rebuild")
 	{
 		my $admin=$query->param("admin");
@@ -1652,6 +1663,27 @@ sub make_admin_post($)
 	print encode_string(ADMIN_POST_TEMPLATE->(admin=>$admin,level=>$level));
 }
 
+sub make_report_panel($)
+{
+	my ($admin)=@_;
+	my ($sth,$row,$prevboard,@reports);
+
+	my $level=check_password($admin,2000);
+
+	$sth=$dbh->prepare("SELECT * FROM ".SQL_REPORT_TABLE." ORDER BY board ASC,num DESC;") or make_error(S_SQLFAIL);
+	$sth->execute() or make_error(S_SQLFAIL);
+	while($row=get_decoded_hashref($sth))
+	{
+		$$row{divider}=1 if($prevboard ne $$row{board});
+		$prevboard=$$row{board};
+		$$row{rowtype}=@reports%2+1;
+		push @reports, $row;
+	}
+
+	make_http_header();
+	print encode_string(REPORTS_TEMPLATE->(admin=>$admin,level=>$level,reports=>\@reports));
+}
+
 sub do_login($$$$$)
 {
 	my ($username,$password,$nexttask,$savelogin,$usercookie,$admincookie)=@_;
@@ -1788,6 +1820,22 @@ sub update_spam_file($$)
 	write_array($spam_files[0],@spam);
 
 	make_http_forward(get_script_name()."?admin=$admin&task=spam",ALTERNATE_REDIRECT);
+}
+
+sub dismiss_reports($@)
+{
+	my ($admin,@num)=@_;
+	my ($sth);
+
+	check_password($admin,2000);
+
+	foreach my $entry (@num)
+	{
+		$sth=$dbh->prepare("DELETE FROM ".SQL_REPORT_TABLE." WHERE num=?;") or make_error(S_SQLFAIL);
+		$sth->execute($entry) or make_error(S_SQLFAIL);
+	}
+
+	make_http_forward(get_script_name()."?admin=$admin&task=reports",ALTERNATE_REDIRECT);
 }
 
 sub do_nuke_database($)

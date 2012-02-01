@@ -61,6 +61,7 @@ use constant S_MANASPAM => 'Spam';										# Defines Spam Panel button
 use constant S_MANASQLDUMP => 'SQL Dump';								# Defines SQL dump button
 use constant S_MANASQLINT => 'SQL Interface';							# Defines SQL interface button
 use constant S_MANAPOST => 'Manager Post';								# Defines Manager Post radio button--allows the user to post using HTML code in the comment box
+use constant S_MANAREPORTS => 'Post Reports';
 use constant S_MANAREBUILD => 'Rebuild caches';							# 
 use constant S_MANARESTART => 'Restart script';										# Defines label for FastCGI restart option
 use constant S_MANANUKE => 'Nuke board';								# 
@@ -69,6 +70,13 @@ use constant S_MANASAVE => 'Remember me on this computer';				# Defines Label fo
 use constant S_MANASUB => 'Go';											# Defines name for submit button in Manager Mode
 
 use constant S_NOTAGS => 'HTML tags allowed. No formatting will be done, you must use HTML for line breaks and paragraphs.'; # Prints message on Management Board
+
+use constant S_REPORTSNUM => 'Post No.';
+use constant S_REPORTSBOARD => 'Board';
+use constant S_REPORTSDATE => 'Date &amp; Time';
+use constant S_REPORTSCOMMENT => 'Comment';
+use constant S_REPORTSIP => 'IP';
+use constant S_REPORTSDISMISS => 'Dismiss';
 
 use constant S_MPDELETEIP => 'Delete all';
 use constant S_MPDELETE => 'Delete';									# Defines for deletion button in Management Panel
