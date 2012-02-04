@@ -340,6 +340,40 @@ use constant ERROR_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 
 
 
+
+#
+# RSS
+#
+
+use constant RSS_TEMPLATE => compile_template(q{
+<?xml version="1.0" encoding="<const CHARSET>" ?>
+<rss version="2.0">
+
+<channel>
+<title><const TITLE></title>
+<link><var $absolute_path><const HTML_SELF></link>
+<description><var $absolute_path><const HTML_SELF></description>
+<loop $threads><loop $posts><if !$parent>
+	<item>
+	<title><var $subject || $num></title>
+	<link><var $absolute_path><const RES_DIR><var $num><const PAGE_EXT></link>
+	<guid><var $absolute_path><const RES_DIR><var $num><const PAGE_EXT></guid>
+	<comments><var $absolute_path><const RES_DIR><var $num><const PAGE_EXT></comments>
+	<author><var $name><var $trip></author>
+	<description><![CDATA[
+		<var $comment>
+		<if $abbrev><p><small><var sprintf(S_ABBRTEXT,substr($absolute_path,0,-1).get_reply_link($num,$parent))></small></p>
+		</if>
+	]]></description>
+	</item>
+</if></loop></loop>
+
+</channel>
+</rss>
+});
+
+
+
 #
 # Admin pages
 #

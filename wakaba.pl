@@ -379,6 +379,7 @@ sub build_cache()
 		unlink $page.PAGE_EXT;
 		$page++;
 	}
+	unlink RSS_FILE if(!ENABLE_RSS and -e RSS_FILE);
 }
 
 sub build_cache_page($$@)
@@ -425,6 +426,10 @@ sub build_cache_page($$@)
 			}
 		}
 	}
+
+	# make rss
+	# ideally this shouldn't go here, but this way we won't have to do abbreviations again, etc
+	if(ENABLE_RSS and $page==0) { print_page(RSS_FILE,RSS_TEMPLATE->(threads=>\@threads)); }
 
 	# make the list of pages
 	my @pages=map +{ page=>$_ },(0..$total-1);
