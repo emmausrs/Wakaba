@@ -281,6 +281,11 @@ sub init($)
 		my $admin=$query->param("admin");
 		restart_script($admin);
 	}
+	elsif($task eq "cleanup")
+	{
+		my $admin=$query->param("admin");
+		do_cleanup($admin);
+	}
 	elsif($task eq "nuke")
 	{
 		my $admin=$query->param("admin");
@@ -1755,6 +1760,35 @@ sub restart_script($)
 
 	make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
 	last FASTCGI;
+}
+
+sub do_cleanup($)
+{
+	my ($admin)=@_;
+	my ($sth,$row);
+
+	check_password($admin,8400);
+
+	$sth=$dbh->prepare("SELECT thumbnail FROM ".SQL_TABLE.";") or make_error(S_SQLFAIL);
+	$sth->execute() or make_error(S_SQLFAIL);
+
+	# Get all directories 
+	opendir(DIR,THUMB_DIR);
+	my %files = map { $_=>1 } grep { !-d } map { THUMB_DIR.$_ } readdir(DIR); # oh god what
+	closedir(DIR);
+
+	while($row=$sth->fetchrow_hashref())
+	{
+		$files{$$row{thumbnail}}=0;
+	}
+
+	# Delete files
+	foreach my $file (keys %files)
+	{
+		unlink $file if($files{$file});
+	}
+
+	make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
 }
 
 sub add_admin_entry($$$$$$$)
