@@ -34,6 +34,10 @@ form .trap { display:none }
 <link rel="<if !$default>alternate </if>stylesheet" type="text/css" href="<var $path><var $filename>" title="<var $title>" />
 </loop>
 
+<if ENABLE_RSS>
+<link rel="alternate" type="application/rss+xml" title="RSS" href="<var expand_filename(RSS_FILE)>" />
+</if>
+
 <script type="text/javascript">var style_cookie="<const STYLE_COOKIE>";</script>
 <script type="text/javascript" src="<var expand_filename(JS_FILE)>"></script>
 </head>
