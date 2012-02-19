@@ -271,6 +271,20 @@ sub init($)
 		my @num=$query->param("num");
 		dismiss_reports($admin,@num);
 	}
+	elsif($task eq "users")
+	{
+		my $admin=$query->param("admin");
+		make_user_panel($admin);
+	}
+#	elsif($task eq "adduser")
+#	{
+#	}
+#	elsif($task eq "edituser")
+#	{
+#	}
+#	elsif($task eq "deluser")
+#	{
+#	}
 	elsif($task eq "rebuild")
 	{
 		my $admin=$query->param("admin");
@@ -1692,6 +1706,32 @@ sub make_report_panel($)
 
 	make_http_header();
 	print encode_string(REPORTS_TEMPLATE->(admin=>$admin,level=>$level,reports=>\@reports));
+}
+
+sub make_user_panel($)
+{
+	my ($admin)=@_;
+	my ($sth,$row,@users);
+
+	my $level=check_password($admin,1000);
+
+	$sth=$dbh->prepare("SELECT * FROM ".SQL_USER_TABLE." ORDER BY num ASC;") or make_error(S_SQLFAIL);
+	$sth->execute() or make_error(S_SQLFAIL);
+
+	while($row=get_decoded_hashref($sth))
+	{
+		$$row{rowtype}=@users%2+1;
+		push @users,$row;
+	}
+
+	make_http_header();
+	print encode_string(ADMIN_USER_PANEL_TEMPLATE->(
+		admin=>$admin,
+		level=>$level,
+		selfuser=>$query->cookie("wakauser"),
+		selflevel=>$level,
+		users=>\@users
+	));
 }
 
 sub do_login($$$$$)

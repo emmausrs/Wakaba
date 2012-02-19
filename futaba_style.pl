@@ -886,6 +886,76 @@ use constant REPORTS_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
 
 
+use constant ADMIN_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
+
+<div class="dellist"><const S_MANAUSERS></div>
+
+<div align="center">
+
+<table><tbody>
+
+<tr class="managehead">
+
+<th><const S_USERSNAME></th>
+<th><const S_USERSLASTLOGIN></th>
+<if $level ge 1000><th><const S_USERSEMAIL></th></if>
+<th><const S_USERSLEVEL></th>
+<if $level ge 8500><th><const S_USERSACTION></th></if>
+
+</tr>
+
+<loop $users>
+
+<tr class="row<var $rowtype>">
+<td><var clean_string($username)></td>
+<td><if $lastlogin><var make_date($lastlogin,'tiny')><else><small><const S_USERSNEVER></small></if></td>
+<if $level ge 1000><td><if $email><a href="mailto:<var clean_string($email)>"><var clean_string($email)></a><else><small><const S_USERSNONE></small></if></td></if>
+<td><var $level></td>
+<if $selflevel ge 8500><td>
+	<if $level<=$selflevel>
+		[<a href="<var $self>?admin=<var $admin>&amp;task=edituser&amp;num=<var $num>"><const S_USERSEDIT></a>]
+	</if>
+	<if $selflevel ge 9000 and $selfuser ne $username and $level<=$selflevel>
+		[<a href="<var $self>?admin=<var $admin>&amp;task=deluser&amp;num=<var $num>"><const S_USERSDELETE></a>]
+	</if>
+</td></if>
+</tr>
+
+</loop>
+
+</tbody></table>
+
+<if $level ge 9000>
+
+<br />
+
+<div class="dellist"><const S_USERSADD></div>
+
+<form action="<var $self>" method="post">
+<input type="hidden" name="admin" value="<var $admin>" />
+<input type="hidden" name="task" value="adduser>" />
+
+<table><tbody>
+<tr><td class="postblock"><const S_USERSNAME></td><td><input type="text" name="username" size="16" /></td></tr>
+<tr><td class="postblock"><const S_USERSPASS></td><td><input type="password" name="password" size="16" /></td></tr>
+<tr><td class="postblock"><const S_USERSPASS2></td><td><input type="password" name="password2" size="16" /></td></tr>
+<tr><td class="postblock"><const S_USERSEMAIL></td><td><input type="text" name="email" size="24" /></td></tr>
+<tr><td class="postblock"><const S_USERSLEVEL></td><td><input type="text" name="level" size="4" value="5000" maxlength="4" />
+<input type="submit" value="<const S_USERSADD>" />
+</td></tr>
+</tbody></table>
+
+</form>
+
+</if>
+
+</div>
+
+<hr />
+
+}.NORMAL_FOOT_INCLUDE);
+
+
 
 #
 # Oekaki

@@ -62,6 +62,7 @@ use constant S_MANASQLDUMP => 'SQL Dump';								# Defines SQL dump button
 use constant S_MANASQLINT => 'SQL Interface';							# Defines SQL interface button
 use constant S_MANAPOST => 'Manager Post';								# Defines Manager Post radio button--allows the user to post using HTML code in the comment box
 use constant S_MANAREPORTS => 'Post Reports';
+use constant S_MANAUSERS => 'User Accounts';
 use constant S_MANAREBUILD => 'Rebuild caches';							# 
 use constant S_MANARESTART => 'Restart script';										# Defines label for FastCGI restart option
 use constant S_MANACLEANUP => 'Clean up';
@@ -78,6 +79,19 @@ use constant S_REPORTSDATE => 'Date &amp; Time';
 use constant S_REPORTSCOMMENT => 'Comment';
 use constant S_REPORTSIP => 'IP';
 use constant S_REPORTSDISMISS => 'Dismiss';
+
+use constant S_USERSNAME => 'Username';
+use constant S_USERSPASS => 'Password';
+use constant S_USERSPASS2 => '(Confirm)';
+use constant S_USERSLASTLOGIN => 'Last Login';
+use constant S_USERSEMAIL => 'Email Address';
+use constant S_USERSLEVEL => 'Level';
+use constant S_USERSACTION => 'Action';
+use constant S_USERSEDIT => 'Edit';
+use constant S_USERSDELETE => 'Delete';
+use constant S_USERSNEVER => '(Never)';
+use constant S_USERSNONE => '(None)';
+use constant S_USERSADD => 'Add User';
 
 use constant S_MPDELETEIP => 'Delete all';
 use constant S_MPDELETE => 'Delete';									# Defines for deletion button in Management Panel
