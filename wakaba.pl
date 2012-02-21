@@ -37,7 +37,16 @@ if(CONVERT_CHARSETS)
 if(USE_FASTCGI)
 {
 	eval 'use CGI::Fast';
-	$use_fastcgi=1 unless($@);
+	unless($@)
+	{
+		$use_fastcgi=1;
+
+		# set up signal handlers
+		# http://www.fastcgi.com/docs/faq.html#Signals
+		$SIG{USR1}=\&sig_handler;
+		$SIG{TERM}=\&sig_handler;
+		$SIG{PIPE}='IGNORE';
+	}
 }
 
 if(USE_PARSEDATE)
@@ -64,6 +73,7 @@ if($use_fastcgi)
 	while($query=new CGI::Fast)
 	{
 		init();
+		last if(!$use_fastcgi);
 	}
 }
 else { $query=new CGI; init(); }
@@ -1800,6 +1810,11 @@ sub restart_script($)
 
 	make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
 	last FASTCGI;
+}
+
+sub sig_handler
+{
+	$use_fastcgi=0;
 }
 
 sub do_cleanup($)
