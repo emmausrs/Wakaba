@@ -394,6 +394,7 @@ use constant MANAGER_HEAD_INCLUDE => NORMAL_HEAD_INCLUDE.q{
 	<if $level ge 9999>[<a href="<var $self>?task=sql&amp;admin=<var $admin>"><const S_MANASQLINT></a>]</if>
 	<if $level ge 7000>[<a href="<var $self>?task=mpost&amp;admin=<var $admin>"><const S_MANAPOST></a>]</if>
 	<if $level ge 2000>[<a href="<var $self>?task=reports&amp;admin=<var $admin>"><const S_MANAREPORTS></a>]</if>
+	<if $level ge 1000>[<a href="<var $self>?task=users&amp;admin=<var $admin>"><const S_MANAUSERS></a>]</if>
 	<if $level ge 6000>[<a href="<var $self>?task=rebuild&amp;admin=<var $admin>"><const S_MANAREBUILD></a>]</if>
 	[<a href="<var $self>?task=logout"><const S_MANALOGOUT></a>]
 </if>
@@ -422,6 +423,7 @@ use constant ADMIN_LOGIN_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 <option value="sql"><const S_MANASQLINT></option>
 <option value="mpost"><const S_MANAPOST></option>
 <option value="reports"><const S_MANAREPORTS></option>
+<option value="users"><const S_MANAUSERS></option>
 <option value="rebuild"><const S_MANAREBUILD></option>
 <option value=""></option>
 <option value="restart"><const S_MANARESTART></option>
