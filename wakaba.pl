@@ -629,6 +629,9 @@ sub post_stuff($$$$$$$$$$$$$$)
 	# check for empty reply or empty text-only post
 	make_error(S_NOTEXT) if($comment=~/^\s*$/ and !$file);
 
+	# enforce thread subjects
+	make_error(S_SUBJECTREQUIRED) if(FORCE_THREAD_SUBJECTS and !$parent and $subject=~/^\s*$/);
+
 	# get file size, and check for limitations.
 	my $size=get_file_size($file) if($file);
 

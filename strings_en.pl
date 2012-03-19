@@ -155,6 +155,7 @@ use constant S_NOPIC => 'Error: No file selected. Did you forget to click "Reply
 use constant S_NOTEXT => 'Error: No comment entered.';						# Returns error for no text entered in to subject/comment
 use constant S_TOOLONG => 'Error: Too many characters in text field.';		# Returns error for too many characters in a given field
 use constant S_NOTALLOWED => 'Error: Posting not allowed.';					# Returns error for non-allowed post types
+use constant S_SUBJECTREQUIRED => 'Error: You must enter a subject.';
 use constant S_UNUSUAL => 'Error: Abnormal reply.';							# Returns error for abnormal reply? (this is a mystery!)
 use constant S_BADHOST => 'Error: Host is banned.';							# Returns error for banned host ($badip string)
 use constant S_BADHOSTPROXY => 'Error: Proxy is banned for being open.';	# Returns error for banned proxy ($badip string)

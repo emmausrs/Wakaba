@@ -76,6 +76,7 @@ BEGIN {
 	eval "use constant ALLOW_IMAGES => 1" unless(defined &ALLOW_IMAGES);
 	eval "use constant ALLOW_TEXT_REPLIES => 1" unless(defined &ALLOW_TEXT_REPLIES);
 	eval "use constant ALLOW_IMAGE_REPLIES => 1" unless(defined &ALLOW_IMAGE_REPLIES);
+	eval "use constant FORCE_THREAD_SUBJECTS => 0" unless(defined &FORCE_THREAD_SUBJECTS);
 	eval "use constant ALLOW_UNKNOWN => 0" unless(defined &ALLOW_UNKNOWN);
 	eval "use constant MUNGE_UNKNOWN => '.unknown'" unless(defined &MUNGE_UNKNOWN);
 	eval "use constant FORBIDDEN_EXTENSIONS => ('php','php3','php4','phtml','shtml','cgi','pl','pm','py','r','exe','dll','scr','pif','asp','cfm','jsp','rb')" unless(defined &FORBIDDEN_EXTENSIONS);

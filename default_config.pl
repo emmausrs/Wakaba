@@ -97,6 +97,7 @@
 #use constant ALLOW_IMAGES => 1;				# Allow image posting (1: yes, 0: no)
 #use constant ALLOW_TEXT_REPLIES => 1;			# Allow replies (1: yes, 0: no)
 #use constant ALLOW_IMAGE_REPLIES => 1;			# Allow replies with images (1: yes, 0: no)
+#use constant FORCE_THREAD_SUBJECTS => 0;		# Force thread subjects (1: yes, 0: no)
 #use constant ALLOW_UNKNOWN => 0;				# Allow unknown filetypes (1: yes, 0: no)
 #use constant MUNGE_UNKNOWN => '.unknown';		# Munge unknown file type extensions with this. If you remove this, make sure your web server is locked down properly.
 #use constant FORBIDDEN_EXTENSIONS => ('php','php3','php4','phtml','shtml','cgi','pl','pm','py','r','exe','dll','scr','pif','asp','cfm','jsp','vbs'); # file extensions which are forbidden
