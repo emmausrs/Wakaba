@@ -1033,6 +1033,11 @@ sub make_random_string($)
 	return $str;
 }
 
+sub check_email($)
+{
+	return 1; # TODO
+}
+
 sub null_string($) { "\0"x(shift) }
 
 sub make_key($$$)

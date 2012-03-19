@@ -286,15 +286,34 @@ sub init($)
 		my $admin=$query->param("admin");
 		make_user_panel($admin);
 	}
-#	elsif($task eq "adduser")
-#	{
-#	}
-#	elsif($task eq "edituser")
-#	{
-#	}
-#	elsif($task eq "deluser")
-#	{
-#	}
+	elsif($task eq "adduser")
+	{
+		my $admin=$query->param("admin");
+		my $username=$query->param("username");
+		my $password=$query->param("password");
+		my $password2=$query->param("password2");
+		my $email=$query->param("email");
+		my $newlevel=$query->param("level");
+		add_user($admin,$username,$password,$password2,$email,$newlevel);
+	}
+	elsif($task eq "doedituser")
+	{
+		my $admin=$query->param("admin");
+		my $selfuser=$query->cookie("wakauser");
+		my $num=$query->param("num");
+		my $email=$query->param("email");
+		my $password=$query->param("password");
+		my $password2=$query->param("password2");
+		my $newlevel=$query->param("level");
+		edit_user($admin,$selfuser,$num,$email,$password,$password2,$newlevel);
+	}
+	elsif($task eq "deluser")
+	{
+		my $admin=$query->param("admin");
+		my $selfuser=$query->cookie("wakauser");
+		my $num=$query->param("num");
+		delete_user($admin,$selfuser,$num);
+	}
 	elsif($task eq "rebuild")
 	{
 		my $admin=$query->param("admin");
@@ -1744,6 +1763,25 @@ sub make_user_panel($)
 	));
 }
 
+sub make_edit_user_panel($$)
+{
+	my ($admin,$num)=@_;
+	my ($sth,$row);
+
+	my $level=check_password($admin,1);
+
+	$sth=$dbh->prepare("SELECT * FROM ".SQL_USER_TABLE." WHERE num=?;") or make_error(S_SQLFAIL);
+	$sth->execute($num) or make_error(S_SQLFAIL);
+
+	make_http_header();
+	print encode_string(ADMIN_EDIT_USER_PANEL_TEMPLATE->(
+		admin=>$admin,
+		username=>$$row{username},
+		level=>$$row{level},
+		email=>$$row{email},
+	));
+}
+
 sub do_login($$$$$)
 {
 	my ($username,$password,$nexttask,$savelogin,$usercookie,$admincookie)=@_;
@@ -1930,6 +1968,106 @@ sub dismiss_reports($@)
 	}
 
 	make_http_forward(get_script_name()."?admin=$admin&task=reports",ALTERNATE_REDIRECT);
+}
+
+sub add_user($$$$$$)
+{
+	my ($admin,$username,$password,$password2,$email,$newlevel)=@_;
+	my ($sth,$row);
+
+	my $level=check_password($admin,9000);
+
+	$email=~s/^\s*|\s*$//g; # strip whitespace
+
+	make_error(S_BADUSERNAME) if($username=~/[\r\n\t]|^\s*$/);
+	make_error(S_BADLEVEL) unless($newlevel=~/^\d{1,4}$/);
+	make_error(S_BADPASSWORD) if($password=~/[\r\n\t]|^\s*$/);
+	make_error(S_PASSNOTMATCH) if($password ne $password2);
+	make_error(S_PASSTOOSHORT) if(length($password)<8);
+	make_error(S_BADEMAIL) if($email and !check_email($email));
+	make_error(S_LEVELTOOHIGH) if($newlevel>$level); # cannot give users a higher level than yourself
+
+	# check for existing users
+	$sth=$dbh->prepare("SELECT * FROM ".SQL_USER_TABLE." WHERE username=? OR email AND email=?;") or make_error(S_SQLFAIL);
+	$sth->execute($username,$email) or make_error(S_SQLFAIL);
+
+	make_error(S_USEREXISTS) if($sth->fetchrow_array());
+
+	# insert into db
+	$sth=$dbh->prepare("INSERT INTO ".SQL_USER_TABLE." VALUES(0,?,?,0,?,?);") or make_error(S_SQLFAIL);
+	$sth->execute($username,$password,$newlevel,$email) or make_error(S_SQLFAIL);
+
+	make_http_forward(get_script_name()."?admin=$admin&task=users",ALTERNATE_REDIRECT);
+}
+
+sub edit_user($$$$$$$)
+{
+	my ($admin,$selfuser,$num,$email,$password,$password2,$newlevel)=@_;
+	my ($sth,$row);
+
+	my $level=check_password($admin,8500);
+
+	$sth=$dbh->prepare("SELECT * FROM ".SQL_USER_TABLE." WHERE num=?;") or make_error(S_SQLFAIL);
+	$sth->execute($num) or make_error(S_SQLFAIL);
+
+	$row=get_decoded_hashref($sth);
+
+	make_error(S_UNKNOWNUSER) if(!$row); # no user by that id
+	make_error(S_NOACCESS) if($$row{level}<$level); # user has a higher level than you
+
+	# password
+	if($password)
+	{
+		make_error(S_BADPASSWORD) if($password=~/[\r\n\t]/);
+		make_error(S_BADPASSWORD) if($password=~/^\s*$/);
+		make_error(S_PASSNOTMATCH) if($password ne $password2);
+		make_error(S_PASSTOOSHORT) if(length($password)<8);
+	}
+	else { $password=$$row{password}; }
+
+	# email address
+	if($email)
+	{
+		$email=~s/^\s*|\s*$//g; # strip whitespace
+		make_error(S_BADEMAIL) unless check_email($email);
+	}
+	else { $email=$$row{email}; }
+
+	# access levels
+	if($newlevel ne '' and $newlevel!=$$row{level})
+	{
+		make_error(S_MODIFYSELF) if($selfuser eq $$row{username});
+		make_error(S_BADLEVEL) unless($newlevel=~/^\d{1,4}$/); # is the level sane?
+		make_error(S_LEVELTOOHIGH) if($newlevel>$level); # cannot give users a higher level than yourself
+	}
+	else { $newlevel=$$row{level}; }
+
+	$sth=$dbh->prepare("UPDATE ".SQL_USER_TABLE." SET password=?,email=?,level=? WHERE num=?;") or make_error(S_SQLFAIL);
+	$sth->execute($num,$email,$newlevel) or make_error(S_SQLFAIL);
+
+	make_http_forward(get_script_name()."?admin=$admin&task=users",ALTERNATE_REDIRECT);
+}
+
+sub delete_user($$$)
+{
+	my ($admin,$selfuser,$num)=@_;
+	my ($sth,$row);
+
+	my $level=check_password($admin,9000);
+
+	$sth=$dbh->prepare("SELECT * FROM ".SQL_USER_TABLE." WHERE num=?;") or make_error(S_SQLFAIL);
+	$sth->execute($num) or make_error(S_SQLFAIL);
+
+	$row=get_decoded_hashref($sth);
+
+	make_error(S_UNKNOWNUSER) if(!$row); # no user by that id
+	make_error(S_LEVELTOOHIGH) if($$row{level}>$level); # cannot delete users with a higher level than yourself
+	make_error(S_DELETESELF) if($selfuser eq $$row{username}); # cannot delete yourself
+
+	$sth=$dbh->prepare("DELETE FROM ".SQL_USER_TABLE." WHERE num=?;") or make_error(S_SQLFAIL);
+	$sth->execute($num) or make_error(S_SQLFAIL);
+
+	make_http_forward(get_script_name()."?admin=$admin&task=users",ALTERNATE_REDIRECT);
 }
 
 sub do_nuke_database($)

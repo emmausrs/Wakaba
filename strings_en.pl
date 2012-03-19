@@ -178,6 +178,17 @@ use constant S_NOIPV6 => 'Error: IPv6 is not supported.';
 use constant S_BADREFERRER => 'Error: Bad referrer.';						# Returns error for bad referrers.
 use constant S_NOOEKAKI => 'Error: You cannot use oekaki on this board.';	# Returns error when oekaki is disabled and someone is trying to perform an oekaki task.
 use constant S_CANNOTREPORT => 'Error: You cannot report posts on this board.';
+use constant S_UNKNOWNUSER => 'Error: Unknown user ID.';
+use constant S_BADPASSWORD => 'Error: Bad password.';
+use constant S_PASSNOTMATCH => 'Error: The passwords don\'t match.';
+use constant S_PASSTOOSHORT => 'Error: The password was too short.';
+use constant S_BADUSERNAME => 'Error: Bad username.';
+use constant S_BADEMAIL => 'Error: Bad email address.';
+use constant S_BADLEVEL => 'Error: Access levels must be between 0 and 9999.';
+use constant S_MODIFYSELF => 'Error: You cannot modify your own user level!';
+use constant S_DELETESELF => 'Error: You cannot delete yourself!';
+use constant S_USEREXISTS => 'Error: A user with that name or email address already exists..';
+use constant S_LEVELTOOHIGH => 'Error: You cannot add users with privileges higher than yourself!';
 
 use constant S_SQLCONF => 'SQL connection failure';							# Database connection failure
 use constant S_SQLFAIL => 'Critical SQL problem!';							# SQL Failure

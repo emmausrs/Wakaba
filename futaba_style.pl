@@ -935,7 +935,7 @@ use constant ADMIN_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.
 
 <form action="<var $self>" method="post">
 <input type="hidden" name="admin" value="<var $admin>" />
-<input type="hidden" name="task" value="adduser>" />
+<input type="hidden" name="task" value="adduser" />
 
 <table><tbody>
 <tr><td class="postblock"><const S_USERSNAME></td><td><input type="text" name="username" size="16" /></td></tr>
