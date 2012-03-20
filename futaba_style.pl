@@ -291,6 +291,39 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 
 }.NORMAL_FOOT_INCLUDE);
 
+use constant BACKLOG_PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
+
+[<a href="<var expand_filename(HTML_SELF)>"><const S_RETURN></a>]
+<div class="theader"><const S_BACKLOGHEAD></div>
+
+<if @$threadlist>
+<div class="threadlist">
+<table width="100%"><tbody>
+	<tr>
+		<td class="postblock" width="1%"><const S_BACKLOGNUM></td>
+		<td class="postblock"><const S_BACKLOGSUBJECT></td>
+		<td class="postblock" width="1%"><const S_BACKLOGPOSTS></td>
+		<td class="postblock" width="1%"><const S_BACKLOGLASTPOST></td>
+	</tr>
+	<loop $threadlist>
+	<tr>
+		<td width="1%"><var $list></td>
+		<td><a href="<var get_reply_link($num,0)>"><var $subject></a></td>
+		<td width="1%"><var $count></td>
+		<td width="1%"><var make_date($lastactivity,DATE_STYLE)></td>
+	</tr>
+	</loop>
+</tbody></table>
+</div>
+<else>
+	<div align="center">
+	<p><const S_BACKLOGNOTHING></p>
+	</div>
+</if>
+
+<hr />
+
+}.NORMAL_FOOT_INCLUDE);
 
 use constant POST_REPORT_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 

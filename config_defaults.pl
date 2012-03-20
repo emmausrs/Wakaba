@@ -113,7 +113,7 @@ BEGIN {
 	eval "use constant REPORTS_MAX => 5";
 	eval "use constant REPORTS_REASONLENGTH => 120";
 	eval "use constant ENABLE_RSS => 1" unless(defined &ENABLE_RSS);
-	eval "use constant MAKE_THREADLIST => 0" unless(defined &MAKE_THREADLIST);
+	eval "use constant MAKE_THREADLIST => 1" unless(defined &MAKE_THREADLIST);
 
 	eval "use constant IMG_DIR => 'src/'" unless(defined &IMG_DIR);
 	eval "use constant THUMB_DIR => 'thumb/'" unless(defined &THUMB_DIR);
@@ -123,6 +123,7 @@ BEGIN {
 	eval "use constant HTML_SELF => 'wakaba.html'" unless(defined &HTML_SELF);
 	eval "use constant JS_FILE => 'wakaba3.js'" unless(defined &JS_FILE);
 	eval "use constant RSS_FILE => 'rss.xml'" unless(defined &RSS_FILE);
+	eval "use constant BACKLOG_FILE => 'subback.html'" unless(defined &BACKLOG_FILE);
 	eval "use constant CSS_DIR => 'css/'" unless(defined &CSS_DIR);
 	eval "use constant PAGE_EXT => '.html'" unless(defined &PAGE_EXT);
 	eval "use constant ERRORLOG => ''" unless(defined &ERRORLOG);

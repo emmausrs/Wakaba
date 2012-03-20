@@ -380,7 +380,7 @@ sub init($)
 
 sub build_cache()
 {
-	my ($sth,$row,@thread);
+	my ($sth,$row,@thread,@threadlist);
 	my $page=0;
 
 	# grab all posts, in thread order (ugh, ugly kludge)
@@ -395,22 +395,33 @@ sub build_cache()
 	}
 	else
 	{
-		my (@threads,@threadlist);
+		my @threads;
 		my @thread=($row);
-		push @threadlist,{num=>$$row{num},list=>@threadlist+1,subject=>$$row{subject},count=>1} if(MAKE_THREADLIST);
+
+		push @threadlist,{
+			subject=>$$row{subject}||substr(strip_html($$row{comment}),0,MAX_FIELD_LENGTH)||get_filename($$row{image})||sprintf(S_THREADTITLE,$$row{num}),
+			count=>1,lastactivity=>$$row{timestamp},num=>$$row{num},list=>1
+		} if(MAKE_THREADLIST);
 
 		while($row=get_decoded_hashref($sth))
 		{
 			if(!$$row{parent})
 			{
 				push @threads,{posts=>[@thread]};
-				push @threadlist,{num=>$$row{num},list=>@threadlist+1,subject=>$$row{subject},count=>1} if(MAKE_THREADLIST);
+				push @threadlist,{
+					subject=>$$row{subject}||substr(strip_html($$row{comment}),0,MAX_FIELD_LENGTH)||get_filename($$row{image})||sprintf(S_THREADTITLE,$$row{num}),
+					count=>1,lastactivity=>$$row{timestamp},num=>$$row{num},list=>@threadlist+1
+				} if(MAKE_THREADLIST);
 				@thread=($row); # start new thread
 			}
 			else
 			{
 				push @thread,$row;
-				$threadlist[-1]{count}++ if(MAKE_THREADLIST);
+				if(MAKE_THREADLIST)
+				{
+					$threadlist[-1]{lastactivity}=$$row{timestamp};
+					$threadlist[-1]{count}++;
+				}
 			}
 		}
 		push @threads,{posts=>[@thread]};
@@ -430,6 +441,16 @@ sub build_cache()
 		unlink $page.PAGE_EXT;
 		$page++;
 	}
+
+	if(MAKE_THREADLIST)
+	{
+		print_page(BACKLOG_FILE,BACKLOG_PAGE_TEMPLATE->(
+			threadlist=>\@threadlist,
+			title=>S_BACKLOGHEAD,
+		));
+	}
+	elsif(-e BACKLOG_FILE) { unlink BACKLOG_FILE; }
+
 	unlink RSS_FILE if(!ENABLE_RSS and -e RSS_FILE);
 }
 

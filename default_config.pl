@@ -135,7 +135,7 @@
 #use constant REPORTS_MAX => 5;					# Maximum amount of posts one can report at the same time.
 #use constant REPORTS_REASONLENGTH => 120;		# Maximum length of report reasons.
 #use constant ENABLE_RSS => 1;					# Enable RSS feeds.
-#use constant MAKE_THREADLIST => 0;				# Generate a thread list which can be used in page templates.
+#use constant MAKE_THREADLIST => 1;				# Generate a thread list.
 
 # Internal paths and files - might as well leave this alone.
 #use constant IMG_DIR => 'src/';				# Image directory (needs to be writeable by the script)
@@ -145,6 +145,7 @@
 #use constant REDIR_DIR => 'redir/';			# Redir directory, used for redirecting clients when load balancing
 #use constant HTML_SELF => 'wakaba.html';		# Name of main html file
 #use constant RSS_FILE => 'rss.xml';			# Name of RSS feed file
+#use constant BACKLOG_FILE => 'subback.html';	# Name of thread index file
 #use constant JS_FILE => 'wakaba.js';			# Location of the js file
 #use constant PAGE_EXT => '.html';				# Extension used for board pages after first
 #use constant ERRORLOG => '';					# Writes out all errors seen by user, mainly useful for debugging

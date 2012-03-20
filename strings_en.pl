@@ -43,6 +43,13 @@ use constant S_LASTPG => 'Next';									# Defines next button
 
 use constant S_WEEKDAYS => ('Sun','Mon','Tue','Wed','Thu','Fri','Sat');	# Defines abbreviated weekday names.
 
+use constant S_BACKLOGHEAD => 'Thread Index';
+use constant S_BACKLOGNUM => 'Num';
+use constant S_BACKLOGSUBJECT => 'Title';
+use constant S_BACKLOGPOSTS => 'Posts';
+use constant S_BACKLOGLASTPOST => 'Last&nbsp;post';
+use constant S_BACKLOGNOTHING => '(Nothing to show.)';
+
 use constant S_REPORTHEAD => 'Post reporting';
 use constant S_REPORTEXPL => 'You are reporting the following posts:';
 use constant S_REPORTREASON => 'Please enter a report reason:';
