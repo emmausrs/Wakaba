@@ -138,8 +138,20 @@ function get_preferred_stylesheet()
 	return null;
 }
 
-function set_inputs(id) { with(document.getElementById(id)) {if(!field1.value) field1.value=get_cookie("name"); if(!field2.value) field2.value=get_cookie("email"); if(!password.value) password.value=get_password("password"); } }
-function set_delpass(id) { with(document.getElementById(id)) password.value=get_cookie("password"); }
+function set_inputs(id)
+{
+	with(document.getElementById(id))
+	{
+		if(typeof field1!="undefined" && !field1.value) field1.value=get_cookie("name");
+		if(typeof field2!="undefined" && !field2.value) field2.value=get_cookie("email");
+		if(typeof password!="undefined" && !password.value) password.value=get_password("password");
+	}
+}
+
+function set_delpass(id)
+{
+	with(document.getElementById(id)) password.value=get_cookie("password");
+}
 
 function do_ban(el)
 {
