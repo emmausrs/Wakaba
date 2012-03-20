@@ -113,6 +113,7 @@ BEGIN {
 	eval "use constant REPORTS_MAX => 5";
 	eval "use constant REPORTS_REASONLENGTH => 120";
 	eval "use constant ENABLE_RSS => 1" unless(defined &ENABLE_RSS);
+	eval "use constant MAKE_THREADLIST => 0" unless(defined &MAKE_THREADLIST);
 
 	eval "use constant IMG_DIR => 'src/'" unless(defined &IMG_DIR);
 	eval "use constant THUMB_DIR => 'thumb/'" unless(defined &THUMB_DIR);

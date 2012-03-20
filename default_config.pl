@@ -135,6 +135,7 @@
 #use constant REPORTS_MAX => 5;					# Maximum amount of posts one can report at the same time.
 #use constant REPORTS_REASONLENGTH => 120;		# Maximum length of report reasons.
 #use constant ENABLE_RSS => 1;					# Enable RSS feeds.
+#use constant MAKE_THREADLIST => 0;				# Generate a thread list which can be used in page templates.
 
 # Internal paths and files - might as well leave this alone.
 #use constant IMG_DIR => 'src/';				# Image directory (needs to be writeable by the script)

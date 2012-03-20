@@ -395,19 +395,22 @@ sub build_cache()
 	}
 	else
 	{
-		my @threads;
+		my (@threads,@threadlist);
 		my @thread=($row);
+		push @threadlist,{num=>$$row{num},list=>@threadlist+1,subject=>$$row{subject},count=>1} if(MAKE_THREADLIST);
 
 		while($row=get_decoded_hashref($sth))
 		{
 			if(!$$row{parent})
 			{
 				push @threads,{posts=>[@thread]};
+				push @threadlist,{num=>$$row{num},list=>@threadlist+1,subject=>$$row{subject},count=>1} if(MAKE_THREADLIST);
 				@thread=($row); # start new thread
 			}
 			else
 			{
 				push @thread,$row;
+				$threadlist[-1]{count}++ if(MAKE_THREADLIST);
 			}
 		}
 		push @threads,{posts=>[@thread]};
@@ -416,7 +419,7 @@ sub build_cache()
 		my @pagethreads;
 		while(@pagethreads=splice @threads,0,IMAGES_PER_PAGE)
 		{
-			build_cache_page($page,$total,@pagethreads);
+			build_cache_page($page,$total,\@threadlist,@pagethreads);
 			$page++;
 		}
 	}
@@ -430,9 +433,9 @@ sub build_cache()
 	unlink RSS_FILE if(!ENABLE_RSS and -e RSS_FILE);
 }
 
-sub build_cache_page($$@)
+sub build_cache_page($$$@)
 {
-	my ($page,$total,@threads)=@_;
+	my ($page,$total,$threadlist,@threads)=@_;
 	my ($filename,$tmpname);
 
 	if($page==0) { $filename=HTML_SELF; }
@@ -501,7 +504,8 @@ sub build_cache_page($$@)
 		nextpage=>$nextpage,
 		pages=>\@pages,
 		threads=>\@threads,
-		title=>$page?sprintf S_PAGETITLE,$page:''
+		title=>$page?sprintf S_PAGETITLE,$page:'',
+		threadlist=>$threadlist,
 	));
 }
 
