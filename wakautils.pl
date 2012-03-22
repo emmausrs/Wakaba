@@ -4,6 +4,7 @@ use strict;
 
 use Time::Local;
 use Socket;
+use IO::Socket::INET;
 
 my $has_md5=0;
 eval 'use Digest::MD5 qw(md5)';
@@ -525,13 +526,12 @@ sub js_hash(%)
 use constant CACHEFILE_PREFIX => 'cache-'; # you can make this a directory (e.g. 'cachedir/cache-' ) if you'd like
 use constant FORCETIME => '0.04'; 	# If the cache is less than (FORCETIME) days old, don't even attempt to refresh.
                                     # Saves everyone some bandwidth. 0.04 days is ~ 1 hour. 0.0007 days is ~ 1 min.
-eval 'use IO::Socket::INET'; # Will fail on old Perl versions!
 
 sub get_http($;$$$)
 {
 	my ($url,$maxsize,$referer,$cacheprefix)=@_;
-	my ($host,$port,$doc)=$url=~m!^(?:http://|)([^/]+)(:[0-9]+|)(.*)$!;
-	$port=80 unless($port);
+	my ($ssl,$host,$port,$doc)=$url=~m!^(?:http(s?)://|)([^/]+)(:[0-9]+|)(.*)$!;
+	$port=$port?$port:$ssl?443:80;
 
 	my $hash=encode_base64(rc4(null_string(6),"$host:$port$doc",0),"");
 	$hash=~tr!/+!_-!; # remove / and +
@@ -548,18 +548,28 @@ sub get_http($;$$$)
 		return $cache if((-M $cachefile)<FORCETIME);
 	}
 
-	my $sock=IO::Socket::INET->new("$host:$port") or return $cache;
+	my $sock;
+
+	if($ssl)
+	{
+		eval 'use IO::Socket::SSL';
+		return $cache if $@;
+		$sock=IO::Socket::SSL->new("$host:$port") or return $cache;
+	}
+	else { $sock=IO::Socket::INET->new("$host:$port") or return $cache; }
+
 	print $sock "GET $doc HTTP/1.1\r\nHost: $host\r\nConnection: close\r\n";
 	print $sock "If-Modified-Since: $modified\r\n" if $modified;
 	print $sock "Referer: $referer\r\n" if $referer;
 	print $sock "\r\n"; #finished!
 
 	# header
-	my ($line,$statuscode,$lastmod);
+	my ($line,$statuscode,$lastmod,$chunked);
 	do {
 		$line=<$sock>;
 		$statuscode=$1 if($line=~/^HTTP\/1\.1 (\d+)/);
 		$lastmod=$1 if($line=~/^Last-Modified: (.*)/);
+		$chunked=1 if($line=~/^Transfer-Encoding: chunked/)
 	} until ($line=~/^\r?\n/);
 
 	# body
@@ -573,6 +583,9 @@ sub get_http($;$$$)
 
 	if($statuscode=="200")
 	{
+		# fix chunked transfers
+		$output=handle_chunked_transfer($output) if($chunked);
+
 		#navbar changed, update cache
 		if(open CACHE,">$cachefile")
 		{
@@ -587,6 +600,25 @@ sub get_http($;$$$)
 		utime(time,time,$cachefile);
 		return $cache;
 	}
+}
+
+sub handle_chunked_transfer($)
+{
+	my @lines=split /^/, shift;
+	my ($data);
+
+	while(defined(my $line=shift @lines))
+	{
+		my $length=hex $line;
+		while($length>0 and defined($line=shift @lines))
+		{
+			$line=substr($line,0,$length);
+			$data.=$line;
+			$length-=length $line;
+		}
+	}
+
+	return $data;
 }
 
 sub make_http_forward($;$)
