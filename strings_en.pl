@@ -139,6 +139,7 @@ use constant S_SPAMEXPL => 'This is the list of domain names Wakaba considers to
                            'Blacklisting a site: <code>example.com</code><br />'.
 						   'Using comments: <code>example.com # spammer</code><br />'.
 						   'Using <a href="http://perldoc.perl.org/perlre.html">regular expressions</a>: <code>/example\.com/i</code>';
+use constant S_SPAMREADONLY => 'This file is fetched from a remote source and cannot be edited.';
 use constant S_SPAMSUBMIT => 'Save';
 use constant S_SPAMCLEAR => 'Clear';
 use constant S_SPAMRESET => 'Restore';

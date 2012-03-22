@@ -752,26 +752,31 @@ use constant SPAM_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
 <div align="center">
 <div class="dellist"><const S_MANASPAM></div>
-<p><const S_SPAMEXPL></p>
 
 <form action="<var $self>" method="post">
 
 <input type="hidden" name="task" value="updatespam" />
 <input type="hidden" name="admin" value="<var $admin>" />
 
-<div class="buttons">
-<input type="submit" value="<const S_SPAMSUBMIT>" />
-<input type="button" value="<const S_SPAMCLEAR>" onclick="document.forms[0].spam.value=''" />
-<input type="reset" value="<const S_SPAMRESET>" />
-</div>
-
-<textarea name="spam" rows="<var $spamlines>" cols="60"><var $spam></textarea>
+<if !$readonly>
+<p><const S_SPAMEXPL></p>
 
 <div class="buttons">
 <input type="submit" value="<const S_SPAMSUBMIT>" />
 <input type="button" value="<const S_SPAMCLEAR>" onclick="document.forms[0].spam.value=''" />
 <input type="reset" value="<const S_SPAMRESET>" />
 </div>
+<else>
+<p><small><const S_SPAMREADONLY></small></p>
+</if>
+
+<textarea name="spam" rows="<var $spamlines>" cols="60"<if $readonly> disabled="disabled"</if>><var $spam></textarea>
+
+<if !$readonly><div class="buttons">
+<input type="submit" value="<const S_SPAMSUBMIT>" />
+<input type="button" value="<const S_SPAMCLEAR>" onclick="document.forms[0].spam.value=''" />
+<input type="reset" value="<const S_SPAMRESET>" />
+</div></if>
 
 </form>
 

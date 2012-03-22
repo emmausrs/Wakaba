@@ -1162,7 +1162,7 @@ sub compile_spam_checker(@)
 		elsif(m!^/(.*)/$!) { $1 } # a regular expression
 		elsif(m!^/(.*)/([xism]+)$!) { "(?$2)$1" } # a regular expression with xism modifiers
 		else { '(?i)'.quotemeta } # a normal string
-	} map read_array($_),@_;
+	} map { m!^https?://!i?split/\r?\n|\r/,get_http($_):read_array($_) } @_;
 
 	return eval 'sub {
 		$_=shift;

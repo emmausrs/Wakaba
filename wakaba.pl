@@ -1653,14 +1653,19 @@ sub make_admin_proxy_panel($)
 sub make_admin_spam_panel($)
 {
 	my ($admin)=@_;
+	my (@spam);
 	my @spam_files=SPAM_FILES;
-	my @spam=read_array($spam_files[0]);
+	my $http=$spam_files[0]=~m!^https?://!i;
+
+	if(!$http) { @spam=read_array($spam_files[0]); }
+	else { @spam=split /\r?\n|\r/, get_http($spam_files[0]); }
 
 	my $level=check_password($admin,5000);
 
 	make_http_header();
 	print encode_string(SPAM_PANEL_TEMPLATE->(admin=>$admin,level=>$level,
 	spamlines=>scalar @spam,
+	readonly=>$http,
 	spam=>join "\n",map { clean_string($_,1) } @spam));
 }
 
