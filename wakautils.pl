@@ -1308,10 +1308,13 @@ sub make_thumbnail($$$$$;$)
 	# Using -sample on a 190-frame animated GIF takes 0.07 seconds on my i5
 	# system, unlike using -resize which takes 5.80 seconds.
 
-	my $method=($filename=~/\.gif$/)?"sample":"resize";
+	# Using -coalesce has quite a huge impact on performance, but it's necessary
+	# in order to not break animated thumbnails.
+
+	my $method=($filename=~/\.gif$/)?"-coalesce -sample":"-resize";
 
 	$convert="convert" unless($convert);
-	`$convert -$method ${width}x${height}! -quality $quality $filename $thumbnail`;
+	`$convert $filename $method ${width}x${height}! -quality $quality $thumbnail`;
 
 	return 1 unless($?);
 
