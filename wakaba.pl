@@ -1982,6 +1982,8 @@ sub update_spam_file($$)
 
 	my @spam=split /\r?\n/,$spam;
 	my @spam_files=SPAM_FILES;
+
+	make_error(S_REMOTESPAMFAIL) if($spam_files[0]=~m!^https?://!i);
 	write_array($spam_files[0],@spam);
 
 	make_http_forward(get_script_name()."?admin=$admin&task=spam",ALTERNATE_REDIRECT);

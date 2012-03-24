@@ -198,6 +198,7 @@ use constant S_MODIFYSELF => 'Error: You cannot modify your own user level!';
 use constant S_DELETESELF => 'Error: You cannot delete yourself!';
 use constant S_USEREXISTS => 'Error: A user with that name or email address already exists..';
 use constant S_LEVELTOOHIGH => 'Error: You cannot add users with privileges higher than yourself!';
+use constant S_REMOTESPAMFAIL => 'Error: You cannot update remote spam files.';
 
 use constant S_SQLCONF => 'SQL connection failure';							# Database connection failure
 use constant S_SQLFAIL => 'Critical SQL problem!';							# SQL Failure
