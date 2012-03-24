@@ -1183,6 +1183,7 @@ sub spam_engine(%)
 
 	for(@trap_fields) { return {} if $query->param($_) }
 
+	sync_spam(@spam_files) if($args{sync} and @spam_files>1 and $spam_files[0]!~m!^https?://!i);
 	my $spam_checker=compile_spam_checker(@spam_files);
 	my @fields=@included_fields?@included_fields:$query->param;
 	@fields=grep !$excluded_fields{$_},@fields if %excluded_fields;
@@ -1193,6 +1194,23 @@ sub spam_engine(%)
 	return $spam_checker->($fulltext);
 }
 
+sub sync_spam(@)
+{
+	my ($main_file,@spam_files)=@_;
+	my (%old,%new);
+
+	my @existing=read_array($main_file);
+	$old{$_}++ for @existing;
+
+	foreach my $file (@spam_files)
+	{
+		if($file=~m!^https?://!i) { $new{$_}++ for split /\r?\n|\r/,get_http($file); }
+		else { $new{$_}++ for read_array($file); }
+	}
+
+	my @new_spam=(@existing,grep(!exists $old{$_},sort keys %new));
+	write_array($main_file,@new_spam);
+}
 
 
 #

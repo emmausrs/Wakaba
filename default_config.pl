@@ -151,6 +151,7 @@
 #use constant ERRORLOG => '';					# Writes out all errors seen by user, mainly useful for debugging
 #use constant CONVERT_COMMAND => 'convert';		# location of the ImageMagick convert command (usually just 'convert', but sometime a full path is needed)
 ##use constant CONVERT_COMMAND => '/usr/X11R6/bin/convert';
+#use constant SYNC_SPAM_FILE => 0;				# If enabled, and the first spam file isn't a URL, spam definitions will be copied from the other files to the first spam file.
 #use constant SPAM_FILES => ('spam.txt');		# Spam definition files, as a Perl list.
 												# Hints: * Set all boards to use the same file for easy updating.
 												#        * Set up two files, one being the official list from

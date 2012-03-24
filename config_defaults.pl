@@ -128,12 +128,8 @@ BEGIN {
 	eval "use constant PAGE_EXT => '.html'" unless(defined &PAGE_EXT);
 	eval "use constant ERRORLOG => ''" unless(defined &ERRORLOG);
 	eval "use constant CONVERT_COMMAND => 'convert'" unless(defined &CONVERT_COMMAND);
-	unless(defined &SPAM_FILES)
-	{
-		if(defined &SPAM_FILE) { eval "use constant SPAM_FILES => (SPAM_FILE)" }
-		else { eval "use constant SPAM_FILES => ('spam.txt')" }
-	}
-#	eval "use constant SPAM_FILE => 'spam.txt'" unless(defined &SPAM_FILE);
+	eval "use constant SYNC_SPAM_FILE => 0" unless(defined &SYNC_SPAM_FILE);
+	eval "use constant SPAM_FILES => ('spam.txt')" unless(defined &SPAM_FILES);
 
 	eval "use constant ENABLE_OEKAKI => 0" unless(defined &ENABLE_OEKAKI);
 	eval "use constant TMP_DIR => 'tmp/'" unless(defined &TMP_DIR);

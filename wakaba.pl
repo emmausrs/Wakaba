@@ -699,6 +699,7 @@ sub post_stuff($$$$$$$$$$$$$$)
 		spam_files=>[SPAM_FILES],
 		charset=>CHARSET,
 		included_fields=>["field1","field2","field3","field4"],
+		sync=>SYNC_SPAM_FILE
 	) unless $whitelisted or $trusted or $admin;
 
 	if($isspam)
