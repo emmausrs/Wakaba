@@ -303,7 +303,7 @@ use constant BACKLOG_PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 		<td class="postblock" width="1%"><const S_BACKLOGNUM></td>
 		<td class="postblock"><const S_BACKLOGSUBJECT></td>
 		<td class="postblock" width="1%"><const S_BACKLOGPOSTS></td>
-		<td class="postblock" width="1%"><const S_BACKLOGLASTPOST></td>
+		<td class="postblock" width="1%" style="white-space: nobreak"><const S_BACKLOGLASTPOST></td>
 	</tr>
 	<loop $threadlist>
 	<tr>
