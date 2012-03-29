@@ -1531,7 +1531,7 @@ sub report_stuff(@)
 
 	# error checks
 	make_error(S_NOPOSTS) if(!@posts); # no posts
-	make_error(S_REPORTSFLOOD) if(@posts>REPORTS_MAX); # too many reports
+	make_error(sprintf(S_REPORTSFLOOD,REPORTS_MAX)) if(@posts>REPORTS_MAX); # too many reports
 
 	# ban check
 	my $whitelisted=is_whitelisted($numip,$ipv6);
