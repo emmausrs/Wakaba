@@ -56,8 +56,8 @@ form .trap { display:none }
 </div>
 
 <div class="logo">
-<if SHOWTITLEIMG==1><img src="<var expand_filename(TITLEIMG)>" alt="<const TITLE>" /></if>
-<if SHOWTITLEIMG==2><img src="<var expand_filename(TITLEIMG)>" onclick="this.src=this.src;" alt="<const TITLE>" /></if>
+<if SHOWTITLEIMG==1><img src="<var expand_filename((TITLEIMG)[rand TITLEIMG])>" alt="<const TITLE>" /></if>
+<if SHOWTITLEIMG==2><img src="<var expand_filename((TITLEIMG)[rand TITLEIMG])>" onclick="this.src=this.src;" alt="<const TITLE>" /></if>
 <if SHOWTITLEIMG and SHOWTITLETXT><br /></if>
 <if SHOWTITLETXT><const TITLE></if>
 </div><hr />
