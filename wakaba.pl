@@ -2202,10 +2202,9 @@ sub make_error($)
 
 	if(ERRORLOG) # could print even more data, really.
 	{
+		$error=~s/"/\\"/g;
 		open ERRORFILE,'>>'.ERRORLOG;
-		print ERRORFILE $error."\n";
-		print ERRORFILE $ENV{HTTP_USER_AGENT}."\n";
-		print ERRORFILE "**\n";
+		printf ERRORFILE '%s - %s - "%s" "%s"'."\n", $ENV{REMOTE_ADDR}, scalar localtime, $ENV{HTTP_USER_AGENT}, $error;
 		close ERRORFILE;
 	}
 
