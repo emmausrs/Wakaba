@@ -296,6 +296,13 @@ sub init($)
 		my $newlevel=$query->param("level");
 		add_user($admin,$username,$password,$password2,$email,$newlevel);
 	}
+	elsif($task eq "edituser")
+	{
+		my $admin=$query->param("admin");
+		my $username=$query->cookie("wakauser");
+		my $num=$query->param("num");
+		make_edit_user_panel($admin,$username,$num);
+	}
 	elsif($task eq "doedituser")
 	{
 		my $admin=$query->param("admin");
@@ -1776,7 +1783,7 @@ sub make_user_panel($)
 	my ($admin)=@_;
 	my ($sth,$row,@users);
 
-	my $level=check_password($admin,1000);
+	my $level=check_password($admin,1);
 
 	$sth=$dbh->prepare("SELECT * FROM ".SQL_USER_TABLE." ORDER BY num ASC;") or make_error(S_SQLFAIL);
 	$sth->execute() or make_error(S_SQLFAIL);
@@ -1797,9 +1804,9 @@ sub make_user_panel($)
 	));
 }
 
-sub make_edit_user_panel($$)
+sub make_edit_user_panel($$$)
 {
-	my ($admin,$num)=@_;
+	my ($admin,$username,$num)=@_;
 	my ($sth,$row);
 
 	my $level=check_password($admin,1);
@@ -1807,11 +1814,19 @@ sub make_edit_user_panel($$)
 	$sth=$dbh->prepare("SELECT * FROM ".SQL_USER_TABLE." WHERE num=?;") or make_error(S_SQLFAIL);
 	$sth->execute($num) or make_error(S_SQLFAIL);
 
+	$row=get_decoded_hashref($sth) or make_error(S_UNKNOWNUSER);
+
+	make_error(S_NOACCESS) if($level<8500 and $$row{username} ne $username);
+	make_error(S_NOACCESS) if($level<$$row{level});
+
 	make_http_header();
 	print encode_string(ADMIN_EDIT_USER_PANEL_TEMPLATE->(
 		admin=>$admin,
+		level=>$level,
+		num=>$num,
+		selfuser=>$username,
 		username=>$$row{username},
-		level=>$$row{level},
+		userlevel=>$$row{level},
 		email=>$$row{email},
 	));
 }
@@ -2041,7 +2056,7 @@ sub edit_user($$$$$$$)
 	my ($admin,$selfuser,$num,$email,$password,$password2,$newlevel)=@_;
 	my ($sth,$row);
 
-	my $level=check_password($admin,8500);
+	my $level=check_password($admin,1);
 
 	$sth=$dbh->prepare("SELECT * FROM ".SQL_USER_TABLE." WHERE num=?;") or make_error(S_SQLFAIL);
 	$sth->execute($num) or make_error(S_SQLFAIL);
@@ -2049,7 +2064,8 @@ sub edit_user($$$$$$$)
 	$row=get_decoded_hashref($sth);
 
 	make_error(S_UNKNOWNUSER) if(!$row); # no user by that id
-	make_error(S_NOACCESS) if($$row{level}<$level); # user has a higher level than you
+	make_error(S_NOACCESS) if($level<8500 and $selfuser ne $$row{username}); # cannot modify other users than yourself
+	make_error(S_NOACCESS) if($level<$$row{level}); # user has a higher level than you
 
 	# password
 	if($password)
@@ -2072,14 +2088,14 @@ sub edit_user($$$$$$$)
 	# access levels
 	if($newlevel ne '' and $newlevel!=$$row{level})
 	{
-		make_error(S_MODIFYSELF) if($selfuser eq $$row{username});
+		make_error(S_MODIFYSELF) if($selfuser eq $$row{username}); # can't change your own access level
 		make_error(S_BADLEVEL) unless($newlevel=~/^\d{1,4}$/); # is the level sane?
 		make_error(S_LEVELTOOHIGH) if($newlevel>$level); # cannot give users a higher level than yourself
 	}
 	else { $newlevel=$$row{level}; }
 
 	$sth=$dbh->prepare("UPDATE ".SQL_USER_TABLE." SET password=?,email=?,level=? WHERE num=?;") or make_error(S_SQLFAIL);
-	$sth->execute($num,$email,$newlevel) or make_error(S_SQLFAIL);
+	$sth->execute($password,$email,$newlevel,$num) or make_error(S_SQLFAIL);
 
 	make_http_forward(get_script_name()."?admin=$admin&task=users",ALTERNATE_REDIRECT);
 }

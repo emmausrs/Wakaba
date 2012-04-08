@@ -99,6 +99,7 @@ use constant S_USERSDELETE => 'Delete';
 use constant S_USERSNEVER => '(Never)';
 use constant S_USERSNONE => '(None)';
 use constant S_USERSADD => 'Add User';
+use constant S_USERSEDITING => 'Editing user: %s';
 
 use constant S_MPDELETEIP => 'Delete all';
 use constant S_MPDELETE => 'Delete';									# Defines for deletion button in Management Panel

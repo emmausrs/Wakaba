@@ -427,7 +427,7 @@ use constant MANAGER_HEAD_INCLUDE => NORMAL_HEAD_INCLUDE.q{
 	<if $level ge 9999>[<a href="<var $self>?task=sql&amp;admin=<var $admin>"><const S_MANASQLINT></a>]</if>
 	<if $level ge 7000>[<a href="<var $self>?task=mpost&amp;admin=<var $admin>"><const S_MANAPOST></a>]</if>
 	<if $level ge 2000>[<a href="<var $self>?task=reports&amp;admin=<var $admin>"><const S_MANAREPORTS></a>]</if>
-	<if $level ge 1000>[<a href="<var $self>?task=users&amp;admin=<var $admin>"><const S_MANAUSERS></a>]</if>
+	<if $level ge 1>[<a href="<var $self>?task=users&amp;admin=<var $admin>"><const S_MANAUSERS></a>]</if>
 	<if $level ge 6000>[<a href="<var $self>?task=rebuild&amp;admin=<var $admin>"><const S_MANAREBUILD></a>]</if>
 	[<a href="<var $self>?task=logout"><const S_MANALOGOUT></a>]
 </if>
@@ -940,7 +940,7 @@ use constant ADMIN_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.
 <th><const S_USERSLASTLOGIN></th>
 <if $level ge 1000><th><const S_USERSEMAIL></th></if>
 <th><const S_USERSLEVEL></th>
-<if $level ge 8500><th><const S_USERSACTION></th></if>
+<th><const S_USERSACTION></th>
 
 </tr>
 
@@ -949,16 +949,16 @@ use constant ADMIN_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.
 <tr class="row<var $rowtype>">
 <td><var clean_string($username)></td>
 <td><if $lastlogin><var make_date($lastlogin,'tiny')><else><small><const S_USERSNEVER></small></if></td>
-<if $level ge 1000><td><if $email><a href="mailto:<var clean_string($email)>"><var clean_string($email)></a><else><small><const S_USERSNONE></small></if></td></if>
+<if $selflevel ge 1000><td><if $email><a href="mailto:<var clean_string($email)>"><var clean_string($email)></a><else><small><const S_USERSNONE></small></if></td></if>
 <td><var $level></td>
-<if $selflevel ge 8500><td>
+<td>
 	<if $level<=$selflevel>
 		[<a href="<var $self>?admin=<var $admin>&amp;task=edituser&amp;num=<var $num>"><const S_USERSEDIT></a>]
 	</if>
 	<if $selflevel ge 9000 and $selfuser ne $username and $level<=$selflevel>
 		[<a href="<var $self>?admin=<var $admin>&amp;task=deluser&amp;num=<var $num>"><const S_USERSDELETE></a>]
 	</if>
-</td></if>
+</td>
 </tr>
 
 </loop>
@@ -991,7 +991,34 @@ use constant ADMIN_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.
 
 </div>
 
-<hr />
+}.NORMAL_FOOT_INCLUDE);
+
+
+use constant ADMIN_EDIT_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
+
+<div class="dellist"><var sprintf S_USERSEDITING,clean_string($username)></div>
+
+<br />
+
+<div align="center">
+
+<form action="<var $self>" method="post">
+<input type="hidden" name="admin" value="<var $admin>" />
+<input type="hidden" name="task" value="doedituser" />
+<input type="hidden" name="num" value="<var $num>" />
+
+<table><tbody>
+<if $selfuser eq $username or $level\>=8500><tr><td class="postblock"><const S_USERSPASS></td><td><input type="password" name="password" size="16" /></td></tr>
+<tr><td class="postblock"><const S_USERSPASS2></td><td><input type="password" name="password2" size="16" /></td></tr></if>
+<tr><td class="postblock"><const S_USERSEMAIL></td><td><input type="text" name="email" size="24" value="<var clean_string($email)>" />
+<if $level\>=8500></td></tr><tr><td class="postblock"><const S_USERSLEVEL></td><td><input type="text" name="level" size="4" value="<var $userlevel>" maxlength="4" /></if>
+<input type="submit" value="<const S_USERSEDIT>" />
+</td></tr>
+</tbody></table>
+
+</form>
+
+</div>
 
 }.NORMAL_FOOT_INCLUDE);
 
