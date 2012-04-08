@@ -1355,6 +1355,7 @@ sub process_file($$$)
 
 	my $origname=$uploadname;
 	$origname=~s!^.*[\\/]!!; # cut off any directory in filename
+	$origname=~tr/\0//d; # fix for dangerous 0-day
 
 	if($filetypes{$ext}) # externally defined filetype - restore the name
 	{
