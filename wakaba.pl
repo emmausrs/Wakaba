@@ -2430,6 +2430,13 @@ sub repair_database()
 		$upd=$dbh->prepare("UPDATE ".SQL_TABLE." SET lasthit=? WHERE parent=?;") or make_error(S_SQLFAIL);
 		$upd->execute($$thread{lasthit},$$thread{num}) or make_error(S_SQLFAIL." ".$dbh->errstr());
 	}
+
+	# add missing columns
+
+	$dbh->do("ALTER TABLE ".SQL_TABLE." ADD COLUMN ipv6 INTEGER AFTER ip;");
+	$dbh->do("ALTER TABLE ".SQL_TABLE." ADD COLUMN origname TEXT AFTER image;");
+	$dbh->do("ALTER TABLE ".SQL_ADMIN_TABLE." ADD COLUMN date INTEGER AFTER num;");
+	$dbh->do("ALTER TABLE ".SQL_ADMIN_TABLE." ADD COLUMN expires INTEGER AFTER sval1;");
 }
 
 sub get_sql_autoincrement()
