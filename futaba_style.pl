@@ -12,6 +12,8 @@ use constant NORMAL_HEAD_INCLUDE => q{
 <title><if $title><var $title> - </if><const TITLE></title>
 <meta http-equiv="Content-Type" content="text/html;charset=<const CHARSET>" />
 <link rel="shortcut icon" href="<var expand_filename(FAVICON)>" />
+<if $nextpage><link rel="next" href="<var $nextpage>" />
+<else><link rel="next" href="<var expand_filename(HTML_SELF)>" /></if>
 
 <style type="text/css">
 body { margin: 0; padding: 8px; margin-bottom: auto; }
