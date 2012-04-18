@@ -134,7 +134,7 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 	<table><tbody>
 	<if !FORCED_ANON><tr><td class="postblock"><const S_NAME></td><td><input type="text" name="field1" size="28" /></td></tr></if>
 	<tr><td class="postblock"><const S_EMAIL></td><td><input type="text" name="field2" size="28" /></td></tr>
-	<tr><td class="postblock"><const S_SUBJECT></td><td><input type="text" name="field3" size="35" />
+	<tr><td class="postblock"><const S_SUBJECT></td><td><input type="text" name="field3" size="35" autocomplete="off" />
 	<input type="submit" value="<const S_SUBMIT>" /></td></tr>
 	<tr><td class="postblock"><const S_COMMENT></td><td><textarea name="field4" cols="48" rows="4"></textarea></td></tr>
 
@@ -145,12 +145,12 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 	</if>
 
 	<if ENABLE_CAPTCHA>
-		<tr><td class="postblock"><const S_CAPTCHA></td><td><input type="text" name="captcha" size="10" />
+		<tr><td class="postblock"><const S_CAPTCHA></td><td><input type="text" name="captcha" size="10" autocomplete="off" />
 		<img alt="" src="<var expand_filename(CAPTCHA_SCRIPT)>?key=<var get_captcha_key($thread)>&amp;dummy=<var $dummy>" />
 		</td></tr>
 	</if>
 
-	<tr><td class="postblock"><const S_DELPASS></td><td><input type="password" name="password" size="8" /> <const S_DELEXPL></td></tr>
+	<tr><td class="postblock"><const S_DELPASS></td><td><input type="password" name="password" size="8" autocomplete="off" /> <const S_DELEXPL></td></tr>
 	<tr><td colspan="2">
 	<div class="rules">}.include("include/rules.html").q{</div></td></tr>
 	</tbody></table></form></div>
@@ -261,7 +261,7 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 
 <table class="userdelete"><tbody><tr><td>
 <const S_REPDEL>[<label><input type="checkbox" name="fileonly" value="on" /><const S_DELPICONLY></label>]<br />
-<const S_DELKEY><input type="password" name="password" size="8" />
+<const S_DELKEY><input type="password" name="password" size="8" autocomplete="off" />
 <input name="task" value="<const S_DELETE>" type="submit" />
 <if ENABLE_REPORTS><input name="task" value="<const S_REPORT>" type="submit" /></if>
 </td></tr></tbody></table>
@@ -1010,8 +1010,8 @@ use constant ADMIN_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.
 <input type="hidden" name="task" value="adduser" />
 
 <table align="center"><tbody>
-<tr><td class="postblock"><const S_USERSNAME></td><td><input type="text" name="username" size="16" /></td></tr>
-<tr><td class="postblock"><const S_USERSPASS></td><td><input type="password" name="password" size="16" /></td></tr>
+<tr><td class="postblock"><const S_USERSNAME></td><td><input type="text" name="username" size="16" autocomplete="off" /></td></tr>
+<tr><td class="postblock"><const S_USERSPASS></td><td><input type="password" name="password" size="16" autocomplete="off" /></td></tr>
 <tr><td class="postblock"><const S_USERSPASS2></td><td><input type="password" name="password2" size="16" /></td></tr>
 <tr><td class="postblock"><const S_USERSEMAIL></td><td><input type="text" name="email" size="24" /></td></tr>
 <tr><td class="postblock"><const S_USERSLEVEL></td><td><input type="text" name="level" size="4" value="5000" maxlength="4" />
@@ -1038,8 +1038,8 @@ use constant ADMIN_EDIT_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INC
 <input type="hidden" name="num" value="<var $num>" />
 
 <table align="center"><tbody>
-<if $selfuser eq $username or $level\>=8500><tr><td class="postblock"><const S_USERSPASS></td><td><input type="password" name="password" size="16" /></td></tr>
-<tr><td class="postblock"><const S_USERSPASS2></td><td><input type="password" name="password2" size="16" /></td></tr></if>
+<if $selfuser eq $username or $level\>=8500><tr><td class="postblock"><const S_USERSPASS></td><td><input type="password" name="password" size="16" autocomplete="off" /></td></tr>
+<tr><td class="postblock"><const S_USERSPASS2></td><td><input type="password" name="password2" size="16" autocomplete="off" /></td></tr></if>
 <tr><td class="postblock"><const S_USERSEMAIL></td><td><input type="text" name="email" size="24" value="<var clean_string($email)>" />
 <if $level\>=8500></td></tr><tr><td class="postblock"><const S_USERSLEVEL></td><td><input type="text" name="level" size="4" value="<var $userlevel>" maxlength="4" /></if>
 <input type="submit" value="<const S_USERSEDIT>" />
