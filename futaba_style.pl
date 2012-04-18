@@ -528,9 +528,43 @@ use constant POST_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
 </form>
 
-<table><tbody>
+<br />
 
-</tbody></table>
+<table border="1" align="center"><tbody><tr>
+	<td>
+		<if defined $prev>
+			<form method="get" action="<var $self>">
+				<input type="hidden" name="task" value="mpanel" />
+				<input type="hidden" name="admin" value="<var $admin>" />
+				<input type="hidden" name="page" value="<var $prev>" />
+				<input type="submit" value="<const S_PREV>" />
+			</form>
+		<else>
+			<const S_FIRSTPG>
+		</if>
+	</td>
+	<td>
+		<loop $pages>
+			<if !$current>
+				[<a href="<var $url>"><var $page></a>]
+			<else>
+				[<var $page>]
+			</if>
+		</loop>
+	</td>
+	<td>
+		<if defined $next>
+			<form method="get" action="<var $self>">
+				<input type="hidden" name="task" value="mpanel" />
+				<input type="hidden" name="admin" value="<var $admin>" />
+				<input type="hidden" name="page" value="<var $next>" />
+				<input type="submit" value="<const S_NEXT>" />
+			</form>
+		<else>
+			<const S_LASTPG>
+		</if>
+	</td>
+</tr></tbody></table>
 
 <br /><div class="postarea">
 

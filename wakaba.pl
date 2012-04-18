@@ -181,7 +181,8 @@ sub init($)
 	elsif($task eq "mpanel")
 	{
 		my $admin=$query->param("admin");
-		make_admin_post_panel($admin);
+		my $page=$query->param("page");
+		make_admin_post_panel($admin,$page);
 	}
 	elsif($task eq "deleteall")
 	{
@@ -1588,8 +1589,9 @@ sub make_admin_login()
 
 sub make_admin_post_panel($)
 {
-	my ($admin)=@_;
+	my ($admin,$page)=@_;
 	my ($sth,$row,@posts,$size,$rowtype);
+	$page=0 if(!$page);
 
 	my $level=check_password($admin,1000);
 
@@ -1598,19 +1600,42 @@ sub make_admin_post_panel($)
 
 	$size=0;
 	$rowtype=1;
+
+	my $minthreads=$page*IMAGES_PER_PAGE;
+	my $maxthreads=$minthreads+IMAGES_PER_PAGE;
+	my $threadcount=0;
+
 	while($row=get_decoded_hashref($sth))
 	{
-		if(!$$row{parent}) { $rowtype=1; }
-		else { $rowtype^=3; }
-		$$row{rowtype}=$rowtype;
+		if(!$$row{parent}) { $threadcount++; }
+
+		if($threadcount>$minthreads and $threadcount<=$maxthreads)
+		{
+			if(!$$row{parent}) { $rowtype=1; }
+			else { $rowtype^=3; }
+			$$row{rowtype}=$rowtype;
+
+			push @posts,$row;
+		}
 
 		$size+=$$row{size};
-
-		push @posts,$row;
 	}
 
+	# Are we on a non-existent page?
+	if($page!=0 and $page>($threadcount-1)/IMAGES_PER_PAGE)
+	{
+		make_http_forward(get_script_name()."?task=mpanel&admin=$admin&page=0",ALTERNATE_REDIRECT);
+		return;
+	}
+
+	my @pages=map +{ page=>$_,current=>$_==$page,url=>escamp(get_script_name()."?task=mpanel&admin=$admin&page=$_") },0..($threadcount-1)/IMAGES_PER_PAGE;
+
+	my ($prevpage,$nextpage);
+	$prevpage=$page-1 if($page!=0);
+	$nextpage=$page+1 if($page<$#pages);
+
 	make_http_header();
-	print encode_string(POST_PANEL_TEMPLATE->(admin=>$admin,level=>$level,posts=>\@posts,size=>$size));
+	print encode_string(POST_PANEL_TEMPLATE->(admin=>$admin,level=>$level,posts=>\@posts,size=>$size,pages=>\@pages,next=>$nextpage,prev=>$prevpage));
 }
 
 sub make_admin_ban_panel($)
