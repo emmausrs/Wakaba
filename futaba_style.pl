@@ -982,7 +982,7 @@ use constant ADMIN_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.
 
 <tr class="row<var $rowtype>">
 <td><var clean_string($username)></td>
-<td><if $lastlogin><var make_date($lastlogin,'tiny')><else><small><const S_USERSNEVER></small></if></td>
+<td><if $lastlogin><var make_date($lastlogin,'2ch')><else><small><const S_USERSNEVER></small></if></td>
 <if $selflevel ge 1000><td><if $email><a href="mailto:<var clean_string($email)>"><var clean_string($email)></a><else><small><const S_USERSNONE></small></if></td></if>
 <td><var $level></td>
 <td>

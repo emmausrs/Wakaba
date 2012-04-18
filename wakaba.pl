@@ -1876,7 +1876,7 @@ sub do_login($$$$$)
 	{
 		if(!$usercookie)
 		{
-			make_cookies(wakauser=>$username,
+			make_cookies(wakauser=>$username,updatelogin=>1,
 			-charset=>CHARSET,-autopath=>COOKIE_PATH,-expires=>time+365*24*3600);
 		}
 
@@ -1890,14 +1890,14 @@ sub do_login($$$$$)
 	}
 	else
 	{
-		make_cookies(wakauser=>'',-expires=>1) if $usercookie;
+		make_cookies(wakauser=>'',updatelogin=>'',-expires=>1) if $usercookie;
 		make_admin_login();
 	}
 }
 
 sub do_logout()
 {
-	make_cookies(wakaadmin=>"",wakauser=>"",-expires=>1);
+	make_cookies(wakaadmin=>"",wakauser=>"",updatelogin=>"",-expires=>1);
 	make_http_forward(get_script_name()."?task=admin",ALTERNATE_REDIRECT);
 }
 
@@ -2181,6 +2181,7 @@ sub check_password($$)
 	my ($password,$minlevel)=@_;
 	my ($realpass,$level,$row);
 	my $username=$query->cookie("wakauser");
+	my $updatelogin=$query->cookie("updatelogin");
 
 	make_error(S_WRONGPASS) unless $username and $password; # refuse empty credentials immediately
 
@@ -2188,7 +2189,16 @@ sub check_password($$)
 	($realpass,$level)=get_user_stuff($username) or make_error(S_WRONGPASS);
 
 	make_error(S_NOACCESS) if $level<$minlevel; # insufficient privileges
-	return $level if $password eq crypt_password($realpass); # password matches
+	if($password eq crypt_password($realpass)) # password matches
+	{
+		if($updatelogin)
+		{
+			my $sth=$dbh->prepare("UPDATE ".SQL_USER_TABLE." SET lastlogin=? WHERE username=?;") or make_error(S_SQLFAIL);
+			$sth->execute(time(),$username) or make_error(S_SQLFAIL);
+			make_cookies(updatelogin=>'',-expires=>-1);
+		}
+		return $level;
+	}
 
 	make_error(S_WRONGPASS);
 }
