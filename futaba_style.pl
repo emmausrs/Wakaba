@@ -528,6 +528,10 @@ use constant POST_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
 </form>
 
+<table><tbody>
+
+</tbody></table>
+
 <br /><div class="postarea">
 
 <form action="<var $self>" method="post">
@@ -878,8 +882,6 @@ use constant REPORTS_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
 <div class="dellist"><const S_MANAREPORTS></div>
 
-<div align="center">
-
 <form action="<var $self>" method="POST">
 <input type="hidden" name="task" value="dismiss" />
 <input type="hidden" name="admin" value="<var $admin>" />
@@ -888,7 +890,7 @@ use constant REPORTS_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 <input type="submit" value="<const S_REPORTSDISMISS>" />
 </div>
 
-<table><tbody>
+<table align="center"><tbody>
 
 <tr class="managehead">
 
@@ -922,8 +924,6 @@ use constant REPORTS_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
 </form>
 
-</div>
-
 }.NORMAL_FOOT_INCLUDE);
 
 
@@ -932,9 +932,7 @@ use constant ADMIN_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.
 
 <div class="dellist"><const S_MANAUSERS></div>
 
-<div align="center">
-
-<table><tbody>
+<table align="center"><tbody>
 
 <tr class="managehead">
 
@@ -977,7 +975,7 @@ use constant ADMIN_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.
 <input type="hidden" name="admin" value="<var $admin>" />
 <input type="hidden" name="task" value="adduser" />
 
-<table><tbody>
+<table align="center"><tbody>
 <tr><td class="postblock"><const S_USERSNAME></td><td><input type="text" name="username" size="16" /></td></tr>
 <tr><td class="postblock"><const S_USERSPASS></td><td><input type="password" name="password" size="16" /></td></tr>
 <tr><td class="postblock"><const S_USERSPASS2></td><td><input type="password" name="password2" size="16" /></td></tr>
@@ -991,8 +989,6 @@ use constant ADMIN_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.
 
 </if>
 
-</div>
-
 }.NORMAL_FOOT_INCLUDE);
 
 
@@ -1002,14 +998,12 @@ use constant ADMIN_EDIT_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INC
 
 <br />
 
-<div align="center">
-
 <form action="<var $self>" method="post">
 <input type="hidden" name="admin" value="<var $admin>" />
 <input type="hidden" name="task" value="doedituser" />
 <input type="hidden" name="num" value="<var $num>" />
 
-<table><tbody>
+<table align="center"><tbody>
 <if $selfuser eq $username or $level\>=8500><tr><td class="postblock"><const S_USERSPASS></td><td><input type="password" name="password" size="16" /></td></tr>
 <tr><td class="postblock"><const S_USERSPASS2></td><td><input type="password" name="password2" size="16" /></td></tr></if>
 <tr><td class="postblock"><const S_USERSEMAIL></td><td><input type="text" name="email" size="24" value="<var clean_string($email)>" />
@@ -1019,8 +1013,6 @@ use constant ADMIN_EDIT_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INC
 </tbody></table>
 
 </form>
-
-</div>
 
 }.NORMAL_FOOT_INCLUDE);
 
