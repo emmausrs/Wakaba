@@ -640,7 +640,7 @@ sub post_stuff($$$$$$$$$$$$$$$)
 		else
 		{
 			make_error(S_NOTALLOWED) if($file and !ALLOW_IMAGES);
-			make_error(S_NOTALLOWED) if(!$file and !ALLOW_TEXTONLY);
+			make_error(S_NOPIC) if(!$file and !ALLOW_TEXTONLY);
 		}
 	}
 
