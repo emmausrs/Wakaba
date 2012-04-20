@@ -848,7 +848,7 @@ sub post_stuff($$$$$$$$$$$$$$$)
 	make_cookies(name=>$c_name,email=>$c_email,password=>$c_password,
 	-charset=>CHARSET,-autopath=>COOKIE_PATH); # yum!
 
-	run_event_handler('finished',SQL_TABLE,$name,$email,$subject,$comment,$file,$password,$parent);
+	run_event_handler('finished',SQL_TABLE,$num,$parent,$name,$email,$subject,$comment,$file,$password);
 
 	# redirect to the appropriate page
 	if($parent) { make_http_forward(RES_DIR.$parent.PAGE_EXT.($num?"#$num":""), ALTERNATE_REDIRECT); }
