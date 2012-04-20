@@ -1584,7 +1584,7 @@ sub report_stuff(@)
 			$sth=$dbh->prepare("INSERT INTO ".SQL_REPORT_TABLE." VALUES(0,?,?,?,?,?,?);") or make_error(S_SQLFAIL);
 			$sth->execute($time,$$report{num},$$report{parent},$reason,$ip,SQL_TABLE) or make_error(S_SQLFAIL);
 
-			run_event_handler('reportsubmitted',SQL_TABLE,$$report{num},$$report{parent},$reason);
+			run_event_handler('reportsubmitted',SQL_TABLE,$ip,$$report{num},$$report{parent},$reason);
 		}
 
 		make_http_header();
