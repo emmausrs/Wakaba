@@ -72,7 +72,7 @@ BEGIN {
 	eval "use constant THUMBNAIL_QUALITY => 70" unless(defined &THUMBNAIL_QUALITY);
 	eval "use constant DELETED_THUMBNAIL => ''" unless(defined &DELETED_THUMBNAIL);
 	eval "use constant DELETED_IMAGE => ''" unless(defined &DELETED_IMAGE);
-	eval "use constant ALLOW_TEXTONLY => 1" unless(defined &ALLOW_TEXTONLY);
+	eval "use constant ALLOW_TEXTONLY => 0" unless(defined &ALLOW_TEXTONLY);
 	eval "use constant ALLOW_IMAGES => 1" unless(defined &ALLOW_IMAGES);
 	eval "use constant ALLOW_TEXT_REPLIES => 1" unless(defined &ALLOW_TEXT_REPLIES);
 	eval "use constant ALLOW_IMAGE_REPLIES => 1" unless(defined &ALLOW_IMAGE_REPLIES);
@@ -100,6 +100,7 @@ BEGIN {
 	eval "use constant COOKIE_PATH => 'root'" unless(defined &COOKIE_PATH);
 	eval "use constant STYLE_COOKIE => 'wakabastyle'" unless(defined &STYLE_COOKIE);
 	eval "use constant FORCED_ANON => 0" unless(defined &FORCED_ANON);
+	eval "use constant ALLOW_LINK => 0" unless(defined &ALLOW_LINK);
 	eval "use constant USE_XHTML => 1" unless(defined &USE_XHTML);
 	eval "use constant SPAM_TRAP => 1" unless(defined &SPAM_TRAP);
 	eval "use constant AUTOBAN_SPAMMERS => 1" unless(defined &AUTOBAN_SPAMMERS);

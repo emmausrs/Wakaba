@@ -13,6 +13,7 @@ use constant S_SUBMIT => 'Submit';									# Describes submit button
 use constant S_COMMENT => 'Comment';								# Describes comment field
 use constant S_UPLOADFILE => 'File';								# Describes file field
 use constant S_NOFILE => 'No File';									# Describes file/no file checkbox
+use constant S_NOBUMP => 'Sage';
 use constant S_CAPTCHA => 'Verification';							# Describes captcha field
 use constant S_PARENT => 'Parent';									# Describes parent field on admin post page
 use constant S_DELPASS => 'Password';								# Describes password field

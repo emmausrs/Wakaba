@@ -93,7 +93,7 @@
 #use constant THUMBNAIL_QUALITY => 70;			# Thumbnail JPEG quality
 #use constant DELETED_THUMBNAIL => '';			# Thumbnail to show for deleted images (leave empty to show text message)
 #use constant DELETED_IMAGE => '';				# Image to link for deleted images (only used together with DELETED_THUMBNAIL)
-#use constant ALLOW_TEXTONLY => 1;				# Allow textonly posts (1: yes, 0: no)
+#use constant ALLOW_TEXTONLY => 0;				# Allow textonly posts (1: yes, 0: no)
 #use constant ALLOW_IMAGES => 1;				# Allow image posting (1: yes, 0: no)
 #use constant ALLOW_TEXT_REPLIES => 1;			# Allow replies (1: yes, 0: no)
 #use constant ALLOW_IMAGE_REPLIES => 1;			# Allow replies with images (1: yes, 0: no)
@@ -125,6 +125,7 @@
 #use constant ALTERNATE_REDIRECT => 0;			# Use alternate redirect method. (Javascript/meta-refresh instead of HTTP forwards. Needed to run on certain servers, like IIS.)
 #use constant COOKIE_PATH => 'root';			# Path argument for cookies ('root': cookies apply to all boards on the site, 'current': cookies apply only to this board, 'parent': cookies apply to all boards in the parent directory)
 #use constant FORCED_ANON => 0;					# Force anonymous posting (0: no, 1: yes)
+#use constant ALLOW_LINK => 0;					# Show "Link" field. If false, a checkbox will be displayed for sage functionality.
 #use constant USE_XHTML => 1;					# Send pages as application/xhtml+xml to browsers that support this (0:no, 1:yes)
 #use constant SPAM_TRAP => 1;					# Enable the spam trap (empty, hidden form fields that spam bots usually fill out) (0:no, 1:yes)
 #use constant AUTOBAN_SPAMMERS => 1;			# Autoban spammers (0: no, 1: yes)

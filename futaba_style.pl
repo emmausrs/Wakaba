@@ -128,14 +128,13 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 	<if !$image_inp and !$thread and ALLOW_TEXTONLY>
 		<input type="hidden" name="nofile" value="1" />
 	</if>
-	<if FORCED_ANON><input type="hidden" name="name" /></if>
 	<if SPAM_TRAP><div class="trap"><const S_SPAMTRAP><input type="text" name="name" size="28" autocomplete="off" /><input type="text" name="link" size="28" autocomplete="off" /></div></if>
 
 	<table><tbody>
 	<if !FORCED_ANON><tr><td class="postblock"><const S_NAME></td><td><input type="text" name="field1" size="28" /></td></tr></if>
-	<tr><td class="postblock"><const S_EMAIL></td><td><input type="text" name="field2" size="28" /></td></tr>
+	<if ALLOW_LINK><tr><td class="postblock"><const S_EMAIL></td><td><input type="text" name="field2" size="28" /></td></tr></if>
 	<tr><td class="postblock"><const S_SUBJECT></td><td><input type="text" name="field3" size="35" autocomplete="off" />
-	<input type="submit" value="<const S_SUBMIT>" /></td></tr>
+	<input type="submit" value="<const S_SUBMIT>" /> <if !ALLOW_LINK>[<label><input type="checkbox" name="sage" value="on" /><const S_NOBUMP></label> ]</if></td></tr>
 	<tr><td class="postblock"><const S_COMMENT></td><td><textarea name="field4" cols="48" rows="4"></textarea></td></tr>
 
 	<if $image_inp>

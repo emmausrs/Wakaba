@@ -119,6 +119,7 @@ sub init($)
 		my $comment=$query->param("field4");
 		my $password=$query->param("password");
 		my $nofile=$query->param("nofile");
+		my $nobump=$query->param("sage");
 		my $captcha=$query->param("captcha");
 		my $admin=$query->param("admin");
 		my $no_captcha=$query->param("no_captcha");
@@ -142,7 +143,7 @@ sub init($)
 			$file=$tmpname=$query->param("file");
 		}
 
-		post_stuff($parent,$name,$email,$subject,$comment,$file,$tmpname,$password,$nofile,$captcha,$admin,$no_captcha,$no_format,$postfix);
+		post_stuff($parent,$name,$email,$subject,$comment,$file,$tmpname,$password,$nofile,$nobump,$captcha,$admin,$no_captcha,$no_format,$postfix);
 
 		unlink $tmpname if($task eq "oekakipost");
 	}
@@ -610,9 +611,9 @@ sub build_thread_cache_all()
 # Posting
 #
 
-sub post_stuff($$$$$$$$$$$$$$)
+sub post_stuff($$$$$$$$$$$$$$$)
 {
-	my ($parent,$name,$email,$subject,$comment,$file,$uploadname,$password,$nofile,$captcha,$admin,$no_captcha,$no_format,$postfix)=@_;
+	my ($parent,$name,$email,$subject,$comment,$file,$uploadname,$password,$nofile,$nobump,$captcha,$admin,$no_captcha,$no_format,$postfix)=@_;
 
 	# get a timestamp for future use
 	my $time=time();
@@ -760,6 +761,12 @@ sub post_stuff($$$$$$$$$$$$$$)
 		$trip='';
 		if($email=~/sage/i) { $email='sage'; }
 		else { $email=''; }
+	}
+
+	if(!ALLOW_LINK)
+	{
+		if($nobump) { $email='sage'; }
+		else { $email='' }
 	}
 
 	# clean up the inputs
