@@ -621,6 +621,8 @@ sub post_stuff($$$$$$$$$$$$$$$)
 	# check that the request came in as a POST, or from the command line
 	make_error(S_UNJUST) if($ENV{REQUEST_METHOD} and $ENV{REQUEST_METHOD} ne "POST");
 
+	run_event_handler('preprocess',SQL_TABLE,$query);
+
 	if($admin) # check admin password - allow both encrypted and non-encrypted
 	{
 		check_password($admin,7000);
@@ -797,6 +799,9 @@ sub post_stuff($$$$$$$$$$$$$$$)
 	# generate ID code if enabled
 	$date.=' ID:'.make_id_code($ip,$time,$email) if(DISPLAY_ID);
 
+	# We run this here to avoid orphaned files
+	run_event_handler('postprocess',SQL_TABLE,$name,$email,$subject,$comment,$file,$password,$parent);
+
 	# copy file, do checksums, make thumbnail, etc
 	my ($filename,$md5,$width,$height,$thumbnail,$tn_width,$tn_height,$origname)=process_file($file,$uploadname,$time) if($file);
 
@@ -842,6 +847,8 @@ sub post_stuff($$$$$$$$$$$$$$$)
 	# set the name, email and password cookies
 	make_cookies(name=>$c_name,email=>$c_email,password=>$c_password,
 	-charset=>CHARSET,-autopath=>COOKIE_PATH); # yum!
+
+	run_event_handler('finished',SQL_TABLE,$name,$email,$subject,$comment,$file,$password,$parent);
 
 	# redirect to the appropriate page
 	if($parent) { make_http_forward(RES_DIR.$parent.PAGE_EXT.($num?"#$num":""), ALTERNATE_REDIRECT); }
@@ -1576,6 +1583,8 @@ sub report_stuff(@)
 		{
 			$sth=$dbh->prepare("INSERT INTO ".SQL_REPORT_TABLE." VALUES(0,?,?,?,?,?,?);") or make_error(S_SQLFAIL);
 			$sth->execute($time,$$report{num},$$report{parent},$reason,$ip,SQL_TABLE) or make_error(S_SQLFAIL);
+
+			run_event_handler('reportsubmitted',SQL_TABLE,$$report{num},$$report{parent},$reason);
 		}
 
 		make_http_header();
@@ -2338,6 +2347,17 @@ sub parse_range($$;$)
 	return ($ip,$mask);
 }
 
+sub run_event_handler($@)
+{
+	my $handler=shift;
+	my %events=EVENT_HANDLERS;
+
+	if($events{$handler})
+	{
+		my $error = $events{$handler}->(@_);
+		if($error) { make_error($error); }
+	}
+}
 
 
 

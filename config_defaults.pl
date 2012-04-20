@@ -116,6 +116,8 @@ BEGIN {
 	eval "use constant ENABLE_RSS => 1" unless(defined &ENABLE_RSS);
 	eval "use constant MAKE_THREADLIST => 1" unless(defined &MAKE_THREADLIST);
 
+	eval "use constant EVENT_HANDLERS => ()" unless(defined &EVENT_HANDLERS);
+
 	eval "use constant IMG_DIR => 'src/'" unless(defined &IMG_DIR);
 	eval "use constant THUMB_DIR => 'thumb/'" unless(defined &THUMB_DIR);
 	eval "use constant RES_DIR => 'res/'" unless(defined &RES_DIR);

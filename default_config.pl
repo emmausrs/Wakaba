@@ -166,6 +166,37 @@
 #	{ label=>'1 year', time=>3600*24*365 }
 #]; 
 
+# Events (advanced users only)
+# These are anonymous subroutines which are executed in various places. If the
+# subroutine returns a true value, the script will raise an error with that
+# value. As such, you _must_ make the routine return 0 unless you're intending
+# to produce an error and stop the current action from executing.
+#
+#use constant EVENT_HANDLERS => (
+#	# Posting
+#	preprocess => sub {
+#		my ($board, $query) = @_;
+#		# Use the CGI object ($query) to get post values here.
+#		return 0;
+#	},
+#	postprocess => sub {
+#		my ($board, $parent, $name, $email, $subject, $comment, $file, $password) = @_;
+#		# $file could be an array reference in the future.
+#		return 0;
+#	},
+#	finished => sub {
+#		my ($board, $num, $parent, $name, $email, $subject, $comment, $file, $password) = @_;
+#		# $file could be an array reference in the future.
+#		return 0;
+#	},
+#
+#	# Reports
+#	reportsubmitted => sub {
+#		my ($board, $ip, $num, $parent, $reason) = @_;
+#		return 0;
+#	},
+#);
+
 # Oekaki
 #use constant ENABLE_OEKAKI => 0;				# Enable oekaki?
 #use constant TMP_DIR => 'tmp/';				# Temp file directory (needs to be writeable by the script)
