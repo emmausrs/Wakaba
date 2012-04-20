@@ -825,8 +825,8 @@ sub post_stuff($$$$$$$$$$$$$$$)
 	# find out what our new thread number is
 	if($filename)
 	{
-		$sth=$dbh->prepare("SELECT num FROM ".SQL_TABLE." WHERE image=?;") or make_error(S_SQLFAIL);
-		$sth->execute($filename) or make_error(S_SQLFAIL);
+		$sth=$dbh->prepare("SELECT num FROM ".SQL_TABLE." WHERE timestamp=? AND image=?;") or make_error(S_SQLFAIL);
+		$sth->execute($time,$filename) or make_error(S_SQLFAIL);
 	}
 	else
 	{
