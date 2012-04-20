@@ -134,7 +134,7 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 	<if !FORCED_ANON><tr><td class="postblock"><const S_NAME></td><td><input type="text" name="field1" size="28" /></td></tr></if>
 	<if ALLOW_LINK><tr><td class="postblock"><const S_EMAIL></td><td><input type="text" name="field2" size="28" /></td></tr></if>
 	<tr><td class="postblock"><const S_SUBJECT></td><td><input type="text" name="field3" size="35" autocomplete="off" />
-	<input type="submit" value="<const S_SUBMIT>" /> <if !ALLOW_LINK>[<label><input type="checkbox" name="sage" value="on" /><const S_NOBUMP></label> ]</if></td></tr>
+	<input type="submit" value="<const S_SUBMIT>" /> <if !ALLOW_LINK and $thread>[<label><input type="checkbox" name="sage" value="on" /><const S_NOBUMP></label> ]</if></td></tr>
 	<tr><td class="postblock"><const S_COMMENT></td><td><textarea name="field4" cols="48" rows="4"></textarea></td></tr>
 
 	<if $image_inp>
