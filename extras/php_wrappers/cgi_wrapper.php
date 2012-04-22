@@ -83,7 +83,7 @@
 
 		// headers
 		while (($line = fgets($pipes[1])) !== false && $line != "\n" && $line != "\r\n")
-			header($line);
+			header($line, false);
 
 		// body
 		while (($line = fgets($pipes[1])) !== false)
