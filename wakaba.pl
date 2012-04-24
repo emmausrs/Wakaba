@@ -2110,8 +2110,8 @@ sub add_user($$$$$$)
 	make_error(S_USEREXISTS) if($sth->fetchrow_array());
 
 	# insert into db
-	$sth=$dbh->prepare("INSERT INTO ".SQL_USER_TABLE." VALUES(0,?,?,0,?,?,0);") or make_error($dbh->errstr);
-	$sth->execute($username,$password,$newlevel,$email) or make_error($dbh->errstr);
+	$sth=$dbh->prepare("INSERT INTO ".SQL_USER_TABLE." VALUES(null,?,?,null,?,?,null);") or make_error(S_SQLFAIL);
+	$sth->execute($username,$password,$newlevel,$email) or make_error(S_SQLFAIL);
 
 	make_http_forward(get_script_name()."?admin=$admin&task=users",ALTERNATE_REDIRECT);
 }
