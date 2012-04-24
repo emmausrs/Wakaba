@@ -187,6 +187,7 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 			<span class="filetitle"><var $subject></span>
 			<if $email><span class="postername"><a href="<var $email>"><var $name></a></span><if $trip><span class="postertrip"><a href="<var $email>"><var $trip></a></span></if></if>
 			<if !$email><span class="postername"><var $name></span><if $trip><span class="postertrip"><var $trip></span></if></if>
+			<if $capcode><span class="capcode"><var $capcode></span></if>
 			<var $date></label>
 			<span class="reflink">
 			<if !$thread>
@@ -882,14 +883,13 @@ use constant SQL_INTERFACE_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
 use constant ADMIN_POST_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
-<div align="center"><em><const S_NOTAGS></em></div>
+<div class="dellist"><const S_MANAPOST></div>
 
 <div class="postarea">
 <form id="postform" action="<var $self>" method="post" enctype="multipart/form-data">
 <input type="hidden" name="task" value="post" />
 <input type="hidden" name="admin" value="<var $admin>" />
 <input type="hidden" name="no_captcha" value="1" />
-<input type="hidden" name="no_format" value="1" />
 
 <table><tbody>
 <tr><td class="postblock"><const S_NAME></td><td><input type="text" name="field1" size="28" /></td></tr>
@@ -902,6 +902,10 @@ use constant ADMIN_POST_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 </td></tr>
 <tr><td class="postblock"><const S_PARENT></td><td><input type="text" name="parent" size="8" /></td></tr>
 <tr><td class="postblock"><const S_DELPASS></td><td><input type="password" name="password" size="8" /><const S_DELEXPL></td></tr>
+<tr><td class="postblock"><const S_OPTIONS></td><td>
+<label><input type="checkbox" name="no_format" value="on" /> <const S_NOFORMAT></label>
+<if $capcode><br /><label><input type="checkbox" name="capcode" value="on" /> <var sprintf S_CAPCODE, $capcode></label></if>
+</td></tr>
 </tbody></table></form></div><hr />
 <script type="text/javascript">set_inputs("postform")</script>
 
@@ -1039,11 +1043,13 @@ use constant ADMIN_EDIT_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INC
 <table align="center"><tbody>
 <if $selfuser eq $username or $level\>=8500><tr><td class="postblock"><const S_USERSPASS></td><td><input type="password" name="password" size="16" autocomplete="off" /></td></tr>
 <tr><td class="postblock"><const S_USERSPASS2></td><td><input type="password" name="password2" size="16" autocomplete="off" /></td></tr></if>
-<tr><td class="postblock"><const S_USERSEMAIL></td><td><input type="text" name="email" size="24" value="<var clean_string($email)>" />
+<tr><td class="postblock"><const S_USERSEMAIL></td><td><input type="text" name="email" size="24" value="<var clean_string($email)>" /><if ALLOW_CAPCODE_EDIT or $level\>=9999></td></tr>
+<tr><td class="postblock"><const S_USERSCAPCODE></td><td><input type="text" name="capcode" value="<var clean_string($capcode)>" size="30" /><if $level<9999><br /><small><strong><const S_USERSALLOWEDTAGS></strong> <var describe_allowed(CAPCODE_ALLOWED_HTML)></small></if></if>
 <if $level\>=8500></td></tr><tr><td class="postblock"><const S_USERSLEVEL></td><td><input type="text" name="level" size="4" value="<var $userlevel>" maxlength="4" /></if>
 <input type="submit" value="<const S_USERSEDIT>" />
 </td></tr>
 </tbody></table>
+
 
 </form>
 

@@ -115,6 +115,8 @@ BEGIN {
 	eval "use constant REPORTS_REASONLENGTH => 120";
 	eval "use constant ENABLE_RSS => 1" unless(defined &ENABLE_RSS);
 	eval "use constant MAKE_THREADLIST => 1" unless(defined &MAKE_THREADLIST);
+	eval "use constant ALLOW_CAPCODE_EDIT => 1" unless(defined &ALLOW_CAPCODE_EDIT);
+	eval "use constant CAPCODE_ALLOWED_HTML => (b=>{},i=>{},u=>{},strong=>{},em=>{},font=>{args=>{color=>'color'}})" unless(defined &CAPCODE_ALLOWED_HTML);
 
 	eval "use constant EVENT_HANDLERS => ()" unless(defined &EVENT_HANDLERS);
 

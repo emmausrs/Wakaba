@@ -16,9 +16,12 @@ use constant S_NOFILE => 'No File';									# Describes file/no file checkbox
 use constant S_NOBUMP => 'Sage';
 use constant S_CAPTCHA => 'Verification';							# Describes captcha field
 use constant S_PARENT => 'Parent';									# Describes parent field on admin post page
+use constant S_OPTIONS => 'Options';
 use constant S_DELPASS => 'Password';								# Describes password field
 use constant S_DELEXPL => '(for post and file deletion)';			# Prints explanation for password box (to the right)
 use constant S_SPAMTRAP => 'Leave these fields empty (spam trap): ';
+use constant S_NOFORMAT => 'Post with HTML';
+use constant S_CAPCODE => 'Post with capcode (%s)';
 
 use constant S_THUMB => 'Thumbnail displayed, click image for full size.';	# Prints instructions for viewing real source
 use constant S_HIDDEN => 'Thumbnail hidden, click filename for the full image.';	# Prints instructions for viewing hidden image reply
@@ -94,6 +97,7 @@ use constant S_USERSPASS2 => '(Confirm)';
 use constant S_USERSLASTLOGIN => 'Last Login';
 use constant S_USERSEMAIL => 'Email Address';
 use constant S_USERSLEVEL => 'Level';
+use constant S_USERSCAPCODE => 'Capcode';
 use constant S_USERSACTION => 'Action';
 use constant S_USERSEDIT => 'Edit';
 use constant S_USERSDELETE => 'Delete';
@@ -101,6 +105,7 @@ use constant S_USERSNEVER => '(Never)';
 use constant S_USERSNONE => '(None)';
 use constant S_USERSADD => 'Add User';
 use constant S_USERSEDITING => 'Editing user: %s';
+use constant S_USERSALLOWEDTAGS => 'Allowed HTML tags:';
 
 use constant S_MPDELETEIP => 'Delete all';
 use constant S_MPDELETE => 'Delete';									# Defines for deletion button in Management Panel
@@ -199,6 +204,7 @@ use constant S_BADLEVEL => 'Error: Access levels must be between 0 and 9999.';
 use constant S_MODIFYSELF => 'Error: You cannot modify your own user level!';
 use constant S_DELETESELF => 'Error: You cannot delete yourself!';
 use constant S_USEREXISTS => 'Error: A user with that name or email address already exists..';
+use constant S_CAPCODELENGTH => 'Error: Capcode is too long!';
 use constant S_LEVELTOOHIGH => 'Error: You cannot add users with privileges higher than yourself!';
 use constant S_REMOTESPAMFAIL => 'Error: You cannot update remote spam files.';
 

@@ -137,6 +137,11 @@
 #use constant REPORTS_REASONLENGTH => 120;		# Maximum length of report reasons.
 #use constant ENABLE_RSS => 1;					# Enable RSS feeds.
 #use constant MAKE_THREADLIST => 1;				# Generate a thread list.
+#use constant ALLOW_CAPCODE_EDIT => 1;			# Allow admins to edit tripcodes. Users with 9999 permissions can override this.
+#use constant CAPCODE_ALLOWED_HTML => (		# Allowed HTML in tripcodes. Users with 9999 permissions can override this.
+#	b=>{},i=>{},u=>{},strong=>{},em=>{},
+#	font=>{args=>{color=>'color'}},
+#);
 
 # Internal paths and files - might as well leave this alone.
 #use constant IMG_DIR => 'src/';				# Image directory (needs to be writeable by the script)

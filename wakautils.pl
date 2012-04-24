@@ -140,6 +140,7 @@ sub sanitize_html($%)
 
 								if($type=~/url/i) { $passes=0 unless $value=~/(?:^${protocol_re}|^[^:]+$)/ }
 								if($type=~/number/i) { $passes=0 unless $value=~/^[0-9]+$/  }
+								if($type=~/color/i) { $passes=0 unless $value=~/^#[0-9A-Fa-f]{6}$/ }
 
 								if($passes)
 								{

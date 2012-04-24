@@ -124,6 +124,7 @@ sub init($)
 		my $admin=$query->param("admin");
 		my $no_captcha=$query->param("no_captcha");
 		my $no_format=$query->param("no_format");
+		my $capcode=$query->param("capcode");
 
 		# Oekaki
 		if($task eq "oekakipost")
@@ -143,7 +144,7 @@ sub init($)
 			$file=$tmpname=$query->param("file");
 		}
 
-		post_stuff($parent,$name,$email,$subject,$comment,$file,$tmpname,$password,$nofile,$nobump,$captcha,$admin,$no_captcha,$no_format,$postfix);
+		post_stuff($parent,$name,$email,$subject,$comment,$file,$tmpname,$password,$nofile,$nobump,$captcha,$admin,$no_captcha,$no_format,$capcode,$postfix);
 
 		unlink $tmpname if($task eq "oekakipost");
 	}
@@ -314,7 +315,8 @@ sub init($)
 		my $password=$query->param("password");
 		my $password2=$query->param("password2");
 		my $newlevel=$query->param("level");
-		edit_user($admin,$selfuser,$num,$email,$password,$password2,$newlevel);
+		my $capcode=$query->param("capcode");
+		edit_user($admin,$selfuser,$num,$email,$password,$password2,$newlevel,$capcode);
 	}
 	elsif($task eq "deluser")
 	{
@@ -611,9 +613,9 @@ sub build_thread_cache_all()
 # Posting
 #
 
-sub post_stuff($$$$$$$$$$$$$$$)
+sub post_stuff($$$$$$$$$$$$$$$$)
 {
-	my ($parent,$name,$email,$subject,$comment,$file,$uploadname,$password,$nofile,$nobump,$captcha,$admin,$no_captcha,$no_format,$postfix)=@_;
+	my ($parent,$name,$email,$subject,$comment,$file,$uploadname,$password,$nofile,$nobump,$captcha,$admin,$no_captcha,$no_format,$capcode,$postfix)=@_;
 
 	# get a timestamp for future use
 	my $time=time();
@@ -631,7 +633,7 @@ sub post_stuff($$$$$$$$$$$$$$$)
 	{
 
 		# forbid admin-only features
-		make_error(S_WRONGPASS) if($no_captcha or $no_format);
+		make_error(S_WRONGPASS) if($no_captcha or $no_format or $capcode);
 
 		# check what kind of posting is allowed
 		if($parent)
@@ -799,6 +801,19 @@ sub post_stuff($$$$$$$$$$$$$$$)
 	# generate ID code if enabled
 	$date.=' ID:'.make_id_code($ip,$time,$email) if(DISPLAY_ID);
 
+	# Get capcode
+	my $cap;
+
+	if($capcode)
+	{
+		my ($sth,$row);
+		$sth=$dbh->prepare("SELECT capcode FROM ".SQL_USER_TABLE." WHERE username=?") or make_error(S_SQLFAIL);
+		$sth->execute($query->cookie("wakauser")) or make_error(S_SQLFAIL);
+
+		$row=get_decoded_arrayref($sth);
+		if($row) { $cap=$$row[0] }
+	}
+
 	# We run this here to avoid orphaned files
 	run_event_handler('postprocess',SQL_TABLE,$name,$email,$subject,$comment,$file,$password,$parent);
 
@@ -806,9 +821,9 @@ sub post_stuff($$$$$$$$$$$$$$$)
 	my ($filename,$md5,$width,$height,$thumbnail,$tn_width,$tn_height,$origname)=process_file($file,$uploadname,$time) if($file);
 
 	# finally, write to the database
-	my $sth=$dbh->prepare("INSERT INTO ".SQL_TABLE." VALUES(null,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);") or make_error(S_SQLFAIL);
+	my $sth=$dbh->prepare("INSERT INTO ".SQL_TABLE." VALUES(null,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);") or make_error(S_SQLFAIL);
 	$sth->execute($parent,$time,$lasthit,$numip,$ipv6,
-	$date,$name,$trip,$email,$subject,$password,$comment,
+	$date,$name,$trip,$cap,$email,$subject,$password,$comment,
 	$filename,$origname,$size,$md5,$width,$height,$thumbnail,$tn_width,$tn_height) or make_error(S_SQLFAIL);
 
 	if($parent) # bumping
@@ -1795,8 +1810,15 @@ sub make_admin_post($)
 
 	my $level=check_password($admin,7000);
 
+	my ($capcode,$sth,$row);
+	$sth=$dbh->prepare("SELECT capcode FROM ".SQL_USER_TABLE." WHERE username=?;") or make_error(S_SQLFAIL);
+	$sth->execute($query->cookie("wakauser")) or make_error(S_SQLFAIL);
+
+	$row=get_decoded_arrayref($sth);
+	$capcode=$$row[0] if($row);
+
 	make_http_header();
-	print encode_string(ADMIN_POST_TEMPLATE->(admin=>$admin,level=>$level));
+	print encode_string(ADMIN_POST_TEMPLATE->(admin=>$admin,level=>$level,capcode=>$capcode));
 }
 
 sub make_report_panel($)
@@ -1870,6 +1892,7 @@ sub make_edit_user_panel($$$)
 		username=>$$row{username},
 		userlevel=>$$row{level},
 		email=>$$row{email},
+		capcode=>$$row{capcode},
 	));
 }
 
@@ -2087,15 +2110,15 @@ sub add_user($$$$$$)
 	make_error(S_USEREXISTS) if($sth->fetchrow_array());
 
 	# insert into db
-	$sth=$dbh->prepare("INSERT INTO ".SQL_USER_TABLE." VALUES(0,?,?,0,?,?);") or make_error(S_SQLFAIL);
+	$sth=$dbh->prepare("INSERT INTO ".SQL_USER_TABLE." VALUES(null,?,?,null,?,?,null);") or make_error(S_SQLFAIL);
 	$sth->execute($username,$password,$newlevel,$email) or make_error(S_SQLFAIL);
 
 	make_http_forward(get_script_name()."?admin=$admin&task=users",ALTERNATE_REDIRECT);
 }
 
-sub edit_user($$$$$$$)
+sub edit_user($$$$$$$$)
 {
-	my ($admin,$selfuser,$num,$email,$password,$password2,$newlevel)=@_;
+	my ($admin,$selfuser,$num,$email,$password,$password2,$newlevel,$capcode)=@_;
 	my ($sth,$row);
 
 	my $level=check_password($admin,1);
@@ -2127,6 +2150,14 @@ sub edit_user($$$$$$$)
 	}
 	else { $email=$$row{email}; }
 
+	# capcode
+	if($capcode and $level<9999)
+	{
+		make_error(S_CAPCODELENGTH) if(length($capcode)>150);
+		$capcode=sanitize_html($capcode,CAPCODE_ALLOWED_HTML);
+	}
+	else { $capcode=''; }
+
 	# access levels
 	if($newlevel ne '' and $newlevel!=$$row{level})
 	{
@@ -2136,8 +2167,8 @@ sub edit_user($$$$$$$)
 	}
 	else { $newlevel=$$row{level}; }
 
-	$sth=$dbh->prepare("UPDATE ".SQL_USER_TABLE." SET password=?,email=?,level=? WHERE num=?;") or make_error(S_SQLFAIL);
-	$sth->execute($password,$email,$newlevel,$num) or make_error(S_SQLFAIL);
+	$sth=$dbh->prepare("UPDATE ".SQL_USER_TABLE." SET password=?,email=?,level=?,capcode=? WHERE num=?;") or make_error(S_SQLFAIL);
+	$sth->execute($password,$email,$newlevel,$capcode,$num) or make_error(S_SQLFAIL);
 
 	make_http_forward(get_script_name()."?admin=$admin&task=users",ALTERNATE_REDIRECT);
 }
@@ -2382,6 +2413,7 @@ sub init_database()
 	"date TEXT,".				# The date, as a string
 	"name TEXT,".				# Name of the poster
 	"trip TEXT,".				# Tripcode (encoded)
+	"capcode TEXT,".			# Capcode
 	"email TEXT,".				# Email address
 	"subject TEXT,".			# Subject
 	"password TEXT,".			# Deletion password (in plaintext) 
@@ -2469,7 +2501,8 @@ sub init_user_database()
 	"password TEXT,".					# Password, salted and hashed.
 	"lastlogin INTEGER,".				# Timestamp of last login
 	"level INTEGER,".					# Privileges
-	"email TEXT".
+	"email TEXT,".						# Email address
+	"capcode TEXT".						# Tripcode
 
 	");") or make_error(S_SQLFAIL);
 	$sth->execute() or make_error(S_SQLFAIL);
@@ -2495,10 +2528,12 @@ sub repair_database()
 
 	# add missing columns
 
+	$dbh->do("ALTER TABLE ".SQL_TABLE." ADD COLUMN capcode TEXT AFTER trip;");
 	$dbh->do("ALTER TABLE ".SQL_TABLE." ADD COLUMN ipv6 INTEGER AFTER ip;");
 	$dbh->do("ALTER TABLE ".SQL_TABLE." ADD COLUMN origname TEXT AFTER image;");
 	$dbh->do("ALTER TABLE ".SQL_ADMIN_TABLE." ADD COLUMN date INTEGER AFTER num;");
 	$dbh->do("ALTER TABLE ".SQL_ADMIN_TABLE." ADD COLUMN expires INTEGER AFTER sval1;");
+	$dbh->do("ALTER TABLE ".SQL_USER_TABLE." ADD COLUMN capcode TEXT AFTER email;");
 }
 
 sub get_sql_autoincrement()
