@@ -2156,7 +2156,7 @@ sub edit_user($$$$$$$$)
 		make_error(S_CAPCODELENGTH) if(length($capcode)>150);
 		$capcode=sanitize_html($capcode,CAPCODE_ALLOWED_HTML);
 	}
-	else { $capcode=''; }
+	elsif(!$capcode) { $capcode=''; }
 
 	# access levels
 	if($newlevel ne '' and $newlevel!=$$row{level})
