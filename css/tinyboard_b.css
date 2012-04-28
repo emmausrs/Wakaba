@@ -1,0 +1,47 @@
+@import url("tinyboard.css");
+
+body {
+	background-color: #eef2ff;
+	background-image: url("fade-blue.png");
+	color: #000;
+}
+div.adminbar {
+	color: #89a;
+}
+a, div.adminbar a {
+	color: #34345c;
+}
+a:hover, div.adminbar a:hover {
+	color: #f00;
+}
+td.postblock {
+	background-color: #98e;
+}
+hr {
+	border-color: #b7c5d9;
+}
+.reply, .highlight {
+	border-color: #b7c5d9;
+}
+.reply {
+	background: #d6daf0;
+}
+.highlight {
+	background: #d6bad0;
+}
+.filetitle, .replytitle {
+	color: #0f0c5d;
+}
+table[border="1"] {
+	background: #d6daf0;
+}
+.row1 {
+	background: #cce;
+}
+.row2 {
+	background: #aad;
+}
+.managehead {
+	background: #66a;
+	color: #fff;
+}

@@ -1,0 +1,192 @@
+body {
+	background: #ffe url('fade-yotsuba.png') repeat-x 50% 0%;
+	color: #800000;
+	font-family: arial,helvetica,sans-serif;
+	font-size: 10pt;
+	margin: 0 8px 20px;
+	padding: 0 5px;
+}
+div.adminbar {
+	color: #b86;
+	font-size: 9pt;
+	margin-top: 3px;
+}
+div.adminbar a {
+	color: #800;
+	text-decoration: none;
+}
+a {
+	color: #00f;
+	text-decoration: underline;
+}
+a:hover {
+	color: #d00;
+}
+div.adminbar a:before, div.adminbar a:after {
+	content: " ";
+}
+div.logo {
+	color: #AF0A0F;
+	font-family: tahoma;
+	font-size: 20pt;
+	font-weight: bold;
+	letter-spacing: -2px;
+	margin: 13px; /* 1em with 10pt */
+	text-align: center;
+}
+div.logo img {
+	border: 1px solid #A9A9A9;
+	display: block;
+	font-size: 10pt; /* Needed for the 1em padding below to be the right size. */
+	margin: 12px auto 1em;
+}
+div.logo br {
+	display: none; /* display:block on the image makes this unnecessary. */
+}
+hr {
+	border: solid #d9bfb7;
+	border-width: 1px 0 0;
+}
+/* Why the fuck isn't body>hr:first-child working? Let's use an ugly hack instead. */
+div.logo+hr {
+	display: none;
+}
+td {
+	margin: 0;
+	padding: 0;
+}
+div.postarea {
+	margin-bottom: 2.75em;
+}
+td.postblock {
+	background: #ea8;
+	font-weight: bold;
+	padding: 4px;
+	position: relative; /* Needed for file input hack. */
+}
+input[type="text"], input[type="password"], textarea {
+	border: 1px solid #a9a9a9;
+	height: auto;
+	margin: 0;
+}
+#postform input[type="text"] {
+	width: 173px; /* Fallback. */
+	width: 25ch; 
+}
+#postform textarea {
+	width: 300px; /* Fallback. */
+	width: 35ch;
+}
+@-moz-document url-prefix() {
+	/* Now here's a fun little hack: because Mozilla won't let us
+	 * change the width of the file input in CSS, we simply hide it
+	 * beneath the label thingy.
+	 *
+	 * In Opera and Chrome the size of the file input isn't a problem.
+	 */
+	#postform input[type="file"] {
+		margin-left: -64px;
+		margin-right: 64px;
+	}
+}
+#postform input[type="file"] {
+	/* IE lets us change the width without any problem whatsoever.
+	 * This doesn't seem to affect Opera or Chrome. (IE being the only
+	 * browser doing something right? More likely than you think!) */
+	width: 250px;
+}
+div.rules {
+	font-size: 10px;
+}
+.doubledash {
+	display: none;
+}
+.unkfunc {
+	color: #789922;
+}
+.reply, .highlight {
+	background: #f0e0d6;
+	border: solid #d9bfb7;
+	border-width: 0 1px 1px 0;
+	display: inline-block;
+	margin: 0 16px;
+	padding: .3em .3em 0;
+}
+.highlight {
+	background: #f0c0b0;
+}
+.reply blockquote, blockquote :last-child {
+	margin-bottom: .8em;
+}
+.reply>br {
+	display: none;
+}
+#delform input[type="checkbox"] {
+	margin-top: 1px;
+	vertical-align: middle;
+}
+.postername, .commentpostername {
+	color: #117743;
+	font-weight: bold;
+}
+.filesize {
+	font-size: 12px;
+}
+.reply .filesize {
+	display: block;
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+.filetitle, .replytitle {
+	color: #d00;
+	font-weight: bold;
+}
+.postertrip {
+	color: #228854;
+}
+.theader, .passvalid {
+	background: #e04000;
+	color: #fff;
+	font-size: 12pt;
+	font-weight: bold;
+	margin: .2em 0 1em;
+	text-align: center;
+}
+.footer {
+	font-size: 10px;
+	text-align: center;
+}
+table[border="1"] {
+	background: #f0e0d6;
+	border: solid #b7c5d9;
+	border-width: 0 1px 1px 0;
+	color: #89a;
+	padding: 0 6px;
+}
+table[border="1"] td {
+	border: none;
+	padding: 2px;
+}
+table.userdelete br {
+	display: none;
+}
+.row1 {
+	background: #eec;
+}
+.row2 {
+	background: #dda;
+}
+.managehead {
+	background: #aa6;
+	color: #400;
+}
+.dellist {
+	color: #af0a0f;
+	font-size: 11pt;
+	font-weight: bold;
+	margin: 0 0 .5em;
+	text-align: center;
+}
+.delbuttons {
+	text-align: center;
+}
