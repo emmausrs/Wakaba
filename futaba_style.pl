@@ -1007,11 +1007,13 @@ use constant ADMIN_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.
 
 <div class="dellist"><const S_USERSADD></div>
 
+<div class="postarea">
+
 <form action="<var $self>" method="post">
 <input type="hidden" name="admin" value="<var $admin>" />
 <input type="hidden" name="task" value="adduser" />
 
-<table align="center"><tbody>
+<table><tbody>
 <tr><td class="postblock"><const S_USERSNAME></td><td><input type="text" name="username" size="16" autocomplete="off" /></td></tr>
 <tr><td class="postblock"><const S_USERSPASS></td><td><input type="password" name="password" size="16" autocomplete="off" /></td></tr>
 <tr><td class="postblock"><const S_USERSPASS2></td><td><input type="password" name="password2" size="16" /></td></tr>
@@ -1022,6 +1024,8 @@ use constant ADMIN_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.
 </tbody></table>
 
 </form>
+
+</div>
 
 </if>
 
@@ -1034,12 +1038,14 @@ use constant ADMIN_EDIT_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INC
 
 <br />
 
+<div class="postarea">
+
 <form action="<var $self>" method="post">
 <input type="hidden" name="admin" value="<var $admin>" />
 <input type="hidden" name="task" value="doedituser" />
 <input type="hidden" name="num" value="<var $num>" />
 
-<table align="center"><tbody>
+<table><tbody>
 <if $selfuser eq $username or $level\>=8500><tr><td class="postblock"><const S_USERSPASS></td><td><input type="password" name="password" size="16" autocomplete="off" /></td></tr>
 <tr><td class="postblock"><const S_USERSPASS2></td><td><input type="password" name="password2" size="16" autocomplete="off" /></td></tr></if>
 <tr><td class="postblock"><const S_USERSEMAIL></td><td><input type="text" name="email" size="24" value="<var clean_string($email)>" /><if ALLOW_CAPCODE_EDIT or $level\>=9999></td></tr>
@@ -1049,8 +1055,9 @@ use constant ADMIN_EDIT_USER_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INC
 </td></tr>
 </tbody></table>
 
-
 </form>
+
+</div>
 
 }.NORMAL_FOOT_INCLUDE);
 
