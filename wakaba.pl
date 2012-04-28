@@ -802,16 +802,13 @@ sub post_stuff($$$$$$$$$$$$$$$$)
 	$date.=' ID:'.make_id_code($ip,$time,$email) if(DISPLAY_ID);
 
 	# Get capcode
-	my $cap;
-
 	if($capcode)
 	{
 		my ($sth,$row);
 		$sth=$dbh->prepare("SELECT capcode FROM ".SQL_USER_TABLE." WHERE username=?") or make_error(S_SQLFAIL);
 		$sth->execute($query->cookie("wakauser")) or make_error(S_SQLFAIL);
 
-		$row=get_decoded_arrayref($sth);
-		if($row) { $cap=$$row[0] }
+		if($row=get_decoded_arrayref($sth)) { $trip.=' '.$$row[0] }
 	}
 
 	# We run this here to avoid orphaned files
@@ -821,9 +818,9 @@ sub post_stuff($$$$$$$$$$$$$$$$)
 	my ($filename,$md5,$width,$height,$thumbnail,$tn_width,$tn_height,$origname)=process_file($file,$uploadname,$time) if($file);
 
 	# finally, write to the database
-	my $sth=$dbh->prepare("INSERT INTO ".SQL_TABLE." VALUES(null,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);") or make_error(S_SQLFAIL);
+	my $sth=$dbh->prepare("INSERT INTO ".SQL_TABLE." VALUES(null,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);") or make_error(S_SQLFAIL);
 	$sth->execute($parent,$time,$lasthit,$numip,$ipv6,
-	$date,$name,$trip,$cap,$email,$subject,$password,$comment,
+	$date,$name,$trip,$email,$subject,$password,$comment,
 	$filename,$origname,$size,$md5,$width,$height,$thumbnail,$tn_width,$tn_height) or make_error(S_SQLFAIL);
 
 	if($parent) # bumping
@@ -2413,7 +2410,6 @@ sub init_database()
 	"date TEXT,".				# The date, as a string
 	"name TEXT,".				# Name of the poster
 	"trip TEXT,".				# Tripcode (encoded)
-	"capcode TEXT,".			# Capcode
 	"email TEXT,".				# Email address
 	"subject TEXT,".			# Subject
 	"password TEXT,".			# Deletion password (in plaintext) 
@@ -2528,7 +2524,6 @@ sub repair_database()
 
 	# add missing columns
 
-	$dbh->do("ALTER TABLE ".SQL_TABLE." ADD COLUMN capcode TEXT AFTER trip;");
 	$dbh->do("ALTER TABLE ".SQL_TABLE." ADD COLUMN ipv6 INTEGER AFTER ip;");
 	$dbh->do("ALTER TABLE ".SQL_TABLE." ADD COLUMN origname TEXT AFTER image;");
 	$dbh->do("ALTER TABLE ".SQL_ADMIN_TABLE." ADD COLUMN date INTEGER AFTER num;");

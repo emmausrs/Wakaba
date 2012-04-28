@@ -187,7 +187,6 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 			<span class="filetitle"><var $subject></span>
 			<if $email><span class="postername"><a href="<var $email>"><var $name></a></span><if $trip><span class="postertrip"><a href="<var $email>"><var $trip></a></span></if></if>
 			<if !$email><span class="postername"><var $name></span><if $trip><span class="postertrip"><var $trip></span></if></if>
-			<if $capcode><span class="capcode"><var $capcode></span></if>
 			<var $date></label>
 			<span class="reflink">
 			<if !$thread>
@@ -219,7 +218,6 @@ use constant PAGE_TEMPLATE => compile_template(NORMAL_HEAD_INCLUDE.q{
 			<span class="replytitle"><var $subject></span>
 			<if $email><span class="commentpostername"><a href="<var $email>"><var $name></a></span><if $trip><span class="postertrip"><a href="<var $email>"><var $trip></a></span></if></if>
 			<if !$email><span class="commentpostername"><var $name></span><if $trip><span class="postertrip"><var $trip></span></if></if>
-			<if $capcode><span class="capcode"><var $capcode></span></if>
 			<var $date></label>
 			<span class="reflink">
 			<if !$thread>
