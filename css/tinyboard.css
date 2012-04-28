@@ -7,9 +7,12 @@ body {
 	padding: 0 5px;
 }
 div.adminbar {
+	clear: both;
 	color: #b86;
+	float: right;
 	font-size: 9pt;
 	margin-top: 3px;
+	text-align: right;
 }
 div.adminbar a {
 	color: #800;
@@ -19,11 +22,16 @@ a {
 	color: #00f;
 	text-decoration: underline;
 }
-a:hover {
+a:hover, div.adminbar a:hover {
 	color: #d00;
 }
 div.adminbar a:before, div.adminbar a:after {
 	content: " ";
+}
+div.logo:before {
+	clear: both;
+	content: "";
+	display: block;
 }
 div.logo {
 	color: #AF0A0F;
@@ -31,7 +39,7 @@ div.logo {
 	font-size: 20pt;
 	font-weight: bold;
 	letter-spacing: -2px;
-	margin: 13px; /* 1em with 10pt */
+	margin: 0 0 13px; /* 1em with 10pt */
 	text-align: center;
 }
 div.logo img {
