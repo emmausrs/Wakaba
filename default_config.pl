@@ -105,6 +105,7 @@
 #use constant RENZOKU2 => 10;					# Seconds between image posts (floodcheck)
 #use constant RENZOKU3 => 900;					# Seconds between identical posts (floodcheck)
 #use constant NOSAGE_WINDOW => 1200;			# Seconds that you can post to your own thread without increasing the sage count
+#use constant SAGE_TEXTONLY => 0;				# Don't bump posts without an image.
 #use constant USE_SECURE_ADMIN => 0;			# Use HTTPS for the admin panel.
 #use constant CHARSET => 'utf-8';				# Character set to use, typically 'utf-8' or 'shift_jis'. Disable charset handling by setting to ''. Remember to set Apache to use the same character set for .html files! (AddCharset shift_jis html)
 #use constant CONVERT_CHARSETS => 1;			# Do character set conversions internally

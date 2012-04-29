@@ -84,6 +84,7 @@ BEGIN {
 	eval "use constant RENZOKU2 => 10" unless(defined &RENZOKU2);
 	eval "use constant RENZOKU3 => 900" unless(defined &RENZOKU3);
 	eval "use constant NOSAGE_WINDOW => 1200" unless(defined &NOSAGE_WINDOW);
+	eval "use constant SAGE_TEXTONLY => 0" unless(defined &SAGE_TEXTONLY);
 	eval "use constant USE_SECURE_ADMIN => 0" unless(defined &USE_SECURE_ADMIN);
 	eval "use constant CHARSET => 'utf-8'" unless(defined &CHARSET);
 	eval "use constant CONVERT_CHARSETS => 1" unless(defined &CONVERT_CHARSETS);

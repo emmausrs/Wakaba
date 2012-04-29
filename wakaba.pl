@@ -826,7 +826,7 @@ sub post_stuff($$$$$$$$$$$$$$$$)
 	if($parent) # bumping
 	{
 		# check for sage, or too many replies
-		unless($email=~/sage/i or sage_count($parent_res)>MAX_RES)
+		unless($email=~/sage/i or sage_count($parent_res)>MAX_RES or SAGE_TEXTONLY and !$filename)
 		{
 			$sth=$dbh->prepare("UPDATE ".SQL_TABLE." SET lasthit=$time WHERE num=? OR parent=?;") or make_error(S_SQLFAIL);
 			$sth->execute($parent,$parent) or make_error(S_SQLFAIL);
