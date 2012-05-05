@@ -2024,6 +2024,9 @@ sub ban_by_post($$$$)
 {
 	my ($admin,$comment,$expires,@posts)=@_;
 	my ($sth,$row);
+
+	check_password($admin,4000);
+
 	my $time=time();
 	my %ips=(ipv4=>{},ipv6=>{});
 
