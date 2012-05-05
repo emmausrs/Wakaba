@@ -218,6 +218,14 @@ sub init($)
 		my $comment=$query->param("comment");
 		add_admin_entry($admin,$type,$comment,0,0,$string);
 	}
+	elsif($task eq "ban")
+	{
+		my $admin=$query->param("admin");
+		my $comment=$query->param("comment");
+		my @posts=$query->param("post");
+		my $expires=$query->param("expires");
+		ban_by_post($admin,$comment,$expires,@posts);
+	}
 	elsif($task eq "removeban")
 	{
 		my $admin=$query->param("admin");
@@ -2004,23 +2012,48 @@ sub add_admin_entry($$$$$$$)
 	check_password($admin,4000);
 
 	$comment=clean_string(decode_string($comment,CHARSET));
-
-	if($use_parsedate) { $expires=parsedate($expires); } # Sexy date parsing
-	else
-	{
-		my ($date)=grep { $$_{label} eq $expires } @{BAN_DATES()};
-
-		if(defined $date->{time})
-		{
-			if($date->{time}!=0) { $expires=$time+$date->{time}; } # Use a predefined expiration time
-			else { $expires=0 } # Never expire
-		}
-		elsif($expires!=0) { $expires=$time+$expires } # Expire in X seconds
-		else { $expires=0 } # Never expire
-	}
+	$expires=make_expiration_date($expires,$time);
 
 	$sth=$dbh->prepare("INSERT INTO ".SQL_ADMIN_TABLE." VALUES(null,?,?,?,?,?,?,?);") or make_error();
 	$sth->execute($time,$type,$comment,$ival1,$ival2,$sval1,$expires) or make_error(S_SQLFAIL);
+
+	make_http_forward(get_script_name()."?admin=$admin&task=bans",ALTERNATE_REDIRECT);
+}
+
+sub ban_by_post($$$$)
+{
+	my ($admin,$comment,$expires,@posts)=@_;
+	my ($sth,$row);
+	my $time=time();
+	my %ips=(ipv4=>{},ipv6=>{});
+
+	$expires=make_expiration_date($expires,$time);
+
+	# grab all the IPs first and stick them in a hash table so we don't end up with duplicate entries
+	foreach my $post (@posts)
+	{
+		$sth=$dbh->prepare("SELECT ip,ipv6 FROM ".SQL_TABLE." WHERE num=?;") or make_error(S_SQLFAIL);
+		$sth->execute($post) or make_error(S_SQLFAIL);
+
+		if($row=$sth->fetchrow_arrayref())
+		{
+			my $type=$$row[1]?"ipv6":"ipv4";
+			$ips{$type}{$$row[0]}++;
+		}
+		# ignore non-existing entries entirely
+	}
+
+	foreach my $type (keys %ips)
+	{
+		my $ipv6=($type eq "ipv6") || 0;
+
+		foreach my $ip (keys %{$ips{$type}})
+		{
+			my @ivals=parse_range($ip,undef,$ipv6);
+			$sth=$dbh->prepare("INSERT INTO ".SQL_ADMIN_TABLE." VALUES(null,?,?,?,?,?,?,?);") or make_error(S_SQLFAIL);
+			$sth->execute($time,'ipban',$comment,@ivals,$ipv6,$expires) or make_error(S_SQLFAIL);
+		}
+	}
 
 	make_http_forward(get_script_name()."?admin=$admin&task=bans",ALTERNATE_REDIRECT);
 }
@@ -2252,6 +2285,27 @@ sub crypt_password($)
 	my $crypt=hide_data((shift).$ENV{REMOTE_ADDR},9,"admin",SECRET,1);
 	$crypt=~tr/+/./; # for web shit
 	return $crypt;
+}
+
+sub make_expiration_date($$)
+{
+	my ($expires,$time)=@_;
+
+	if($use_parsedate) { $expires=parsedate($expires); } # Sexy date parsing
+	else
+	{
+		my ($date)=grep { $$_{label} eq $expires } @{BAN_DATES()};
+
+		if(defined $date->{time})
+		{
+			if($date->{time}!=0) { $expires=$time+$date->{time}; } # Use a predefined expiration time
+			else { $expires=0 } # Never expire
+		}
+		elsif($expires!=0) { $expires=$time+$expires } # Expire in X seconds
+		else { $expires=0 } # Never expire
+	}
+
+	return $expires;
 }
 
 

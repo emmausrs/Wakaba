@@ -503,7 +503,7 @@ use constant POST_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 	<td><var clean_string(substr strip_html($comment),0,50)></td>
 	<td><var dec_to_dot($ip,$ipv6)>
 		[<a href="<var $self>?admin=<var $admin>&amp;task=deleteall&amp;ip=<var $ip>&amp;ipv6=<var $ipv6>"><const S_MPDELETEALL></a>]
-		[<a href="<var $self>?admin=<var $admin>&amp;task=addip&amp;type=ipban&amp;ip=<var $ip>&amp;ipv6=<var $ipv6>" onclick="return do_ban(this)"><const S_MPBAN></a>]
+		[<a href="<var $self>?admin=<var $admin>&amp;task=ban&amp;post=<var $num>" onclick="return do_ban(this)"><const S_MPBAN></a>]
 	</td>
 
 	</tr>
