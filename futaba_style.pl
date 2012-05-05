@@ -913,6 +913,31 @@ use constant ADMIN_POST_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 
 
 
+use constant EDIT_POST_PANEL_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
+
+<div class="dellist"><var sprintf S_EDITHEAD,get_reply_link($num,$parent),$num></div>
+
+<div class="postarea">
+<form id="postform" action="<var $self>" method="post" enctype="multipart/form-data">
+<input type="hidden" name="task" value="doedit" />
+<input type="hidden" name="admin" value="<var $admin>" />
+<input type="hidden" name="num" value="<var $num>" />
+
+<table><tbody>
+<if !FORCED_ANON><tr><td class="postblock"><const S_NAME></td><td><input type="text" name="field1" size="28" value="<var $name>" autocomplete="off" /></td></tr></if>
+<if ALLOW_LINK><tr><td class="postblock"><const S_EMAIL></td><td><input type="text" name="field2" size="28" value="<var $email>" autocomplete="off" /></td></tr></if>
+<tr><td class="postblock"><const S_SUBJECT></td><td><input type="text" name="field3" size="35" value="" autocomplete="off" />
+<input type="submit" value="<const S_SUBMIT>" /></td></tr>
+<tr><td class="postblock"><const S_COMMENT></td><td><textarea name="field4" cols="48" rows="4"><var undo_wakabamark($comment)></textarea></td></tr>
+<tr><td class="postblock"><const S_OPTIONS></td><td>
+<label><input type="checkbox" name="no_format" value="on" /> <const S_NOFORMAT></label>
+</td></tr>
+</tbody></table></form></div><hr />
+
+}.NORMAL_FOOT_INCLUDE);
+
+
+
 
 use constant REPORTS_TEMPLATE => compile_template(MANAGER_HEAD_INCLUDE.q{
 

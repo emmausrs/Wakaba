@@ -210,6 +210,101 @@ sub describe_allowed(%)
 	return join ", ",map { $_.($tags{$_}{args}?" (".(join ", ",sort keys %{$tags{$_}{args}}).")":"") } sort keys %tags;
 }
 
+sub undo_wakabamark($;$)
+{
+	my ($text,$postfix)=@_;
+
+	if($postfix) # get oekaki info
+	{
+		my $postfix=~/(<p><small><strong>.*$)/;
+		return $postfix;
+	}
+
+	my %ent=(lt=>'<',gt=>'>',amp=>'&',quot=>'"',nbsp=>' ');
+	study $text;
+
+	# newlines
+	$text=~s!<p>(.*?)</p>!$1\n\n!g;
+	$text=~s!<br />!\n!g;
+
+	# post links
+	$text=~s!<a href="/.*?">&gt;&gt;&gt;/(\w+)/(\d+)</a>!>>>/$1/$2!g;
+	$text=~s!<a href="/.*?" onclick="highlight\(\d+\)">&gt;&gt;(\d+)</a>!>>$1!g;
+
+	# external links
+	$text=~s!<a href=".*?" rel="nofollow">(.*?)</a>!$1!g;
+
+	# blockquotes
+	$text=~s!<blockquote class="unkfunc">(.*?)</blockquote>!$1\n\n!sg;
+
+	# ^H
+	$text=~s!<del>(.*?)</del>!$1.("^H" x length($1))!ge;
+
+	# strong emphasis
+	$text=~s!<strong>(.*?)</strong>!
+		my $span=$1;
+		my $syntax=$span=~/\*/?"__":"**";
+		"${syntax}${span}${syntax}";
+	!ge;
+
+	# emphasis
+	$text=~s!<em>(.*?)</em>!
+		my $span=$1;
+		my $syntax=$span=~/\*/?"_":"*";
+		$syntax.$span.$syntax;
+	!ge;
+
+	# ordered lists
+	$text=~s!<ol>(.*?)</ol>!
+		my $list=$1;
+		my $i=0;
+		$list=~s/<li>/++$i.'. '/ge;
+		$list=~s/<\/li>/\n/g;
+		"$list\n";
+	!ge;
+
+	# unordered lists
+	$text=~s!<ul>(.*?)</ul>!
+		my $list=$1;
+		$list=~s/<li>/* /g;
+		$list=~s/<\/li>/\n/g;
+		"$list\n";
+	!ge;
+
+	# code blocks
+	# these have to be hidden, or we risk messing up code spans too
+	my (@code);
+
+	$text=~s!<pre>(.*?)</pre>!
+		my $code=$1;
+		$code=~s/<\/?code>//g;
+		$code=~s/^/    /gm;
+		push @code, "$code\n";
+		'<'.$#code.'>';
+	!gse;
+
+	# code spans
+	$text=~s!<code>(.*?)</code>!
+		my $code=$1;
+		# get the longest series of backticks so we can wrap the code with a larger amount
+		my $btlen=length((sort { length($b)<=>length($a) } $code=~/(`+)/g)[0]);
+		my $syntax="`"x($btlen+1);
+		$syntax.$code.$syntax;
+	!ge;
+
+	# restore hidden code blocks
+	$text=~s/<(\d+)>/$code[$1]/ge;
+
+	# entities
+	$text=~s/&#(?:(x)([a-f0-9]+)|([0-9]+));/$1?chr hex $2:chr $3/ge;
+	$text=~s/&([a-z]+);/$ent{$1}/gei;
+
+	# excessive newlines
+	$text=~s/\n*$//g;
+
+	return $text;
+}
+
 sub do_wakabamark($;$$)
 {
 	my ($text,$handler,$simplify)=@_;

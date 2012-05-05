@@ -186,6 +186,23 @@ sub init($)
 		my $page=$query->param("page");
 		make_admin_post_panel($admin,$page);
 	}
+	elsif($task eq "edit")
+	{
+		my $admin=$query->param("admin");
+		my $post=$query->param("num");
+		make_edit_post_panel($admin,$post);
+	}
+	elsif($task eq "doedit")
+	{
+		my $admin=$query->param("admin");
+		my $num=$query->param("num");
+		my $name=$query->param("field1");
+		my $email=$query->param("field2");
+		my $subject=$query->param("field3");
+		my $comment=$query->param("field4");
+		my $no_format=$query->param("no_format");
+		edit_post($admin,$num,$name,$email,$subject,$comment,$no_format);
+	}
 	elsif($task eq "deleteall")
 	{
 		my $admin=$query->param("admin");
@@ -1674,6 +1691,26 @@ sub make_admin_post_panel($)
 	print encode_string(POST_PANEL_TEMPLATE->(admin=>$admin,level=>$level,posts=>\@posts,size=>$size,pages=>\@pages,next=>$nextpage,prev=>$prevpage));
 }
 
+sub make_edit_post_panel($$)
+{
+	my ($admin,$num)=@_;
+	my $level=check_password($admin,6000);
+
+	my $post=get_post($num) or make_error(sprintf S_NOTEXISTPOST,$num);
+
+	make_http_header();
+	print encode_string(EDIT_POST_PANEL_TEMPLATE->(
+		admin=>$admin,
+		level=>$level,
+		num=>$num,
+		parent=>$$post{parent},
+		name=>decode_string($$post{name},CHARSET,1),
+		email=>decode_string($$post{email},CHARSET,1),
+		subject=>decode_string($$post{subject},CHARSET,1),
+		comment=>decode_string($$post{comment},CHARSET,1),
+	));
+}
+
 sub make_admin_ban_panel($)
 {
 	my ($admin)=@_;
@@ -2059,6 +2096,49 @@ sub ban_by_post($$$$)
 	}
 
 	make_http_forward(get_script_name()."?admin=$admin&task=bans",ALTERNATE_REDIRECT);
+}
+
+sub edit_post($$$$$$$)
+{
+	my ($admin,$num,$name,$email,$subject,$comment,$no_format)=@_;
+	my ($sth);
+
+	check_password($admin,6000);
+
+	my $post=get_post($num) or make_error(sprintf S_NOTEXISTPOST,$num);
+
+	make_error(S_UNUSUAL) if($name=~/[\n\r]/);
+	make_error(S_UNUSUAL) if($email=~/[\n\r]/);
+	make_error(S_UNUSUAL) if($subject=~/[\n\r]/);
+	make_error(S_TOOLONG) if(length($name)>MAX_FIELD_LENGTH);
+	make_error(S_TOOLONG) if(length($email)>MAX_FIELD_LENGTH);
+	make_error(S_TOOLONG) if(length($subject)>MAX_FIELD_LENGTH);
+	make_error(S_TOOLONG) if(length($comment)>MAX_COMMENT_LENGTH);
+
+	# clean inputs
+	$name=clean_string(decode_string($name,CHARSET));
+	$email=clean_string(decode_string($name,CHARSET));
+	$subject=clean_string(decode_string($name,CHARSET));
+
+	# fix comment
+	my $postfix=undo_wakabamark($comment,1);
+	$comment=format_comment(clean_string(decode_string($comment,CHARSET))) unless $no_format;
+	$comment.=$postfix;
+
+	# finally, update
+	$sth=$dbh->prepare("UPDATE ".SQL_TABLE. " SET name=?,email=?,subject=?,comment=? WHERE num=?;") or make_error(S_SQLFAIL);
+	$sth->execute($name,$email,$subject,$comment,$num) or make_error(S_SQLFAIL);
+
+	# rebuild cache
+	if($$post{parent}) { build_thread_cache($$post{parent}); }
+	else { build_thread_cache($num); }
+
+	build_cache();
+
+	# Go to thread
+	if($$post{parent}) { make_http_forward(RES_DIR.$$post{parent}.PAGE_EXT.($num?"#$num":""), ALTERNATE_REDIRECT); }
+	elsif($num)	{ make_http_forward(RES_DIR.$num.PAGE_EXT, ALTERNATE_REDIRECT); }
+	else { make_http_forward(HTML_SELF, ALTERNATE_REDIRECT); } # shouldn't happen
 }
 
 sub remove_admin_entry($$)

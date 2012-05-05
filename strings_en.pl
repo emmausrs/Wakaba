@@ -72,6 +72,7 @@ use constant S_MANASPAM => 'Spam';										# Defines Spam Panel button
 use constant S_MANASQLDUMP => 'SQL Dump';								# Defines SQL dump button
 use constant S_MANASQLINT => 'SQL Interface';							# Defines SQL interface button
 use constant S_MANAPOST => 'Manager Post';								# Defines Manager Post radio button--allows the user to post using HTML code in the comment box
+use constant S_MANAEDIT => 'Edit Post';
 use constant S_MANAREPORTS => 'Post Reports';
 use constant S_MANAUSERS => 'User Accounts';
 use constant S_MANAREBUILD => 'Rebuild caches';							# 
@@ -117,6 +118,8 @@ use constant S_MPBAN => 'Ban';											# Sets whether or not to delete only fi
 use constant S_MPTABLE => '<th>Post No.</th><th>Time</th><th>Subject</th>'.
                           '<th>Name</th><th>Comment</th><th>IP</th>';	# Explains names for Management Panel
 use constant S_IMGSPACEUSAGE => '[ Space used: %s ]';				# Prints space used KB by the board under Management Panel
+
+use constant S_EDITHEAD => 'Editing post <a href="%s">No.%d</a>';
 
 use constant S_BANTABLE => '<th>Type</th><th>Date</th><th>Expires</th><th colspan="2">Value</th><th>Comment</th><th>Action</th>'; # Explains names for Ban Panel
 use constant S_BANIPLABEL => 'IP';
