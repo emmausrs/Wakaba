@@ -239,7 +239,7 @@ sub init($)
 	{
 		my $admin=$query->param("admin");
 		my $comment=$query->param("comment");
-		my @posts=$query->param("post");
+		my @posts=$query->param("num");
 		my $expires=$query->param("expires");
 		ban_by_post($admin,$comment,$expires,@posts);
 	}

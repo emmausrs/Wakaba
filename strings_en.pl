@@ -115,6 +115,7 @@ use constant S_MPRESET => 'Reset';										# Defines name for field reset butto
 use constant S_MPONLYPIC => 'File Only';								# Sets whether or not to delete only file, or entire post/thread
 use constant S_MPDELETEALL => 'Del&nbsp;all';							# 
 use constant S_MPBAN => 'Ban';											# Sets whether or not to delete only file, or entire post/thread
+use constant S_MPEDIT => 'Edit';
 use constant S_MPTABLE => '<th>Post No.</th><th>Time</th><th>Subject</th>'.
                           '<th>Name</th><th>Comment</th><th>IP</th>';	# Explains names for Management Panel
 use constant S_IMGSPACEUSAGE => '[ Space used: %s ]';				# Prints space used KB by the board under Management Panel
