@@ -216,14 +216,19 @@ sub undo_wakabamark($;$)
 
 	if($postfix) # get oekaki info
 	{
-		my $postfix=~/(<p><small><strong>.*$)/;
+		my ($postfix)=$text=~/.*(<p><small><strong>.*?$)/;
 		return $postfix;
 	}
 
+	# set up entities and prepare the string for running lots of regex on
 	my %ent=(lt=>'<',gt=>'>',amp=>'&',quot=>'"',nbsp=>' ');
 	study $text;
 
+	# remove the postfix
+	$text=~s/(.*)<p><small><strong>.*?$/$1/g;
+
 	# newlines
+	$text=~s/\r\n?/\n/g; # standardize newlines
 	$text=~s!<p>(.*?)</p>!$1\n\n!g;
 	$text=~s!<br />!\n!g;
 
@@ -243,8 +248,8 @@ sub undo_wakabamark($;$)
 	# strong emphasis
 	$text=~s!<strong>(.*?)</strong>!
 		my $span=$1;
-		my $syntax=$span=~/\*/?"__":"**";
-		"${syntax}${span}${syntax}";
+		my $syntax=$span=~/\*\*/?"__":"**";
+		$syntax.$span.$syntax;
 	!ge;
 
 	# emphasis
@@ -299,7 +304,10 @@ sub undo_wakabamark($;$)
 	$text=~s/&#(?:(x)([a-f0-9]+)|([0-9]+));/$1?chr hex $2:chr $3/ge;
 	$text=~s/&([a-z]+);/$ent{$1}/gei;
 
-	# excessive newlines
+	# unrecognized HTML gets removed entirely
+	$text=~s/<.*?>//g;
+
+	# trim excessive newlines
 	$text=~s/\n*$//g;
 
 	return $text;

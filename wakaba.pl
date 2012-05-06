@@ -2121,7 +2121,7 @@ sub edit_post($$$$$$$)
 	$subject=clean_string(decode_string($name,CHARSET));
 
 	# fix comment
-	my $postfix=undo_wakabamark($comment,1);
+	my $postfix=undo_wakabamark($$post{comment},1);
 	$comment=format_comment(clean_string(decode_string($comment,CHARSET))) unless $no_format;
 	$comment.=$postfix;
 
