@@ -18,6 +18,7 @@ BEGIN {
 	eval "use constant USE_TEMPFILES => 1" unless(defined &USE_TEMPFILES);
 	eval "use constant USE_FASTCGI => 1" unless(defined &USE_FASTCGI);
 
+	eval "use constant BOARD_TEMPLATE => 'futaba'" unless(defined &BOARD_TEMPLATE);
 	eval "use constant TITLE => 'Wakaba image board'" unless(defined &TITLE);
 	eval "use constant SHOWTITLETXT => 1" unless(defined &SHOWTITLETXT);
 	eval "use constant SHOWTITLEIMG => 0" unless(defined &SHOWTITLEIMG);

@@ -1,5 +1,13 @@
-<p class="footer">
-- <a href="http://wakaba.c3.cx/">wakaba <const WAKABA_VERSION></a>
-+ <a href="http://www.2chan.net/">futaba</a>
-+ <a href="http://www.1chan.net/futallaby/">futallaby</a>
--</p>
+<if BOARD_TEMPLATE eq "futaba">
+	<p class="footer">
+	- <a href="http://wakaba.c3.cx/">wakaba <const WAKABA_VERSION></a>
+	+ <a href="http://www.2chan.net/">futaba</a>
+	+ <a href="http://www.1chan.net/futallaby/">futallaby</a>
+	-</p>
+<elsif BOARD_TEMPLATE eq "2ch">
+	<div id="footer">
+	- <a href="http://wakaba.c3.cx/">wakaba <const WAKABA_VERSION></a>
+	+ <a href="http://www.2ch.net/">2ch</a>
+	+ <a href="http://wakaba.c3.cx/">kareha</a>
+	-</div>
+</if>

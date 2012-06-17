@@ -25,6 +25,7 @@
 #use constant USE_FASTCGI => 1; 				# Run the script as FastCGI. To benefit from FastCGI, the web server must be configured to run FastCGI scripts. Leaving this enabled will not break regular CGI.
 
 # Page look
+#use constant BOARD_TEMPLATE => 'futaba';		# Template to use ('futaba', '2ch')
 #use constant TITLE => 'Wakaba image board';	# Name of this image board
 #use constant SHOWTITLETXT => 1;				# Show TITLE at top (1: yes  0: no)
 #use constant SHOWTITLEIMG => 0;				# Show image at top (0: no, 1: single, 2: rotating)

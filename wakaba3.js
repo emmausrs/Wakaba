@@ -40,9 +40,11 @@ function get_password(name)
 
 
 
-function insert(text)
+function insert(text,form)
 {
-	var textarea=document.forms.postform.field4;
+	if(!form) form=document.forms.postform;
+	else form=document.forms['threadform'+form];
+	var textarea=form.field4;
 	if(textarea)
 	{
 		if(textarea.createTextRange && textarea.caretPos) // IE
@@ -157,6 +159,13 @@ function do_ban(el)
 {
 	var reason=prompt("Give a reason for this ban:");
 	if(reason) document.location=el.href+"&comment="+encodeURIComponent(reason);
+	return false;
+}
+
+function delete_post(num)
+{
+	var password=get_password("password");
+	if(self&&num) document.location=self+"?task=delete&delete="+num+"&password="+get_cookie("password");
 	return false;
 }
 
