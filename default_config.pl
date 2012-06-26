@@ -8,7 +8,6 @@
 #
 
 # System config
-#use constant ADMIN_PASS => 'CHANGEME';			# Admin password. For fucks's sake, change this.
 #use constant SECRET => 'CHANGEME';				# Cryptographic secret. CHANGE THIS to something totally random, and long.
 #use constant SQL_DBI_SOURCE => 'DBI:mysql:database=CHANGEME;host=localhost'; # DBI data source string (mysql version, put server and database name in here)
 #use constant SQL_USERNAME => 'CHANGEME';		# MySQL login name
