@@ -21,7 +21,6 @@
 #use constant SQL_REPORT_TABLE => 'report';		# Table used for post reports.
 #use constant SQL_USER_TABLE => 'users';		# Table used for user credentials.
 #use constant USE_TEMPFILES => 1;				# Set this to 1 under Unix and 0 under Windows! (Use tempfiles when creating pages)
-#use constant USE_FASTCGI => 1; 				# Run the script as FastCGI. To benefit from FastCGI, the web server must be configured to run FastCGI scripts. Leaving this enabled will not break regular CGI.
 
 # Page look
 #use constant BOARD_TEMPLATE => 'futaba';		# Template to use ('futaba', '2ch')

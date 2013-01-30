@@ -17,8 +17,8 @@ BEGIN { require "wakautils.pl"; }
 
 return 1 if(caller);
 
-my $font_height=8;
-my %font=(
+our $font_height=8;
+our %font=(
 	a=>[4,[0,2,1,1,2,1,3,2,3,5,4,6],[3,3,1,3,0,4,0,5,1,6,2,6,3,5]],
 	b=>[3,[0,0,0,6,2,6,3,5,3,4,2,3,0,3]],
 	c=>[3,[3,6,1,6,0,5,0,4,1,3,3,3]],
@@ -49,21 +49,21 @@ my %font=(
 );
 
 
-my $query=new CGI;
-my $key=($query->param("key") or 'default');
-my $selector=($query->param("selector") or ".captcha");
-my $style=($query->cookie("wakabastyle") or DEFAULT_STYLE);
+our $query=new CGI;
+our $key=($query->param("key") or 'default');
+our $selector=($query->param("selector") or ".captcha");
+our $style=($query->cookie("wakabastyle") or DEFAULT_STYLE);
 
-my @foreground=find_stylesheet_color($style,$selector);
-my @background=(0xff,0xff,0xff);
+our @foreground=find_stylesheet_color($style,$selector);
+our @background=(0xff,0xff,0xff);
 
 
 
-my $dbh=DBI->connect(SQL_DBI_SOURCE,SQL_USERNAME,SQL_PASSWORD,{AutoCommit=>1}) or die S_SQLCONF;
+our $dbh=DBI->connect(SQL_DBI_SOURCE,SQL_USERNAME,SQL_PASSWORD,{AutoCommit=>1}) or die S_SQLCONF;
 init_captcha_database($dbh) unless(table_exists_captcha($dbh,SQL_CAPTCHA_TABLE));
 
-my $ip=($ENV{REMOTE_ADDR} or '0.0.0.0');
-my ($word,$timestamp)=get_captcha_word($dbh,$ip,$key);
+our $ip=($ENV{REMOTE_ADDR} or '0.0.0.0');
+our ($word,$timestamp)=get_captcha_word($dbh,$ip,$key);
 
 if(!$word)
 {
@@ -271,7 +271,7 @@ sub find_stylesheet_color($$)
 # Draw the actual image
 #
 
-my (@pixels,$pixel_w,$pixel_h);
+our (@pixels,$pixel_w,$pixel_h);
 
 sub make_image($)
 {
@@ -310,7 +310,7 @@ sub emit_pixel_block($$)
 # String drawing
 #
 
-my ($scale,$rot,$dx,$dy);
+our ($scale,$rot,$dx,$dy);
 
 sub draw_string($)
 {
@@ -426,7 +426,7 @@ sub draw_pixel($$$)
 # GIF generation
 #
 
-my ($pixels,$block);
+our ($pixels,$block);
 
 sub start_128_gif($$@)
 {

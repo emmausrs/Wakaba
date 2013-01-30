@@ -16,7 +16,6 @@ BEGIN {
 	eval "use constant SQL_USER_TABLE => 'users'" unless(defined &SQL_USER_TABLE);
 
 	eval "use constant USE_TEMPFILES => 1" unless(defined &USE_TEMPFILES);
-	eval "use constant USE_FASTCGI => 1" unless(defined &USE_FASTCGI);
 
 	eval "use constant BOARD_TEMPLATE => 'futaba'" unless(defined &BOARD_TEMPLATE);
 	eval "use constant TITLE => 'Wakaba image board'" unless(defined &TITLE);

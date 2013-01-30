@@ -76,7 +76,6 @@ use constant S_MANAEDIT => 'Edit Post';
 use constant S_MANAREPORTS => 'Post Reports';
 use constant S_MANAUSERS => 'User Accounts';
 use constant S_MANAREBUILD => 'Rebuild caches';							# 
-use constant S_MANARESTART => 'Restart script';										# Defines label for FastCGI restart option
 use constant S_MANACLEANUP => 'Clean up';
 use constant S_MANANUKE => 'Nuke board';								# 
 use constant S_MANALOGOUT => 'Log out';									# 

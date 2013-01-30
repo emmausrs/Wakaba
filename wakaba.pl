@@ -7,6 +7,8 @@ use strict;
 use CGI;
 use DBI;
 
+use Encode qw(decode encode);
+
 
 #
 # Import settings
@@ -15,8 +17,8 @@ use DBI;
 use lib '.';
 BEGIN { require "config.pl"; }
 BEGIN { require "config_defaults.pl"; }
-BEGIN { require "strings_en.pl"; }		# edit this line to change the language
-BEGIN { require "futaba_style.pl"; }	# edit this line to change the board style
+BEGIN { require "strings_en.pl"; } # edit this line to change the language
+BEGIN { require "futaba_style.pl"; } # edit this line to change the board style
 BEGIN { require "captcha.pl"; }
 BEGIN { require "wakautils.pl"; }
 
@@ -26,62 +28,44 @@ BEGIN { require "wakautils.pl"; }
 # Optional modules
 #
 
-my ($has_encode, $use_fastcgi, $use_parsedate);
+our ($use_parsedate);
 
-if(CONVERT_CHARSETS)
-{
-	eval 'use Encode qw(decode encode)';
-	$has_encode=1 unless($@);
+# fancy date-parsing module
+# in persistent environments, this won't be run more than once
+BEGIN {
+	our $use_parsedate;
+	$use_parsedate //= USE_PARSEDATE && eval { require Time::ParseDate; 1 };
+	Time::ParseDate->import(qw(parsedate)) if ($use_parsedate);
 }
 
-if(USE_FASTCGI)
-{
-	eval 'use CGI::Fast';
-	unless($@)
-	{
-		$use_fastcgi=1;
+our $use_plack = defined $ENV{PLACK_ENV};
 
-		# set up signal handlers
-		# http://www.fastcgi.com/docs/faq.html#Signals
-		$SIG{USR1}=\&sig_handler;
-		$SIG{TERM}=\&sig_handler;
-		$SIG{PIPE}='IGNORE';
-	}
-}
 
-if(USE_PARSEDATE)
-{
-	eval 'use Time::ParseDate';
-	$use_parsedate=1 unless($@);
-}
 
+#
+# Globals
+#
+
+our $protocol_re = qr/(?:http|https|ftp|mailto|nntp)/;
+
+our $ipv6_re = ipv6_regexp();
+
+our ($query, $dbh, $task);
 
 
 #
 # Global init
 #
 
-my $protocol_re=qr/(?:http|https|ftp|mailto|nntp)/;
+$query = CGI->new;
+#init();
 
-my $ipv6_re=ipv6_regexp();
 
-my ($query,$dbh,$task);
 
-if($use_fastcgi)
-{
-	FASTCGI:
-	while($query=new CGI::Fast)
-	{
-		init();
-		last if(!$use_fastcgi);
-	}
-}
-else { $query=new CGI; init(); }
-
-sub init($)
+#sub init($) # we don't need this anymore, do we?
 {
 	# This must be placed in here so we can spawn a new DB connection if the old one dies.
-	if($use_fastcgi) { $dbh=DBI->connect_cached(SQL_DBI_SOURCE,SQL_USERNAME,SQL_PASSWORD,{AutoCommit=>1}) or make_error(S_SQLCONF); }
+	if($use_plack) { $dbh=DBI->connect_cached(SQL_DBI_SOURCE,SQL_USERNAME,SQL_PASSWORD,{AutoCommit=>1}) or make_error(S_SQLCONF); }
 	else { $dbh=DBI->connect(SQL_DBI_SOURCE,SQL_USERNAME,SQL_PASSWORD,{AutoCommit=>1}) or make_error(S_SQLCONF); }
 
 	$task=($query->param("task") or $query->param("action"));
@@ -355,11 +339,6 @@ sub init($)
 		my $admin=$query->param("admin");
 		do_rebuild_cache($admin);
 	}
-	elsif($task eq "restart")
-	{
-		my $admin=$query->param("admin");
-		restart_script($admin);
-	}
 	elsif($task eq "cleanup")
 	{
 		my $admin=$query->param("admin");
@@ -401,9 +380,10 @@ sub init($)
 	}
 	else { make_error(S_BADTASK); }
 
-	unless($use_fastcgi)
-	{
+	unless ($use_plack) {
 		$dbh->disconnect();
+	} else {
+		CGI::initialize_globals();
 	}
 }
 
@@ -598,8 +578,6 @@ sub print_page($$)
 	my ($filename,$contents)=@_;
 
 	$contents=encode_string($contents);
-#		$PerlIO::encoding::fallback=0x0200 if($has_encode);
-#		binmode PAGE,':encoding('.CHARSET.')' if($has_encode);
 
 	if(USE_TEMPFILES)
 	{
@@ -1179,7 +1157,6 @@ sub encode_string($)
 {
 	my ($str)=@_;
 
-	return $str unless($has_encode);
 	return encode(CHARSET,$str,0x0400);
 }
 
@@ -1997,20 +1974,6 @@ sub do_rebuild_cache($)
 	make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
 }
 
-sub restart_script($)
-{
-	my ($admin)=@_;
-	check_password($admin,8400);
-
-	make_http_forward(HTML_SELF,ALTERNATE_REDIRECT);
-	last FASTCGI;
-}
-
-sub sig_handler
-{
-	$use_fastcgi=0;
-}
-
 sub do_cleanup($)
 {
 	my ($admin)=@_;
@@ -2411,10 +2374,12 @@ sub make_error($)
 
 	print encode_string(ERROR_TEMPLATE->(error=>$error));
 
-	if(!$use_fastcgi and $dbh)
-	{
-		$dbh->{Warn}=0;
+	if (!$use_plack and $dbh) {
+		$dbh->{Warn} = 0;
 		$dbh->disconnect();
+	} else {
+		# clear CGI cache
+		CGI::initialize_globals();
 	}
 
 	if(ERRORLOG) # could print even more data, really.
@@ -2427,13 +2392,7 @@ sub make_error($)
 
 	# delete temp files
 
-	stop_script();
-}
-
-sub stop_script()
-{
-	if($use_fastcgi) { next FASTCGI; }
-	else { exit; }
+	exit;
 }
 
 sub get_script_name()
@@ -2771,7 +2730,7 @@ sub get_decoded_hashref($)
 
 	my $row=$sth->fetchrow_hashref();
 
-	if($row and $has_encode)
+	if($row)
 	{
 		for my $k (keys %$row) # don't blame me for this shit, I got this from perlunicode.
 		{ defined && /[^\000-\177]/ && Encode::_utf8_on($_) for $row->{$k}; }
@@ -2786,7 +2745,7 @@ sub get_decoded_arrayref($)
 
 	my $row=$sth->fetchrow_arrayref();
 
-	if($row and $has_encode)
+	if($row)
 	{
 		# don't blame me for this shit, I got this from perlunicode.
 		defined && /[^\000-\177]/ && Encode::_utf8_on($_) for @$row;
