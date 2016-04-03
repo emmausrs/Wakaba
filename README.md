@@ -1,18 +1,19 @@
-Wakaba 3.0.8 + modifications by Frank Usrs
-==========================================
+Wakaba 3.0.8 + modifications by Emma
+====================================
 
-This is the heavily modified Wakaba version used on various websites which
-I don't want to link to here because they're full of sick animu fetish
-porn. I decided to release it because I got bored of working on it, which
-means it's also not frequently updated. Note that it isn't nearly as clean
-and polished as the standard Wakaba distribution is; it's intended for
-advanced users only.
+This is the heavily modified version of Wakaba. See the feature list below.
+Note that it isn't nearly as clean and polished as the standard Wakaba
+distribution is; it's intended for advanced users only.
 
 This README assumes you're already familiar with the standard Wakaba
 distribution. If you aren't, you can get it here:
 http://wakaba.c3.cx/s/web/wakaba_kareha. **Please do not ask for support on
 the Wakaba support board, as they are not responsible for the stuff I
 create.**
+
+**Note**: This project is pretty much dead. I'll probably make a good
+alternative some day, but for now, your best option will probably be to use
+one of the many Tinyboard forks out there.
 
 What this includes
 ------------------
@@ -138,9 +139,7 @@ I was planning to add multi-board support at one point, but it would be
 better, IMHO, to write a new script from scratch and take multiple boards
 into consideration from the beginning.
 
-If you have any questions, shoot an email to `frankusrs@gmail.com`. You can
-use the issue tracker on GitHub to submit bug reports, etc. Any bugs will
-be looked at and fixed.
+If you have any questions, shoot an email to `emma@tinychan.org`.
 
 Licence & disclaimer
 ====================
