@@ -139,8 +139,6 @@ I was planning to add multi-board support at one point, but it would be
 better, IMHO, to write a new script from scratch and take multiple boards
 into consideration from the beginning.
 
-If you have any questions, shoot an email to `emma@tinychan.org`.
-
 Licence & disclaimer
 ====================
 
